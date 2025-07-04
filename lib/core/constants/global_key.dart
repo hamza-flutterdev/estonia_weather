@@ -1,1 +1,1 @@
-const String geminiKey = "AIzaSyC6BcnlWO4hHGLL6gVGfrlrxZ4mVLrUEAw";
+const String apiKey = "f3f06872908c6023548144669e15ac38";

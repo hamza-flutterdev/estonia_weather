@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 const TextStyle headlineLargeStyle = TextStyle(
-  fontSize: 100,
+  fontSize: 124,
   fontWeight: FontWeight.w700,
   color: blackTextColor,
 );

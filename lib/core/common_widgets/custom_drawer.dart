@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_styles.dart';
-import 'custom_toast.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
