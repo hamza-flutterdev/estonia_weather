@@ -1,6 +1,7 @@
 import '../../domain/repositories/weather_repo.dart';
 import '../data_source/online_data_sr.dart';
 import '../model/weather_model.dart';
+import '../model/forecast_model.dart';
 
 class WeatherApiImpl implements WeatherRepo {
   final OnlineDataSource onlineDataSource;
@@ -8,11 +9,13 @@ class WeatherApiImpl implements WeatherRepo {
   WeatherApiImpl(this.onlineDataSource);
 
   @override
-  Future<WeatherModel> getCurrentWeather(String cityName) async {
+  Future<(WeatherModel, List<ForecastModel>)> getWeatherAndForecast(
+    String cityName,
+  ) async {
     try {
-      return await onlineDataSource.getWeatherByCity(cityName);
+      return await onlineDataSource.getWeatherAndForecast(cityName);
     } catch (e) {
-      throw Exception('Failed to get weather: $e');
+      throw Exception('Failed to get weather and forecast: $e');
     }
   }
 }

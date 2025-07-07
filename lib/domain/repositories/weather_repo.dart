@@ -1,5 +1,8 @@
 import '../../data/model/weather_model.dart';
+import '../../data/model/forecast_model.dart';
 
 abstract class WeatherRepo {
-  Future<WeatherModel> getCurrentWeather(String cityName);
+  Future<(WeatherModel, List<ForecastModel>)> getWeatherAndForecast(
+    String cityName,
+  );
 }

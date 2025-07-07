@@ -5,7 +5,7 @@ import '../../../domain/use_cases/get_current_weather.dart';
 import '../../home/controller/home_controller.dart';
 
 class CitiesController extends GetxController {
-  final GetCurrentWeather getCurrentWeather;
+  final GetWeatherAndForecast getCurrentWeather;
   CitiesController(this.getCurrentWeather);
 
   var allCities = <EstonianCity>[].obs;
@@ -46,7 +46,7 @@ class CitiesController extends GetxController {
       citiesWeather.clear();
 
       for (final city in selectedCities) {
-        final weather = await getCurrentWeather.call(city.city);
+        final (weather, _) = await getCurrentWeather.call(city.city);
         citiesWeather.add(weather);
       }
     } catch (e) {
@@ -95,7 +95,6 @@ class CitiesController extends GetxController {
       }
     }
 
-    // Update filtered cities to remove/add the city from available list
     _updateFilteredCities();
     loadCitiesWeather();
   }
@@ -139,7 +138,7 @@ class CitiesController extends GetxController {
     homeController.mainCityIndex.value = mainCityIndex.value;
 
     // Save to secure storage
-    await homeController.saveSelectedCitiesToStorage();
+    // await homeController.saveSelectedCitiesToStorage();
     await homeController.loadSelectedCitiesWeather();
 
     Get.back();

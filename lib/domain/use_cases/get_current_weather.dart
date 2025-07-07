@@ -1,12 +1,13 @@
 import '../../data/model/weather_model.dart';
+import '../../data/model/forecast_model.dart';
 import '../repositories/weather_repo.dart';
 
-class GetCurrentWeather {
+class GetWeatherAndForecast {
   final WeatherRepo weatherRepo;
 
-  GetCurrentWeather(this.weatherRepo);
+  GetWeatherAndForecast(this.weatherRepo);
 
-  Future<WeatherModel> call(String cityName) async {
-    return await weatherRepo.getCurrentWeather(cityName);
+  Future<(WeatherModel, List<ForecastModel>)> call(String cityName) {
+    return weatherRepo.getWeatherAndForecast(cityName);
   }
 }

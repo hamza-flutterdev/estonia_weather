@@ -67,5 +67,5 @@ const Color dividerColor = Color(0xffEDEDED);
 const kGradient = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
-  colors: [Color(0xFFF6C9B7), Color(0xFFF2A78D)],
+  colors: [primaryColor, secondaryColor],
 );

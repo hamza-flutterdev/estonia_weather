@@ -4,7 +4,8 @@ class WeatherModel {
   final String condition;
   final int humidity;
   final double windSpeed;
-  final double precipitation;
+  final int chanceOfRain;
+  final String iconUrl;
 
   WeatherModel({
     required this.cityName,
@@ -12,25 +13,44 @@ class WeatherModel {
     required this.condition,
     required this.humidity,
     required this.windSpeed,
-    required this.precipitation,
+    required this.chanceOfRain,
+    required this.iconUrl,
   });
 
-  factory WeatherModel.fromJson(Map<String, dynamic> json) {
-    double precipitationAmount = 0.0;
-    if (json['rain'] != null && json['rain']['1h'] != null) {
-      precipitationAmount += (json['rain']['1h'] as num).toDouble();
+  factory WeatherModel.fromForecastJson(Map<String, dynamic> json) {
+    double windSpeedKmh = 0.0;
+    if (json['current']?['wind_kph'] != null) {
+      windSpeedKmh = (json['current']['wind_kph'] as num).toDouble();
     }
-    if (json['snow'] != null && json['snow']['1h'] != null) {
-      precipitationAmount += (json['snow']['1h'] as num).toDouble();
+
+    String iconUrl = '';
+    if (json['current']?['condition']?['icon'] != null) {
+      iconUrl = 'https:${json['current']['condition']['icon']}';
     }
-    double windSpeedKmh = (json['wind']['speed'] as num).toDouble() * 3.6;
+
+    int currentChanceOfRain = 0;
+    if (json['forecast']?['forecastday']?[0]?['hour'] != null) {
+      final currentTime = DateTime.now();
+      final currentHour = currentTime.hour;
+
+      final hourlyData = json['forecast']['forecastday'][0]['hour'] as List;
+      for (var hour in hourlyData) {
+        final hourTime = DateTime.parse(hour['time']);
+        if (hourTime.hour == currentHour) {
+          currentChanceOfRain = hour['chance_of_rain'] ?? 0;
+          break;
+        }
+      }
+    }
+
     return WeatherModel(
-      cityName: json['name'],
-      temperature: (json['main']['temp'] as num).toDouble(),
-      condition: json['weather'][0]['main'],
-      humidity: json['main']['humidity'],
+      cityName: json['location']['name'],
+      temperature: (json['current']['temp_c'] as num).toDouble(),
+      condition: json['current']['condition']['text'],
+      humidity: json['current']['humidity'],
       windSpeed: windSpeedKmh,
-      precipitation: precipitationAmount,
+      chanceOfRain: currentChanceOfRain,
+      iconUrl: iconUrl,
     );
   }
 }

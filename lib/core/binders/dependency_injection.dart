@@ -1,4 +1,4 @@
-import 'package:estonia_weather/presentation/reusable/controllers/condtion_controller.dart';
+import 'package:estonia_weather/presentation/reusable/controllers/condition_controller.dart';
 import 'package:get/get.dart';
 import 'package:estonia_weather/presentation/cities/controller/cities_controller.dart';
 import 'package:estonia_weather/presentation/daily_forecast/controller/daily_forecast_controller.dart';
@@ -21,19 +21,21 @@ class DependencyInjection {
     );
 
     // 🔁 Use Cases
-    Get.lazyPut<GetCurrentWeather>(
-      () => GetCurrentWeather(Get.find<WeatherRepo>()),
+    Get.lazyPut<GetWeatherAndForecast>(
+      () => GetWeatherAndForecast(Get.find<WeatherRepo>()),
       fenix: true,
     );
 
     // 📦 Controllers
     Get.lazyPut<HomeController>(
-      () => HomeController(Get.find<GetCurrentWeather>()),
+      () => HomeController(
+        Get.find<GetWeatherAndForecast>(),
+      ), // Fixed: Only pass one parameter
       fenix: true,
     );
 
     Get.lazyPut<CitiesController>(
-      () => CitiesController(Get.find<GetCurrentWeather>()),
+      () => CitiesController(Get.find<GetWeatherAndForecast>()),
       fenix: true,
     );
 

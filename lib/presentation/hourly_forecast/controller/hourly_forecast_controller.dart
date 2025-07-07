@@ -17,9 +17,9 @@ class HourlyForecastController extends GetxController {
     final homeController = Get.find<HomeController>();
     mainCityName.value = homeController.mainCityName;
 
-    // Get selected date from arguments if passed
-    if (Get.arguments != null) {
-      selectedDate.value = Get.arguments as DateTime;
+    if (Get.arguments != null && Get.arguments is Map<String, dynamic>) {
+      final args = Get.arguments as Map<String, dynamic>;
+      selectedDate.value = args['date'] as DateTime;
     }
 
     generateHourlyForecast();
@@ -35,8 +35,7 @@ class HourlyForecastController extends GetxController {
 
     hourlyData.value = List.generate(24, (index) {
       final time = startTime.add(Duration(hours: index));
-      final baseTemp =
-          15 + (index / 24 * 10); // Temperature curve throughout the day
+      final baseTemp = 15 + (index / 24 * 10);
       final temp = baseTemp + (index % 3 == 0 ? 2 : -1);
       final precipitation = index % 4 == 0 ? 1.5 + (index * 0.2) : 0.0;
 

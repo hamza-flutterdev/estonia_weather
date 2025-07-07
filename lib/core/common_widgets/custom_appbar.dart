@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../theme/app_colors.dart';
 import '../theme/app_styles.dart';
 import 'icon_buttons.dart';
@@ -7,7 +6,7 @@ import '../constants/constant.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
-  final String? title;
+  final dynamic title; // Changed to dynamic to support both String and Widget
   final String subtitle;
   final bool useBackButton;
   final VoidCallback? onBackTap;
@@ -57,10 +56,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       size: secondaryIcon(context),
                     ),
                     const SizedBox(width: kElementWidthGap),
-                    Text(
-                      title!,
-                      style: titleBoldMediumStyle.copyWith(color: primaryColor),
-                    ),
+                    // Handle both String and Widget titles
+                    if (title is String)
+                      Text(
+                        title as String,
+                        style: titleBoldMediumStyle.copyWith(
+                          color: primaryColor,
+                        ),
+                      )
+                    else if (title is Widget)
+                      DefaultTextStyle(
+                        style: titleBoldMediumStyle.copyWith(
+                          color: primaryColor,
+                        ),
+                        child: title as Widget,
+                      ),
                   ],
                 ),
               Text(
