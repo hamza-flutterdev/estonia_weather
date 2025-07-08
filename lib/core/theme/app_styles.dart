@@ -98,42 +98,15 @@ const TextStyle labelSmallStyle = TextStyle(
   fontWeight: FontWeight.w500,
   color: blackTextColor,
 );
-// //Urdu Fonts
-// final TextStyle urduHeadlineStyle = TextStyle(
-//   fontFamily: urduFontFamily,
-//   fontSize: 30,
-//   fontWeight: FontWeight.w500,
-//   color: blackTextColor,
-// );
-//
-// final TextStyle urduTitleStyle = TextStyle(
-//   fontFamily: urduFontFamily,
-//   fontSize: 24,
-//   fontWeight: FontWeight.w500,
-//   color: blackTextColor,
-// );
-
-// final TextStyle urduBodyLargeStyle = TextStyle(
-//   fontFamily: urduFontFamily,
-//   fontSize: 20,
-//   fontWeight: FontWeight.w500,
-//   color: blackTextColor,
-// );
-// final TextStyle urduBodySmallStyle = TextStyle(
-//   fontFamily: urduFontFamily,
-//   fontSize: 12,
-//   fontWeight: FontWeight.w500,
-//   color: blackTextColor,
-// );
-
 //decoration
 final BoxDecoration roundedDecorationWithShadow = BoxDecoration(
   color: Colors.white,
   borderRadius: BorderRadius.circular(10),
   boxShadow: [
     BoxShadow(
-      color: Colors.grey.withValues(alpha: 0.2),
+      color: primaryColor.withValues(alpha: 0.5),
       blurRadius: 6,
+      spreadRadius: 2,
       offset: Offset(0, 2),
     ),
   ],

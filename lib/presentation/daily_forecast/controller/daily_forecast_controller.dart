@@ -19,9 +19,5 @@ class ForecastController extends GetxController {
     forecastData.value = homeController.forecastData;
   }
 
-  void selectDay(int index) {
-    selectedDayIndex.value = index;
-  }
-
   ForecastModel get selectedDayData => forecastData[selectedDayIndex.value];
 }

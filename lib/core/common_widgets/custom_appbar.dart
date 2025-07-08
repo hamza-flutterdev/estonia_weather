@@ -6,7 +6,7 @@ import '../constants/constant.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
-  final dynamic title; // Changed to dynamic to support both String and Widget
+  final dynamic title;
   final String subtitle;
   final bool useBackButton;
   final VoidCallback? onBackTap;
@@ -22,6 +22,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasTitle = title != null;
+
     return Padding(
       padding: kContentPaddingSmall,
       child: AppBar(
@@ -42,21 +44,25 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   },
                 ),
         title: Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
+          padding: const EdgeInsets.only(
+            bottom: kElementInnerGap,
+            top: kElementInnerGap,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (title != null)
+              if (hasTitle)
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.location_on,
-                      color: primaryColor,
-                      size: secondaryIcon(context),
+                    FittedBox(
+                      child: Icon(
+                        Icons.location_on,
+                        color: primaryColor,
+                        size: secondaryIcon(context) - 8,
+                      ),
                     ),
                     const SizedBox(width: kElementWidthGap),
-                    // Handle both String and Widget titles
                     if (title is String)
                       Text(
                         title as String,
@@ -75,7 +81,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               Text(
                 subtitle,
-                style: bodyMediumStyle.copyWith(color: primaryColor),
+                style: (hasTitle ? bodyMediumStyle : titleBoldMediumStyle)
+                    .copyWith(color: primaryColor),
               ),
             ],
           ),

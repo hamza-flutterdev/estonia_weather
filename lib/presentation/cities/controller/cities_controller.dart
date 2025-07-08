@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../data/model/aqi_model.dart';
 import '../../../data/model/city_model.dart';
 import '../../../data/model/weather_model.dart';
 import '../../../domain/use_cases/get_current_weather.dart';
@@ -8,28 +10,25 @@ class CitiesController extends GetxController {
   final GetWeatherAndForecast getCurrentWeather;
   CitiesController(this.getCurrentWeather);
 
+  final TextEditingController searchController = TextEditingController();
   var allCities = <EstonianCity>[].obs;
   var selectedCities = <EstonianCity>[].obs;
-  var citiesWeather = <WeatherModel>[].obs;
+  var allCitiesWeather = <WeatherModel>[].obs;
   var mainCityIndex = 0.obs;
   var isLoading = false.obs;
   var errorMessage = ''.obs;
-
-  // Search functionality
-  var searchQuery = ''.obs;
   var filteredCities = <EstonianCity>[].obs;
 
   @override
   void onInit() {
     super.onInit();
     loadDataFromHome();
-    loadCitiesWeather();
+    loadAllCitiesWeather();
     _initializeFilteredCities();
   }
 
   void _initializeFilteredCities() {
-    filteredCities.value =
-        allCities.where((city) => !selectedCities.contains(city)).toList();
+    filteredCities.value = allCities.toList();
   }
 
   void loadDataFromHome() {
@@ -39,16 +38,38 @@ class CitiesController extends GetxController {
     mainCityIndex.value = homeController.mainCityIndex.value;
   }
 
-  Future<void> loadCitiesWeather() async {
+  Future<void> loadAllCitiesWeather() async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      citiesWeather.clear();
+      allCitiesWeather.clear();
+      print('Loading weather for ${allCities.length} cities');
 
-      for (final city in selectedCities) {
-        final (weather, _) = await getCurrentWeather.call(city.city);
-        citiesWeather.add(weather);
-      }
+      final futures =
+          allCities.map((city) async {
+            try {
+              print('Loading weather for: ${city.city}');
+              final (weather, _) = await getCurrentWeather.call(city.city);
+              print('Successfully loaded weather for: ${city.city}');
+              return weather;
+            } catch (e) {
+              print('Failed to load weather for ${city.city}: $e');
+              return WeatherModel(
+                cityName: city.city,
+                temperature: 0,
+                condition: 'No data',
+                humidity: 0,
+                windSpeed: 0,
+                chanceOfRain: 0,
+                iconUrl: '',
+                airQuality: null,
+              );
+            }
+          }).toList();
+
+      final results = await Future.wait(futures);
+      allCitiesWeather.addAll(results);
+      print('Total cities weather loaded: ${allCitiesWeather.length}');
     } catch (e) {
       errorMessage.value = 'Failed to load weather data: $e';
     } finally {
@@ -57,110 +78,30 @@ class CitiesController extends GetxController {
   }
 
   void searchCities(String query) {
-    searchQuery.value = query;
     if (query.isEmpty) {
-      filteredCities.value =
-          allCities.where((city) => !selectedCities.contains(city)).toList();
+      filteredCities.value = allCities.toList();
     } else {
       filteredCities.value =
-          allCities
-              .where(
-                (city) =>
-                    !selectedCities.contains(city) &&
-                    (city.city.toLowerCase().contains(query.toLowerCase()) ||
-                        city.country.toLowerCase().contains(
-                          query.toLowerCase(),
-                        )),
-              )
-              .toList();
+          allCities.where((city) {
+            final lowerQuery = query.toLowerCase();
+            return city.cityAscii.toLowerCase().contains(lowerQuery) ||
+                city.country.toLowerCase().contains(lowerQuery);
+          }).toList();
     }
   }
 
-  void toggleCitySelection(EstonianCity city) {
-    if (selectedCities.contains(city)) {
-      if (selectedCities.length > 1) {
-        final removedIndex = selectedCities.indexOf(city);
-        selectedCities.remove(city);
+  String getAirQualityText(AirQualityModel? airQuality) {
+    if (airQuality == null) return 'Air quality unavailable';
 
-        // Adjust main city index if needed
-        if (mainCityIndex.value == removedIndex) {
-          mainCityIndex.value = 0; // Set first city as main
-        } else if (mainCityIndex.value > removedIndex) {
-          mainCityIndex.value = mainCityIndex.value - 1;
-        }
-      }
-    } else {
-      if (selectedCities.length < 10) {
-        selectedCities.add(city);
-      }
-    }
+    final aqi = airQuality.calculatedAqi;
+    final category = airQuality.getAirQualityCategory(aqi);
 
-    _updateFilteredCities();
-    loadCitiesWeather();
+    return 'AQI $aqi – $category';
   }
 
-  void removeCityAtIndex(int index) {
-    if (index < selectedCities.length && selectedCities.length > 1) {
-      final cityToRemove = selectedCities[index];
-      selectedCities.removeAt(index);
-
-      // Adjust main city index if needed
-      if (mainCityIndex.value == index) {
-        mainCityIndex.value = 0; // Set first city as main
-      } else if (mainCityIndex.value > index) {
-        mainCityIndex.value = mainCityIndex.value - 1;
-      }
-
-      // Update filtered cities and reload weather
-      _updateFilteredCities();
-      loadCitiesWeather();
-    }
-  }
-
-  void _updateFilteredCities() {
-    if (searchQuery.value.isEmpty) {
-      filteredCities.value =
-          allCities.where((city) => !selectedCities.contains(city)).toList();
-    } else {
-      searchCities(searchQuery.value);
-    }
-  }
-
-  void setMainCity(int index) {
-    if (index < selectedCities.length) {
-      mainCityIndex.value = index;
-    }
-  }
-
-  Future<void> saveAndGoBack() async {
-    final homeController = Get.find<HomeController>();
-    homeController.selectedCities.value = selectedCities;
-    homeController.mainCityIndex.value = mainCityIndex.value;
-
-    // Save to secure storage
-    // await homeController.saveSelectedCitiesToStorage();
-    await homeController.loadSelectedCitiesWeather();
-
-    Get.back();
-  }
-
-  String getWeatherIcon(String condition) {
-    switch (condition.toLowerCase()) {
-      case 'clear':
-      case 'sunny':
-        return 'assets/images/weather_conditions_img/sunny.png';
-      case 'clouds':
-      case 'cloudy':
-        return 'assets/images/weather_conditions_img/cloudy.png';
-      case 'rain':
-      case 'rainy':
-        return 'assets/images/weather_conditions_img/rainy.png';
-      case 'snow':
-        return 'assets/images/weather_conditions_img/snowy.png';
-      case 'thunderstorm':
-        return 'assets/images/weather_conditions_img/storm.png';
-      default:
-        return 'assets/images/weather_conditions_img/cloudy.png';
-    }
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
   }
 }

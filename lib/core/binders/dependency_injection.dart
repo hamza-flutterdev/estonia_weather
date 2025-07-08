@@ -1,4 +1,4 @@
-import 'package:estonia_weather/presentation/reusable/controllers/condition_controller.dart';
+import 'package:estonia_weather/presentation/hourly_forecast/controller/hourly_forecast_controller.dart';
 import 'package:get/get.dart';
 import 'package:estonia_weather/presentation/cities/controller/cities_controller.dart';
 import 'package:estonia_weather/presentation/daily_forecast/controller/daily_forecast_controller.dart';
@@ -8,6 +8,7 @@ import '../../data/repositories/weather_api_impl.dart';
 import '../../domain/repositories/weather_repo.dart';
 import '../../domain/use_cases/get_current_weather.dart';
 import '../constants/global_key.dart';
+import '../global_service/controllers/condition_controller.dart';
 
 class DependencyInjection {
   static void init() {
@@ -41,5 +42,9 @@ class DependencyInjection {
 
     Get.lazyPut<ForecastController>(() => ForecastController(), fenix: true);
     Get.lazyPut<ConditionController>(() => ConditionController(), fenix: true);
+    Get.lazyPut<HourlyForecastController>(
+      () => HourlyForecastController(),
+      fenix: true,
+    );
   }
 }
