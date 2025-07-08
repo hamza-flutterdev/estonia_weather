@@ -50,6 +50,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  build_runner: ^2.5.4
+  flutter_gen_runner:
+
+flutter_gen:
+  output: lib/gen/
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -64,11 +69,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/home_img/
-    - assets/images/daily_img/
+    - assets/images/
     - assets/json/
-    - assets/images/weather_conditions_img/
-    - assets/images/hourly_img/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

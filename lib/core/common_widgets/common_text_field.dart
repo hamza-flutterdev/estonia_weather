@@ -11,8 +11,9 @@ class CommonTextField extends StatelessWidget {
   final EdgeInsetsGeometry contentPadding;
   final TextStyle? hintStyle;
   final TextStyle? textStyle;
-  final InputBorder border;
+  final InputBorder? border;
   final Widget? suffixIcon;
+  final Widget? prefixIcon;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final Color? cursorColor;
@@ -27,8 +28,9 @@ class CommonTextField extends StatelessWidget {
     this.contentPadding = const EdgeInsets.all(kBodyHp),
     this.hintStyle,
     this.textStyle,
-    this.border = InputBorder.none,
+    this.border,
     this.suffixIcon,
+    this.prefixIcon,
     this.onChanged,
     this.onSubmitted,
     this.cursorColor,
@@ -37,31 +39,42 @@ class CommonTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: roundedDecoration.copyWith(
-        color: backgroundColor ?? kWhite.withValues(alpha: 0.2),
+    return TextField(
+      controller: controller,
+      minLines: minLines,
+      maxLines: maxLines,
+      cursorColor: cursorColor,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: backgroundColor ?? kWhite.withValues(alpha: 0.2),
+        hintText: hintText,
+        hintStyle:
+            hintStyle ?? bodyBoldSmallStyle.copyWith(color: primaryColor),
+        contentPadding: contentPadding,
+        prefixIcon: prefixIcon,
+        suffixIcon: suffixIcon,
+        border:
+            border ??
+            OutlineInputBorder(
+              borderRadius: BorderRadius.circular(kCircularBorderRadius),
+              borderSide: BorderSide(color: primaryColor),
+            ),
+        enabledBorder:
+            border ??
+            OutlineInputBorder(
+              borderRadius: BorderRadius.circular(kCircularBorderRadius),
+              borderSide: BorderSide(color: primaryColor),
+            ),
+        focusedBorder:
+            border ??
+            OutlineInputBorder(
+              borderRadius: BorderRadius.circular(kCircularBorderRadius),
+              borderSide: BorderSide(color: primaryColor, width: 2),
+            ),
       ),
-
-      child: TextField(
-        controller: controller,
-        minLines: minLines,
-        maxLines: maxLines,
-        cursorColor: cursorColor,
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle:
-              hintStyle ?? bodyBoldSmallStyle.copyWith(color: primaryColor),
-          border: border,
-          enabledBorder: border,
-          focusedBorder: border,
-          disabledBorder: border,
-          contentPadding: contentPadding,
-          suffixIcon: suffixIcon,
-        ),
-        style: textStyle ?? bodyBoldSmallStyle.copyWith(color: primaryColor),
-        onChanged: onChanged,
-        onSubmitted: onSubmitted,
-      ),
+      style: textStyle ?? bodyBoldSmallStyle.copyWith(color: primaryColor),
+      onChanged: onChanged,
+      onSubmitted: onSubmitted,
     );
   }
 }

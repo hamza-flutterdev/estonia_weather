@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
 
 /// ========== Fonts ==========
 const fontPrimary = 'Montserrat';
 const fontSecondary = 'Poppins';
-// final String urduFontFamily = GoogleFonts.notoNastaliqUrdu().fontFamily!;
 
 /// ========== Padding ==========
 const double kBodyHp = 16.0;
@@ -27,10 +25,11 @@ const double kBorderRadius = 8.0;
 const double kCircularBorderRadius = 50.0;
 
 /// ========== Icon Sizes ==========
-double largeIcon(BuildContext context) => mobileWidth(context) * 0.33;
+double largeIcon(BuildContext context) => mobileWidth(context) * 0.37;
 double mediumIcon(BuildContext context) => mobileWidth(context) * 0.27;
-double primaryIcon(BuildContext context) => mobileWidth(context) * 0.11;
+double primaryIcon(BuildContext context) => mobileWidth(context) * 0.12;
 double secondaryIcon(BuildContext context) => mobileWidth(context) * 0.1;
+double smallIcon(BuildContext context) => mobileWidth(context) * 0.06;
 
 /// ========== MediaQuery Helpers ==========
 double mobileWidth(BuildContext context) => MediaQuery.of(context).size.width;

@@ -1,97 +1,105 @@
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import '../../home/controller/home_controller.dart';
+import '../../../data/model/forecast_model.dart';
 
 class HourlyForecastController extends GetxController {
-  var hourlyData = <Map<String, dynamic>>[].obs;
+  var forecastData = <ForecastModel>[].obs;
   var selectedDate = DateTime.now().obs;
   var mainCityName = ''.obs;
+  var hourlyData = <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
     super.onInit();
+    loadForecastData();
+    loadHourlyData();
+  }
+
+  void loadForecastData() {
+    final homeController = Get.find<HomeController>();
+    mainCityName.value = homeController.mainCityName;
+    forecastData.value = homeController.forecastData;
+  }
+
+  void setSelectedDate(DateTime date) {
+    selectedDate.value = date;
     loadHourlyData();
   }
 
   void loadHourlyData() {
     final homeController = Get.find<HomeController>();
-    mainCityName.value = homeController.mainCityName;
-
-    if (Get.arguments != null && Get.arguments is Map<String, dynamic>) {
-      final args = Get.arguments as Map<String, dynamic>;
-      selectedDate.value = args['date'] as DateTime;
-    }
-
-    generateHourlyForecast();
-  }
-
-  void generateHourlyForecast() {
-    final startTime = DateTime(
-      selectedDate.value.year,
-      selectedDate.value.month,
-      selectedDate.value.day,
-      0,
+    final selectedForecast = forecastData.firstWhereOrNull(
+      (forecast) =>
+          isSameDate(DateTime.parse(forecast.date), selectedDate.value),
     );
 
-    hourlyData.value = List.generate(24, (index) {
-      final time = startTime.add(Duration(hours: index));
-      final baseTemp = 15 + (index / 24 * 10);
-      final temp = baseTemp + (index % 3 == 0 ? 2 : -1);
-      final precipitation = index % 4 == 0 ? 1.5 + (index * 0.2) : 0.0;
-
-      return {
-        'time': DateFormat('HH:mm').format(time),
-        'hour': time.hour,
-        'temp': temp.round(),
-        'condition':
-            index % 4 == 0
-                ? 'rainy'
-                : index % 4 == 1
-                ? 'sunny'
-                : index % 4 == 2
-                ? 'cloudy'
-                : 'partly_cloudy',
-        'humidity': 60 + (index * 2),
-        'windSpeed': 8.0 + (index * 0.5),
-        'precipitation': precipitation,
-        'precipitationPercentage': convertPrecipitationToPercentage(
-          precipitation,
-        ),
-        'uvIndex':
-            index >= 6 && index <= 18 ? ((index - 6) / 12 * 10).round() : 0,
-        'visibility': 10.0 - (index * 0.1),
-      };
-    });
-  }
-
-  String getWeatherIcon(String condition) {
-    switch (condition.toLowerCase()) {
-      case 'clear':
-      case 'sunny':
-        return 'assets/images/weather_conditions_img/sunny.png';
-      case 'clouds':
-      case 'cloudy':
-        return 'assets/images/weather_conditions_img/cloudy.png';
-      case 'rain':
-      case 'rainy':
-        return 'assets/images/weather_conditions_img/rainy.png';
-      case 'snow':
-        return 'assets/images/weather_conditions_img/snowy.png';
-      case 'thunderstorm':
-        return 'assets/images/weather_conditions_img/storm.png';
-      case 'partly_cloudy':
-        return 'assets/images/weather_conditions_img/cloudy.png';
-      default:
-        return 'assets/images/weather_conditions_img/cloudy.png';
+    if (selectedForecast != null) {
+      final hourlyForecast = homeController.getHourlyDataForDate(
+        selectedForecast.date,
+      );
+      hourlyData.value = hourlyForecast;
     }
   }
 
-  String convertPrecipitationToPercentage(double precipitation) {
-    // Convert mm to percentage (assuming 10mm = 100%)
-    double percentage = (precipitation / 10.0) * 100;
-    return '${percentage.clamp(0, 100).toStringAsFixed(1)}%';
+  bool isSameDate(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 
-  String get formattedDate =>
-      DateFormat('EEEE, dd MMMM').format(selectedDate.value);
+  String getFormattedTime(String timeString) {
+    final time = DateTime.parse(timeString);
+    final hour = time.hour;
+    if (hour == 0) return '12 AM';
+    if (hour == 12) return '12 PM';
+    if (hour < 12) return '$hour AM';
+    return '${hour - 12} PM';
+  }
+
+  String getFormattedDate() {
+    final months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    final month = months[selectedDate.value.month - 1];
+    final day = selectedDate.value.day;
+    return '$month $day';
+  }
+
+  ForecastModel? get selectedDayData {
+    return forecastData.firstWhereOrNull(
+      (forecast) =>
+          isSameDate(DateTime.parse(forecast.date), selectedDate.value),
+    );
+  }
+
+  Map<String, dynamic>? getCurrentHourData() {
+    final now = DateTime.now();
+    if (isSameDate(selectedDate.value, now)) {
+      return hourlyData.firstWhereOrNull(
+        (hour) => DateTime.parse(hour['time']).hour == now.hour,
+      );
+    }
+    return null;
+  }
+
+  List<Map<String, dynamic>> getUpcomingHours() {
+    final now = DateTime.now();
+    if (isSameDate(selectedDate.value, now)) {
+      return hourlyData
+          .where((hour) => DateTime.parse(hour['time']).isAfter(now))
+          .toList();
+    }
+    return hourlyData;
+  }
 }

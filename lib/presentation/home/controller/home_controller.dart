@@ -3,11 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../../../core/global_service/controllers/condition_controller.dart';
 import '../../../data/model/city_model.dart';
 import '../../../data/model/weather_model.dart';
 import '../../../data/model/forecast_model.dart';
 import '../../../domain/use_cases/get_current_weather.dart';
-import '../../reusable/controllers/condition_controller.dart';
 
 class HomeController extends GetxController {
   final GetWeatherAndForecast getCurrentWeather;
@@ -22,6 +22,8 @@ class HomeController extends GetxController {
   final allCities = <EstonianCity>[].obs;
   final selectedForecastIndex = 0.obs;
   final forecastData = <ForecastModel>[].obs;
+  final currentOtherCityIndex = 0.obs;
+  final rawForecastData = <String, dynamic>{}.obs;
 
   @override
   void onInit() {
@@ -75,21 +77,17 @@ class HomeController extends GetxController {
         final city = selectedCities[i];
         final (weather, forecast) = await getCurrentWeather.call(city.city);
         weatherList.add(weather);
-
         if (i == mainCityIndex.value) {
           mainCityForecast = forecast;
           forecastData.value = forecast;
         }
       }
 
-      // Update condition controller with weather data
       conditionController.updateWeatherData(
         weatherList,
         mainCityIndex.value,
         mainCityName,
       );
-
-      // Update condition controller with forecast data
       if (mainCityForecast.isNotEmpty) {
         conditionController.updateWeeklyForecast(mainCityForecast);
       }
@@ -101,40 +99,48 @@ class HomeController extends GetxController {
     }
   }
 
-  // Method to change main city
-  Future<void> changeMainCity(int newIndex) async {
-    if (newIndex >= 0 && newIndex < selectedCities.length) {
-      mainCityIndex.value = newIndex;
-      await loadSelectedCitiesWeather(); // Reload to get forecast for new main city
-    }
-  }
+  List<Map<String, dynamic>> getHourlyDataForDate(String date) {
+    final forecastDays = rawForecastData['forecast']?['forecastday'] as List?;
+    if (forecastDays == null) return [];
 
-  // Method to add a new city
-  Future<void> addCity(EstonianCity city) async {
-    if (!selectedCities.contains(city)) {
-      selectedCities.add(city);
-      await loadSelectedCitiesWeather();
-    }
-  }
+    final targetDay = forecastDays.firstWhere(
+      (day) => day['date'] == date,
+      orElse: () => null,
+    );
 
-  // Method to remove a city
-  Future<void> removeCity(int index) async {
-    if (index >= 0 && index < selectedCities.length) {
-      selectedCities.removeAt(index);
-      // Adjust main city index if needed
-      if (mainCityIndex.value >= selectedCities.length) {
-        mainCityIndex.value = selectedCities.length - 1;
-      }
-      if (selectedCities.isNotEmpty) {
-        await loadSelectedCitiesWeather();
-      } else {
-        conditionController.clearWeatherData();
-      }
+    if (targetDay != null) {
+      final hourlyData = targetDay['hour'] as List;
+      return hourlyData
+          .map(
+            (hour) => {
+              'time': hour['time'],
+              'temp_c': (hour['temp_c'] as num).toDouble(),
+              'condition': hour['condition']['text'],
+              'iconUrl': 'https:${hour['condition']['icon']}',
+              'humidity': hour['humidity'],
+              'wind_kph': (hour['wind_kph'] as num).toDouble(),
+              'chance_of_rain': hour['chance_of_rain'],
+              'precip_mm': (hour['precip_mm'] as num).toDouble(),
+              'feels_like_c': (hour['feelslike_c'] as num).toDouble(),
+              'uv': (hour['uv'] as num).toDouble(),
+              'pressure_mb': (hour['pressure_mb'] as num).toDouble(),
+              'vis_km': (hour['vis_km'] as num).toDouble(),
+              'gust_kph': (hour['gust_kph'] as num).toDouble(),
+            },
+          )
+          .toList()
+          .cast<Map<String, dynamic>>();
     }
+
+    return [];
   }
 
   void selectForecastDay(int index) {
     selectedForecastIndex.value = index;
+  }
+
+  void updateOtherCityIndex(int index) {
+    currentOtherCityIndex.value = index;
   }
 
   String get mainCityName {
@@ -142,10 +148,5 @@ class HomeController extends GetxController {
             mainCityIndex.value < selectedCities.length
         ? selectedCities[mainCityIndex.value].city
         : 'Loading...';
-  }
-
-  // Refresh weather data
-  Future<void> refreshWeatherData() async {
-    await loadSelectedCitiesWeather();
   }
 }

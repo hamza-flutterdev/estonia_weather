@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/constant.dart';
+import '../../../core/global_service/controllers/condition_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_styles.dart';
-import 'weather_icon.dart';
-
+import '../../../core/common_widgets/weather_icon.dart';
 import 'package:get/get.dart';
 import '../../../core/common_widgets/common_shimmer.dart';
-
-import '../../reusable/controllers/condition_controller.dart';
 import '../controller/home_controller.dart';
 
 class OtherCitiesSection extends StatelessWidget {
@@ -48,35 +46,57 @@ class OtherCitiesSection extends StatelessWidget {
                             ),
                         itemDecoration: roundedDecorationWithShadow,
                       )
-                      : ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        clipBehavior: Clip.none,
-                        itemCount:
-                            conditionController.otherCitiesWeather.length,
-                        itemBuilder: (context, index) {
-                          final weather =
-                              conditionController.otherCitiesWeather[index];
-                          final isFirst = index == 0;
-                          final isLast =
-                              index ==
-                              conditionController.otherCitiesWeather.length - 1;
-                          return Container(
-                            width: mobileWidth(context) * 0.7,
-                            margin: EdgeInsets.only(
-                              left: isFirst ? kBodyHp * 2 : kElementGap,
-                              right: isLast ? kBodyHp : kElementGap,
-                            ),
-                            decoration: roundedDecorationWithShadow.copyWith(
-                              color: primaryColor,
-                            ),
-                            child: OtherCityCard(
-                              cityName: weather.cityName,
-                              condition: weather.condition,
-                              temperature: '${weather.temperature.round()}°',
-                              iconUrl: weather.iconUrl,
-                            ),
-                          );
+                      : NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scrollInfo) {
+                          if (scrollInfo is ScrollUpdateNotification) {
+                            final itemWidth =
+                                mobileWidth(context) * 0.7 + kBodyHp;
+                            final currentIndex =
+                                (scrollInfo.metrics.pixels / itemWidth).round();
+                            final clampedIndex = currentIndex.clamp(
+                              0,
+                              conditionController.otherCitiesWeather.length - 1,
+                            );
+
+                            if (homeController.currentOtherCityIndex.value !=
+                                clampedIndex) {
+                              homeController.updateOtherCityIndex(clampedIndex);
+                            }
+                          }
+                          return false;
                         },
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          clipBehavior: Clip.none,
+                          itemCount:
+                              conditionController.otherCitiesWeather.length,
+                          itemBuilder: (context, index) {
+                            final weather =
+                                conditionController.otherCitiesWeather[index];
+                            final isFirst = index == 0;
+                            final isLast =
+                                index ==
+                                conditionController.otherCitiesWeather.length -
+                                    1;
+
+                            return Container(
+                              width: mobileWidth(context) * 0.7,
+                              margin: EdgeInsets.only(
+                                left: isFirst ? kBodyHp * 2 : kElementGap,
+                                right: isLast ? kBodyHp : kElementGap,
+                              ),
+                              decoration: roundedDecorationWithShadow.copyWith(
+                                color: primaryColor,
+                              ),
+                              child: OtherCityCard(
+                                cityName: weather.cityName,
+                                condition: weather.condition,
+                                temperature: '${weather.temperature.round()}°',
+                                iconUrl: weather.iconUrl,
+                              ),
+                            );
+                          },
+                        ),
                       ),
             ),
           ),
@@ -84,17 +104,22 @@ class OtherCitiesSection extends StatelessWidget {
             top: mobileHeight(context) * 0.82,
             left: 0,
             right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                conditionController.otherCitiesWeather.length.clamp(0, 10),
-                (index) => Container(
-                  margin: kPaginationMargin,
-                  width: mobileWidth(context) * 0.015,
-                  height: mobileWidth(context) * 0.015,
-                  decoration: BoxDecoration(
-                    color: index == 0 ? primaryColor : greyColor,
-                    shape: BoxShape.circle,
+            child: Obx(
+              () => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  conditionController.otherCitiesWeather.length.clamp(0, 10),
+                  (index) => Container(
+                    margin: kPaginationMargin,
+                    width: mobileWidth(context) * 0.015,
+                    height: mobileWidth(context) * 0.015,
+                    decoration: BoxDecoration(
+                      color:
+                          index == homeController.currentOtherCityIndex.value
+                              ? primaryColor
+                              : greyColor,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                 ),
               ),
@@ -134,39 +159,46 @@ class OtherCityCard extends StatelessWidget {
             size: mediumIcon(context),
           ),
         ),
-        Padding(
+        Container(
           padding: EdgeInsets.only(
-            left: mobileWidth(context) * 0.25,
+            left: mobileWidth(context) * 0.15,
             right: kBodyHp,
           ),
+          alignment: Alignment.center,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on,
-                        color: kWhite,
-                        size: secondaryIcon(context),
-                      ),
-                      const SizedBox(width: kElementWidthGap),
-                      Text(
-                        cityName,
-                        style: titleBoldMediumStyle.copyWith(color: kWhite),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    condition,
-                    style: bodyMediumStyle.copyWith(color: kWhite),
-                  ),
-                ],
+              Flexible(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          color: kWhite,
+                          size: secondaryIcon(context),
+                        ),
+                        const SizedBox(width: kElementWidthGap),
+                        Expanded(
+                          child: Text(
+                            cityName,
+                            style: titleBoldMediumStyle.copyWith(color: kWhite),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      condition,
+                      style: bodyMediumStyle.copyWith(color: kWhite),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: kElementWidthGap),
               Text(
                 temperature,
                 style: headlineMediumStyle.copyWith(color: kWhite),

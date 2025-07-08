@@ -12,84 +12,10 @@ class BackIconButton extends StatelessWidget {
       onTap: () {
         Navigator.pop(context);
       },
-      child: Icon(
-        Icons.arrow_back_ios_new,
-        color: kWhite,
-        size: secondaryIcon(context),
-      ),
+      child: Icon(Icons.arrow_back_ios_new, color: primaryColor),
     );
   }
 }
-
-// class NotificationIconButton extends StatelessWidget {
-//   final VoidCallback onTap;
-//
-//   const NotificationIconButton({super.key, required this.onTap});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Image.asset('images/notifications.png'),
-//     );
-//   }
-// }
-//
-// class MoonIconButton extends StatelessWidget {
-//   final VoidCallback onTap;
-//
-//   const MoonIconButton({super.key, required this.onTap});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Image.asset('images/moon_icon.png'),
-//     );
-//   }
-// }
-//
-// class TrIconButton extends StatelessWidget {
-//   final VoidCallback onTap;
-//
-//   const TrIconButton({super.key, required this.onTap});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Image.asset('images/try_icon.png'),
-//     );
-//   }
-// }
-//
-// class CampaignIconButton extends StatelessWidget {
-//   const CampaignIconButton({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: () {
-//         Navigator.pop(context);
-//       },
-//       child: Image.asset('images/Compaigns.svg'),
-//     );
-//   }
-// }
-//
-// class MenuIcon extends StatelessWidget {
-//   const MenuIcon({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: () {
-//         Navigator.pop(context);
-//       },
-//       child: Image.asset('images/menu_icon.svg', height: 20, width: 20),
-//     );
-//   }
-// }
 
 class IconActionButton extends StatelessWidget {
   final VoidCallback? onTap;
@@ -130,39 +56,6 @@ class IconActionButton extends StatelessWidget {
     );
   }
 }
-
-// class SendButton extends StatelessWidget {
-//   final VoidCallback? onTap;
-//   final bool isLoading;
-//
-//   const SendButton({super.key, required this.onTap, this.isLoading = false});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: isLoading ? null : onTap,
-//       child: Container(
-//         margin: const EdgeInsets.only(bottom: 4),
-//         padding: const EdgeInsets.all(8),
-//         decoration: BoxDecoration(
-//           color: isLoading ? greyColor.withValues(alpha: 0.3) : kSkyColor,
-//           shape: BoxShape.circle,
-//         ),
-//         child:
-//             isLoading
-//                 ? const SizedBox(
-//                   width: 16,
-//                   height: 16,
-//                   child: CircularProgressIndicator(
-//                     strokeWidth: 2,
-//                     valueColor: AlwaysStoppedAnimation<Color>(kWhite),
-//                   ),
-//                 )
-//                 : const Icon(Icons.send, color: kWhite, size: 20),
-//       ),
-//     );
-//   }
-// }
 
 class ImageActionButton extends StatelessWidget {
   final VoidCallback? onTap;

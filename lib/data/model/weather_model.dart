@@ -1,3 +1,5 @@
+import 'aqi_model.dart';
+
 class WeatherModel {
   final String cityName;
   final double temperature;
@@ -6,6 +8,7 @@ class WeatherModel {
   final double windSpeed;
   final int chanceOfRain;
   final String iconUrl;
+  final AirQualityModel? airQuality;
 
   WeatherModel({
     required this.cityName,
@@ -15,6 +18,7 @@ class WeatherModel {
     required this.windSpeed,
     required this.chanceOfRain,
     required this.iconUrl,
+    this.airQuality,
   });
 
   factory WeatherModel.fromForecastJson(Map<String, dynamic> json) {
@@ -32,7 +36,6 @@ class WeatherModel {
     if (json['forecast']?['forecastday']?[0]?['hour'] != null) {
       final currentTime = DateTime.now();
       final currentHour = currentTime.hour;
-
       final hourlyData = json['forecast']['forecastday'][0]['hour'] as List;
       for (var hour in hourlyData) {
         final hourTime = DateTime.parse(hour['time']);
@@ -41,6 +44,10 @@ class WeatherModel {
           break;
         }
       }
+    }
+    AirQualityModel? airQuality;
+    if (json['current']?['air_quality'] != null) {
+      airQuality = AirQualityModel.fromJson(json['current']['air_quality']);
     }
 
     return WeatherModel(
@@ -51,6 +58,7 @@ class WeatherModel {
       windSpeed: windSpeedKmh,
       chanceOfRain: currentChanceOfRain,
       iconUrl: iconUrl,
+      airQuality: airQuality,
     );
   }
 }

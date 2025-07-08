@@ -1,23 +1,43 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_styles.dart'; // Update path as needed
 import '../constants/constant.dart';
-import '../theme/app_colors.dart'; // Update path as needed
+import '../theme/app_colors.dart';
+import '../theme/app_styles.dart';
 
 class SectionHeader extends StatelessWidget {
   final String title;
+  final String actionText;
+  final VoidCallback onTap;
+  final IconData? actionIcon;
 
-  const SectionHeader({super.key, required this.title});
+  const SectionHeader({
+    super.key,
+    required this.title,
+    required this.actionText,
+    required this.onTap,
+    this.actionIcon,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: mobileHeight(context) * 0.055,
-      margin: kVerticalMargin,
-      decoration: roundedPrimaryBorderDecoration.copyWith(color: primaryColor),
-      child: Center(
-        child: Text(title, style: titleSmallBoldStyle.copyWith(color: kWhite)),
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: titleSmallBoldStyle.copyWith(color: primaryColor)),
+        GestureDetector(
+          onTap: onTap,
+          child: Row(
+            children: [
+              if (actionIcon != null)
+                Icon(actionIcon, size: smallIcon(context), color: primaryColor),
+              const SizedBox(width: 4),
+              Text(
+                actionText,
+                style: bodyLargeStyle.copyWith(color: primaryColor),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

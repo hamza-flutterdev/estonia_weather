@@ -6,9 +6,10 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_styles.dart';
 import '../../core/utils/weather_utils.dart';
 import '../../presentation/home/view/weather_detail_item.dart';
-import '../../presentation/home/view/weather_icon.dart';
+import 'weather_icon.dart';
 import '../../data/model/weather_model.dart';
-import '../../presentation/reusable/controllers/condition_controller.dart';
+import '../../data/model/forecast_model.dart';
+import '../global_service/controllers/condition_controller.dart';
 
 class WeatherInfoCard extends StatelessWidget {
   final DateTime? date;
@@ -16,7 +17,8 @@ class WeatherInfoCard extends StatelessWidget {
   final String condition;
   final String? minTemp;
   final String iconUrl;
-  final WeatherModel? weatherData; // ✅ New parameter
+  final WeatherModel? weatherData;
+  final ForecastModel? forecastData;
   final bool useGradient;
   final bool showWeatherDetails;
   final bool showIcon;
@@ -30,6 +32,7 @@ class WeatherInfoCard extends StatelessWidget {
     this.minTemp,
     required this.iconUrl,
     this.weatherData,
+    this.forecastData,
     this.useGradient = false,
     this.showWeatherDetails = true,
     this.showIcon = true,
@@ -39,6 +42,25 @@ class WeatherInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textColor = useGradient ? kWhite : primaryColor;
+    final controller = Get.find<ConditionController>();
+
+    final String displayHumidity;
+    final String displayWindSpeed;
+    final String displayChanceOfRain;
+
+    if (forecastData != null) {
+      displayHumidity = '${forecastData!.humidity}%';
+      displayWindSpeed = '${forecastData!.windSpeed.toStringAsFixed(1)}km/h';
+      displayChanceOfRain = '${forecastData!.chanceOfRain}%';
+    } else if (weatherData != null) {
+      displayHumidity = '${weatherData!.humidity}%';
+      displayWindSpeed = '${weatherData!.windSpeed.toStringAsFixed(1)}km/h';
+      displayChanceOfRain = '${weatherData!.chanceOfRain}%';
+    } else {
+      displayHumidity = controller.humidity;
+      displayWindSpeed = controller.windSpeed;
+      displayChanceOfRain = controller.chanceOfRain;
+    }
 
     return Container(
       decoration: roundedDecorationWithShadow.copyWith(
@@ -67,7 +89,7 @@ class WeatherInfoCard extends StatelessWidget {
                   child: WeatherIcon(
                     iconUrl: iconUrl,
                     size: iconSize ?? largeIcon(context),
-                    weatherData: weatherData, // ✅ Used here
+                    weatherData: weatherData,
                   ),
                 ),
               if (showIcon) const SizedBox(width: kElementWidthGap),
@@ -118,17 +140,17 @@ class WeatherInfoCard extends StatelessWidget {
                 children: [
                   WeatherDetailItem(
                     icon: WeatherUtils.getHomeIcon('precipitation'),
-                    value: Get.find<ConditionController>().chanceOfRain,
+                    value: displayChanceOfRain,
                     label: 'Precipitation',
                   ),
                   WeatherDetailItem(
                     icon: WeatherUtils.getHomeIcon('humidity'),
-                    value: Get.find<ConditionController>().humidity,
+                    value: displayHumidity,
                     label: 'Humidity',
                   ),
                   WeatherDetailItem(
                     icon: WeatherUtils.getHomeIcon('wind'),
-                    value: Get.find<ConditionController>().windSpeed,
+                    value: displayWindSpeed,
                     label: 'Wind',
                   ),
                 ],

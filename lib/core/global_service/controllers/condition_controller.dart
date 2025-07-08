@@ -10,6 +10,7 @@ class ConditionController extends GetxController {
   final mainCityIndex = 0.obs;
   final mainCityName = ''.obs;
 
+  // Current weather getters (unchanged)
   String get temperature {
     return mainCityWeather.value != null
         ? '${mainCityWeather.value!.temperature.round()}°'
@@ -42,6 +43,53 @@ class ConditionController extends GetxController {
     return mainCityWeather.value != null
         ? mainCityWeather.value!.iconUrl
         : 'https://cdn.weatherapi.com/weather/64x64/day/116.png';
+  }
+
+  // New methods to get weather details for forecast data
+  String getChanceOfRainForForecast(ForecastModel? forecast) {
+    if (forecast != null) {
+      return '${forecast.chanceOfRain}%';
+    }
+    return chanceOfRain; // Fallback to current weather
+  }
+
+  String getHumidityForForecast(ForecastModel? forecast) {
+    if (forecast != null) {
+      return '${forecast.humidity}%';
+    }
+    return humidity; // Fallback to current weather
+  }
+
+  String getWindSpeedForForecast(ForecastModel? forecast) {
+    if (forecast != null) {
+      return '${forecast.windSpeed.toStringAsFixed(1)}km/h';
+    }
+    return windSpeed; // Fallback to current weather
+  }
+
+  // Raw values for when you need integers/doubles instead of formatted strings
+  int get rawChanceOfRain {
+    return mainCityWeather.value?.chanceOfRain ?? 0;
+  }
+
+  int get rawHumidity {
+    return mainCityWeather.value?.humidity ?? 0;
+  }
+
+  double get rawWindSpeed {
+    return mainCityWeather.value?.windSpeed ?? 0.0;
+  }
+
+  int getRawChanceOfRainForForecast(ForecastModel? forecast) {
+    return forecast?.chanceOfRain ?? rawChanceOfRain;
+  }
+
+  int getRawHumidityForForecast(ForecastModel? forecast) {
+    return forecast?.humidity ?? rawHumidity;
+  }
+
+  double getRawWindSpeedForForecast(ForecastModel? forecast) {
+    return forecast?.windSpeed ?? rawWindSpeed;
   }
 
   List<WeatherModel> get otherCitiesWeather {
@@ -92,7 +140,6 @@ class ConditionController extends GetxController {
     final today = DateTime(now.year, now.month, now.day);
     final targetDate = DateTime(date.year, date.month, date.day);
     final difference = targetDate.difference(today).inDays;
-
     if (difference == 0) {
       return 'Today';
     } else {
@@ -111,7 +158,6 @@ class ConditionController extends GetxController {
     final today = DateTime(now.year, now.month, now.day);
     final targetDate = DateTime(date.year, date.month, date.day);
     final difference = targetDate.difference(today).inDays;
-
     if (difference == 0) {
       return 'Today';
     } else {

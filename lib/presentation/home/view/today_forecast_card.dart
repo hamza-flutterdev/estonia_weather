@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/common_widgets/common_shimmer.dart';
 import '../../../core/constants/constant.dart';
+import '../../../core/global_service/controllers/condition_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../daily_forecast/view/daily_forecast_view.dart';
 import '../../hourly_forecast/view/hourly_forecast_view.dart';
-import '../../reusable/controllers/condition_controller.dart';
 import '../controller/home_controller.dart';
-import 'section_header.dart';
+import '../../../core/common_widgets/section_header.dart';
 import '../../../core/theme/app_styles.dart';
 import '../../../data/model/forecast_model.dart';
 
@@ -23,24 +23,20 @@ class TodayForecastSection extends StatelessWidget {
       () => Stack(
         children: [
           Positioned(
-            top: mobileHeight(context) * 0.465,
+            top: mobileHeight(context) * 0.47,
             left: mobileWidth(context) * 0.05,
             right: mobileWidth(context) * 0.05,
             child: SectionHeader(
               title: 'Today',
               actionText: '7 Day Forecasts >',
               onTap: () {
-                final selectedForecast =
-                    homeController.forecastData[homeController
-                        .selectedForecastIndex
-                        .value];
-                final selectedDate = DateTime.parse(selectedForecast.date);
+                final selectedDate = DateTime.now();
                 Get.to(() => ForecastScreen(), arguments: selectedDate);
               },
             ),
           ),
           Positioned(
-            top: mobileHeight(context) * 0.5,
+            top: mobileHeight(context) * 0.51,
             child: SizedBox(
               height: mobileHeight(context) * 0.14,
               width: mobileWidth(context),
@@ -72,11 +68,7 @@ class TodayForecastSection extends StatelessWidget {
                               homeController.selectForecastDay(index);
                               Get.to(
                                 () => const HourlyForecastView(),
-                                arguments: {
-                                  'date': DateTime.parse(forecast.date),
-                                  'minTemp':
-                                      forecast.minTemp.round().toString(),
-                                },
+                                arguments: DateTime.parse(forecast.date),
                               );
                             },
                             child: TodayForecastCard(
