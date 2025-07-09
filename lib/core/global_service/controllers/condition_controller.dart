@@ -1,3 +1,4 @@
+import 'package:estonia_weather/core/utils/weather_utils.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../data/model/weather_model.dart';
@@ -10,7 +11,6 @@ class ConditionController extends GetxController {
   final mainCityIndex = 0.obs;
   final mainCityName = ''.obs;
 
-  // Current weather getters (unchanged)
   String get temperature {
     return mainCityWeather.value != null
         ? '${mainCityWeather.value!.temperature.round()}°'
@@ -42,15 +42,28 @@ class ConditionController extends GetxController {
   String get weatherIconUrl {
     return mainCityWeather.value != null
         ? mainCityWeather.value!.iconUrl
-        : 'https://cdn.weatherapi.com/weather/64x64/day/116.png';
+        : WeatherUtils.getDefaultIcon();
   }
 
-  // New methods to get weather details for forecast data
+  int get weatherCode {
+    return mainCityWeather.value?.code ?? 1003;
+  }
+
+  String get weatherIconPath {
+    if (mainCityWeather.value != null) {
+      String weatherType = WeatherUtils.getWeatherIcon(
+        mainCityWeather.value!.code,
+      );
+      return WeatherUtils.getWeatherIconPath(weatherType);
+    }
+    return WeatherUtils.getWeatherIconPath('clear');
+  }
+
   String getChanceOfRainForForecast(ForecastModel? forecast) {
     if (forecast != null) {
       return '${forecast.chanceOfRain}%';
     }
-    return chanceOfRain; // Fallback to current weather
+    return chanceOfRain;
   }
 
   String getHumidityForForecast(ForecastModel? forecast) {

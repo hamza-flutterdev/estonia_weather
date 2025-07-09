@@ -7,6 +7,7 @@ class ForecastModel {
   final int humidity;
   final double windSpeed;
   final int chanceOfRain;
+  final int code;
 
   ForecastModel({
     required this.date,
@@ -17,6 +18,7 @@ class ForecastModel {
     required this.humidity,
     required this.windSpeed,
     required this.chanceOfRain,
+    required this.code,
   });
 
   factory ForecastModel.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class ForecastModel {
       humidity: json['day']['avghumidity'],
       windSpeed: (json['day']['maxwind_kph'] as num).toDouble(),
       chanceOfRain: json['day']['daily_chance_of_rain'] ?? 0,
+      code: json['day']['condition']['code'],
     );
   }
 }

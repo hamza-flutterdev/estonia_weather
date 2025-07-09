@@ -22,70 +22,51 @@ class TodayForecastSection extends StatelessWidget {
     return Obx(
       () => Stack(
         children: [
-          Positioned(
-            top: mobileHeight(context) * 0.47,
-            left: mobileWidth(context) * 0.05,
-            right: mobileWidth(context) * 0.05,
-            child: SectionHeader(
-              title: 'Today',
-              actionText: '7 Day Forecasts >',
-              onTap: () {
-                final selectedDate = DateTime.now();
-                Get.to(() => ForecastScreen(), arguments: selectedDate);
-              },
-            ),
-          ),
-          Positioned(
-            top: mobileHeight(context) * 0.51,
-            child: SizedBox(
-              height: mobileHeight(context) * 0.14,
-              width: mobileWidth(context),
-              child:
-                  homeController.isLoading.value
-                      ? ShimmerListView(
-                        itemCount: 7,
-                        itemWidth: mobileWidth(context) * 0.2,
-                        itemHeight: mobileHeight(context) * 0.14,
-                        itemMargin:
-                            (index) => EdgeInsets.only(
-                              left: index == 0 ? kBodyHp : 0,
-                              right: index == 6 ? kBodyHp : kElementWidthGap,
-                            ),
-                        itemDecoration: roundedDecorationWithShadow.copyWith(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      )
-                      : ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: homeController.forecastData.length,
-                        itemBuilder: (context, index) {
-                          final forecast = homeController.forecastData[index];
-                          final isSelected =
-                              index ==
-                              homeController.selectedForecastIndex.value;
-                          return GestureDetector(
-                            onTap: () {
-                              homeController.selectForecastDay(index);
-                              Get.to(
-                                () => const HourlyForecastView(),
-                                arguments: DateTime.parse(forecast.date),
-                              );
-                            },
-                            child: TodayForecastCard(
-                              day: conditionController.getDayName(
-                                forecast.date,
-                              ),
-                              isSelected: isSelected,
-                              isFirst: index == 0,
-                              isLast:
-                                  index ==
-                                  homeController.forecastData.length - 1,
-                              forecastData: forecast,
-                            ),
-                          );
-                        },
+          SizedBox(
+            height: mobileHeight(context) * 0.14,
+            width: mobileWidth(context),
+            child:
+                homeController.isLoading.value
+                    ? ShimmerListView(
+                      itemCount: 7,
+                      itemWidth: mobileWidth(context) * 0.2,
+                      itemHeight: mobileHeight(context) * 0.14,
+                      itemMargin:
+                          (index) => EdgeInsets.only(
+                            left: index == 0 ? kBodyHp : 0,
+                            right: index == 6 ? kBodyHp : kElementWidthGap,
+                          ),
+                      itemDecoration: roundedDecorationWithShadow.copyWith(
+                        borderRadius: BorderRadius.circular(20),
                       ),
-            ),
+                    )
+                    : ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
+                      itemCount: homeController.forecastData.length,
+                      itemBuilder: (context, index) {
+                        final forecast = homeController.forecastData[index];
+                        final isSelected =
+                            index == homeController.selectedForecastIndex.value;
+                        return GestureDetector(
+                          onTap: () {
+                            homeController.selectForecastDay(index);
+                            Get.to(
+                              () => const HourlyForecastView(),
+                              arguments: DateTime.parse(forecast.date),
+                            );
+                          },
+                          child: TodayForecastCard(
+                            day: conditionController.getDayName(forecast.date),
+                            isSelected: isSelected,
+                            isFirst: index == 0,
+                            isLast:
+                                index == homeController.forecastData.length - 1,
+                            forecastData: forecast,
+                          ),
+                        );
+                      },
+                    ),
           ),
         ],
       ),

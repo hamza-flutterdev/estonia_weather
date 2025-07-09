@@ -8,6 +8,7 @@ import '../../../data/model/city_model.dart';
 import '../../../data/model/weather_model.dart';
 import '../../../data/model/forecast_model.dart';
 import '../../../domain/use_cases/get_current_weather.dart';
+import '../../../gen/assets.gen.dart';
 
 class HomeController extends GetxController {
   final GetWeatherAndForecast getCurrentWeather;
@@ -45,7 +46,7 @@ class HomeController extends GetxController {
     try {
       isLoading.value = true;
       final String response = await rootBundle.loadString(
-        'assets/json/cities.json',
+        Assets.database.cities,
       );
       final List<dynamic> data = json.decode(response);
       allCities.value =

@@ -18,10 +18,11 @@ class WeatherIcon extends StatelessWidget {
     return SizedBox(
       width: size,
       height: size,
-      child: Center(
-        child:
-            iconUrl.isNotEmpty
-                ? Image.network(
+      child:
+          iconUrl.isNotEmpty
+              ? FittedBox(
+                fit: BoxFit.fill,
+                child: Image.network(
                   iconUrl,
                   width: size * 0.8,
                   height: size * 0.8,
@@ -45,19 +46,19 @@ class WeatherIcon extends StatelessWidget {
                       ),
                     );
                   },
-                )
-                : Container(
-                  decoration: BoxDecoration(
-                    color: kWhite.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.cloud,
-                    size: size * 0.6,
-                    color: kWhite.withValues(alpha: 0.7),
-                  ),
                 ),
-      ),
+              )
+              : Container(
+                decoration: BoxDecoration(
+                  color: kWhite.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.cloud,
+                  size: size * 0.6,
+                  color: kWhite.withValues(alpha: 0.7),
+                ),
+              ),
     );
   }
 }

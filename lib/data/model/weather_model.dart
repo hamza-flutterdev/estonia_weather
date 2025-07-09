@@ -8,6 +8,7 @@ class WeatherModel {
   final double windSpeed;
   final int chanceOfRain;
   final String iconUrl;
+  final int code;
   final AirQualityModel? airQuality;
 
   WeatherModel({
@@ -18,6 +19,7 @@ class WeatherModel {
     required this.windSpeed,
     required this.chanceOfRain,
     required this.iconUrl,
+    required this.code,
     this.airQuality,
   });
 
@@ -45,6 +47,7 @@ class WeatherModel {
         }
       }
     }
+
     AirQualityModel? airQuality;
     if (json['current']?['air_quality'] != null) {
       airQuality = AirQualityModel.fromJson(json['current']['air_quality']);
@@ -58,6 +61,7 @@ class WeatherModel {
       windSpeed: windSpeedKmh,
       chanceOfRain: currentChanceOfRain,
       iconUrl: iconUrl,
+      code: json['current']['condition']['code'],
       airQuality: airQuality,
     );
   }

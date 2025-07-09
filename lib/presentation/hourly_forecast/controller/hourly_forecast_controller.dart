@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../home/controller/home_controller.dart';
 import '../../../data/model/forecast_model.dart';
@@ -7,6 +8,7 @@ class HourlyForecastController extends GetxController {
   var selectedDate = DateTime.now().obs;
   var mainCityName = ''.obs;
   var hourlyData = <Map<String, dynamic>>[].obs;
+  final ScrollController scrollController = ScrollController();
 
   @override
   void onInit() {
@@ -38,7 +40,31 @@ class HourlyForecastController extends GetxController {
         selectedForecast.date,
       );
       hourlyData.value = hourlyForecast;
+
+      _autoScrollToCurrentHour();
     }
+  }
+
+  void _autoScrollToCurrentHour() {
+    if (!isSameDate(selectedDate.value, DateTime.now())) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!scrollController.hasClients) return;
+
+      final currentHourIndex = hourlyData.indexWhere(
+        (hour) => getCurrentHourData() == hour,
+      );
+
+      if (currentHourIndex != -1) {
+        final scrollOffset = currentHourIndex * 50.0;
+        final maxScroll = scrollController.position.maxScrollExtent;
+
+        scrollController.animateTo(
+          scrollOffset > maxScroll ? maxScroll : scrollOffset,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   bool isSameDate(DateTime date1, DateTime date2) {
@@ -57,6 +83,7 @@ class HourlyForecastController extends GetxController {
   }
 
   String getFormattedDate() {
+    // Using intl package would be better, but using basic formatting
     final months = [
       'January',
       'February',
@@ -71,9 +98,7 @@ class HourlyForecastController extends GetxController {
       'November',
       'December',
     ];
-    final month = months[selectedDate.value.month - 1];
-    final day = selectedDate.value.day;
-    return '$month $day';
+    return '${months[selectedDate.value.month - 1]} ${selectedDate.value.day}';
   }
 
   ForecastModel? get selectedDayData {
@@ -101,5 +126,11 @@ class HourlyForecastController extends GetxController {
           .toList();
     }
     return hourlyData;
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
   }
 }
