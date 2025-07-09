@@ -9,8 +9,24 @@
 
 import 'package:flutter/widgets.dart';
 
+class $AssetsDatabaseGen {
+  const $AssetsDatabaseGen();
+
+  /// File path: assets/database/cities.json
+  String get cities => 'assets/database/cities.json';
+
+  /// List of all assets
+  List<String> get values => [cities];
+}
+
 class $AssetsImagesGen {
   const $AssetsImagesGen();
+
+  /// File path: assets/images/clear.png
+  AssetGenImage get clear => const AssetGenImage('assets/images/clear.png');
+
+  /// File path: assets/images/cloudy.png
+  AssetGenImage get cloudy => const AssetGenImage('assets/images/cloudy.png');
 
   /// File path: assets/images/daily_forecast_bg_container.png
   AssetGenImage get dailyForecastBgContainer =>
@@ -28,34 +44,43 @@ class $AssetsImagesGen {
   AssetGenImage get precipitationUmbrella =>
       const AssetGenImage('assets/images/precipitation_umbrella.png');
 
+  /// File path: assets/images/rain.png
+  AssetGenImage get rain => const AssetGenImage('assets/images/rain.png');
+
+  /// File path: assets/images/sleet.png
+  AssetGenImage get sleet => const AssetGenImage('assets/images/sleet.png');
+
+  /// File path: assets/images/snow.png
+  AssetGenImage get snow => const AssetGenImage('assets/images/snow.png');
+
+  /// File path: assets/images/thunderstorm.png
+  AssetGenImage get thunderstorm =>
+      const AssetGenImage('assets/images/thunderstorm.png');
+
   /// File path: assets/images/windy.png
   AssetGenImage get windy => const AssetGenImage('assets/images/windy.png');
 
   /// List of all assets
   List<AssetGenImage> get values => [
+    clear,
+    cloudy,
     dailyForecastBgContainer,
     hourlyForecastBgContainer,
     humidityDroplet,
     precipitationUmbrella,
+    rain,
+    sleet,
+    snow,
+    thunderstorm,
     windy,
   ];
-}
-
-class $AssetsJsonGen {
-  const $AssetsJsonGen();
-
-  /// File path: assets/json/cities.json
-  String get cities => 'assets/json/cities.json';
-
-  /// List of all assets
-  List<String> get values => [cities];
 }
 
 class Assets {
   const Assets._();
 
+  static const $AssetsDatabaseGen database = $AssetsDatabaseGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
-  static const $AssetsJsonGen json = $AssetsJsonGen();
 }
 
 class AssetGenImage {

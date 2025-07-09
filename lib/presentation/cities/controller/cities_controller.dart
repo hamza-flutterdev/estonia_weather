@@ -63,6 +63,7 @@ class CitiesController extends GetxController {
                 chanceOfRain: 0,
                 iconUrl: '',
                 airQuality: null,
+                code: 0,
               );
             }
           }).toList();

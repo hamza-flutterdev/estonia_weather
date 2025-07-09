@@ -24,20 +24,9 @@ class ForecastScreen extends StatelessWidget {
         Get.find<ConditionController>();
 
     return Scaffold(
+      drawer: const Drawer(),
       extendBodyBehindAppBar: true,
       backgroundColor: bgColor,
-      appBar: CustomAppBar(
-        useBackButton: false,
-        actions: [
-          IconActionButton(
-            onTap: () => Get.to(CitiesScreen()),
-            icon: Icons.add,
-            color: primaryColor,
-            size: secondaryIcon(context),
-          ),
-        ],
-        subtitle: '',
-      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final bool isTall = constraints.maxHeight > 850;
@@ -70,6 +59,18 @@ class ForecastScreen extends StatelessWidget {
                     fit: BoxFit.cover,
                   ),
                 ),
+                CustomAppBar(
+                  useBackButton: false,
+                  actions: [
+                    IconActionButton(
+                      onTap: () => Get.to(CitiesScreen()),
+                      icon: Icons.add,
+                      color: primaryColor,
+                      size: secondaryIcon(context),
+                    ),
+                  ],
+                  subtitle: '',
+                ),
 
                 Positioned(
                   top: cardTop,
@@ -84,7 +85,7 @@ class ForecastScreen extends StatelessWidget {
                       condition: conditionController.condition,
                       minTemp:
                           controller.selectedDayData.minTemp.round().toString(),
-                      iconUrl: conditionController.weatherIconUrl,
+                      imagePath: conditionController.weatherIconPath,
                     ),
                   ),
                 ),
@@ -102,7 +103,7 @@ class ForecastScreen extends StatelessWidget {
                           child: SectionHeader(
                             actionIcon: Icons.location_on,
                             title: '7 Day Forecasts',
-                            actionText: 'Location',
+                            actionText: controller.mainCityName.toString(),
                             onTap: () {},
                           ),
                         ),
@@ -125,7 +126,10 @@ class ForecastScreen extends StatelessWidget {
                                 child: Container(
                                   decoration: roundedDecorationWithShadow
                                       .copyWith(
-                                        color: secondaryColor,
+                                        color:
+                                            index == 0
+                                                ? primaryColor
+                                                : secondaryColor,
                                         borderRadius: BorderRadius.circular(24),
                                       ),
                                   height: listItemHeight,
@@ -137,7 +141,10 @@ class ForecastScreen extends StatelessWidget {
                                         child: Text(
                                           dayData['day'],
                                           style: bodyLargeStyle.copyWith(
-                                            color: primaryColor,
+                                            color:
+                                                index == 0
+                                                    ? kWhite
+                                                    : primaryColor,
                                           ),
                                         ),
                                       ),
@@ -154,7 +161,10 @@ class ForecastScreen extends StatelessWidget {
                                         child: Text(
                                           dayData['condition'],
                                           style: bodyLargeStyle.copyWith(
-                                            color: primaryColor,
+                                            color:
+                                                index == 0
+                                                    ? kWhite
+                                                    : primaryColor,
                                           ),
                                         ),
                                       ),
@@ -162,7 +172,10 @@ class ForecastScreen extends StatelessWidget {
                                       Text(
                                         '${dayData['temp'].round()}° / ${dayData['minTemp'].round()}°',
                                         style: bodyLargeStyle.copyWith(
-                                          color: primaryColor,
+                                          color:
+                                              index == 0
+                                                  ? kWhite
+                                                  : primaryColor,
                                         ),
                                       ),
                                     ],

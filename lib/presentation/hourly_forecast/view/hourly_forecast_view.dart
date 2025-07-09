@@ -24,20 +24,9 @@ class HourlyForecastView extends StatelessWidget {
     controller.setSelectedDate(selectedDate);
 
     return Scaffold(
+      drawer: const Drawer(),
       extendBodyBehindAppBar: true,
       backgroundColor: bgColor,
-      appBar: CustomAppBar(
-        useBackButton: false,
-        actions: [
-          IconActionButton(
-            onTap: () => Get.to(CitiesScreen()),
-            icon: Icons.add,
-            color: primaryColor,
-            size: secondaryIcon(context),
-          ),
-        ],
-        subtitle: '',
-      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final bool isTall = constraints.maxHeight > 850;
@@ -55,7 +44,6 @@ class HourlyForecastView extends StatelessWidget {
             height: constraints.maxHeight,
             width: double.infinity,
             child: Stack(
-              clipBehavior: Clip.none,
               children: [
                 SizedBox(
                   height: imageHeight,
@@ -65,6 +53,19 @@ class HourlyForecastView extends StatelessWidget {
                     fit: BoxFit.cover,
                   ),
                 ),
+                CustomAppBar(
+                  useBackButton: false,
+                  actions: [
+                    IconActionButton(
+                      onTap: () => Get.to(CitiesScreen()),
+                      icon: Icons.add,
+                      color: primaryColor,
+                      size: secondaryIcon(context),
+                    ),
+                  ],
+                  subtitle: '',
+                ),
+
                 Positioned(
                   top: cardTop,
                   left: mobileWidth(context) * 0.05,
@@ -78,12 +79,12 @@ class HourlyForecastView extends StatelessWidget {
                       height: cardHeight,
                       child: WeatherInfoCard(
                         weatherData: conditionController.mainCityWeather.value,
-                        forecastData: selectedDayData, // Pass the forecast data
+                        forecastData: selectedDayData,
                         date: selectedDate,
                         temperature: selectedDayData.maxTemp.round().toString(),
                         condition: selectedDayData.condition,
                         minTemp: selectedDayData.minTemp.round().toString(),
-                        iconUrl: selectedDayData.iconUrl,
+                        imagePath: conditionController.weatherIconPath,
                       ),
                     );
                   }),
@@ -99,19 +100,44 @@ class HourlyForecastView extends StatelessWidget {
                       children: [
                         SizedBox(height: kElementGap),
                         Expanded(
-                          child: Obx(
-                            () => ListView.builder(
+                          child: Obx(() {
+                            final hourlyData = controller.hourlyData;
+                            final currentHourIndex = hourlyData.indexWhere(
+                              (hour) => controller.getCurrentHourData() == hour,
+                            );
+
+                            // Auto-scroll only if it's today and a valid hour index is found
+                            if (controller.isSameDate(
+                                  controller.selectedDate.value,
+                                  DateTime.now(),
+                                ) &&
+                                currentHourIndex != -1 &&
+                                controller.scrollController.hasClients) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                controller.scrollController.animateTo(
+                                  currentHourIndex *
+                                      80.0, // Approx height per item
+                                  duration: const Duration(milliseconds: 500),
+                                  curve: Curves.easeInOut,
+                                );
+                              });
+                            }
+
+                            return ListView.builder(
+                              controller: controller.scrollController,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: kBodyHp,
+                                vertical: kElementInnerGap,
                               ),
-                              itemCount: controller.hourlyData.length,
+                              itemCount: hourlyData.length,
                               itemBuilder: (context, index) {
-                                final hourData = controller.hourlyData[index];
+                                final hourData = hourlyData[index];
                                 final time = controller.getFormattedTime(
                                   hourData['time'],
                                 );
                                 final isCurrentHour =
                                     controller.getCurrentHourData() == hourData;
+
                                 return Padding(
                                   padding: const EdgeInsets.only(
                                     bottom: kElementInnerGap,
@@ -121,9 +147,7 @@ class HourlyForecastView extends StatelessWidget {
                                         .copyWith(
                                           color:
                                               isCurrentHour
-                                                  ? primaryColor.withValues(
-                                                    alpha: 0.1,
-                                                  )
+                                                  ? primaryColor
                                                   : secondaryColor,
                                           border:
                                               isCurrentHour
@@ -141,7 +165,10 @@ class HourlyForecastView extends StatelessWidget {
                                         Text(
                                           time,
                                           style: bodyMediumStyle.copyWith(
-                                            color: primaryColor,
+                                            color:
+                                                isCurrentHour
+                                                    ? kWhite
+                                                    : primaryColor,
                                             fontWeight:
                                                 isCurrentHour
                                                     ? FontWeight.bold
@@ -156,7 +183,10 @@ class HourlyForecastView extends StatelessWidget {
                                         Text(
                                           '${hourData['temp_c'].round()}°',
                                           style: headlineSmallStyle.copyWith(
-                                            color: primaryColor,
+                                            color:
+                                                isCurrentHour
+                                                    ? kWhite
+                                                    : primaryColor,
                                           ),
                                         ),
                                       ],
@@ -164,8 +194,8 @@ class HourlyForecastView extends StatelessWidget {
                                   ),
                                 );
                               },
-                            ),
-                          ),
+                            );
+                          }),
                         ),
                       ],
                     ),

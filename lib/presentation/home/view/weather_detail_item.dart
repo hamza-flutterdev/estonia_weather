@@ -15,41 +15,36 @@ class WeatherDetailsCard extends StatelessWidget {
     final ConditionController conditionController = Get.find();
 
     return Obx(
-      () => Positioned(
-        top: mobileHeight(context) * 0.36,
-        left: mobileWidth(context) * 0.05,
-        right: mobileWidth(context) * 0.05,
-        child: Container(
-          height: mobileHeight(context) * 0.11,
-          decoration: roundedDecorationWithShadow,
-          child: Padding(
-            padding: kContentPaddingSmall,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: WeatherDetailItem(
-                    icon: WeatherUtils.getHomeIcon('precipitation'),
-                    value: conditionController.chanceOfRain,
-                    label: 'Precipitation',
-                  ),
+      () => Container(
+        height: mobileHeight(context) * 0.11,
+        decoration: roundedDecorationWithShadow,
+        child: Padding(
+          padding: kContentPaddingSmall,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: WeatherDetailItem(
+                  icon: WeatherUtils.getHomeIcon('precipitation'),
+                  value: conditionController.chanceOfRain,
+                  label: 'Precipitation',
                 ),
-                Expanded(
-                  child: WeatherDetailItem(
-                    icon: WeatherUtils.getHomeIcon('humidity'),
-                    value: conditionController.humidity,
-                    label: 'Humidity',
-                  ),
+              ),
+              Expanded(
+                child: WeatherDetailItem(
+                  icon: WeatherUtils.getHomeIcon('humidity'),
+                  value: conditionController.humidity,
+                  label: 'Humidity',
                 ),
-                Expanded(
-                  child: WeatherDetailItem(
-                    icon: WeatherUtils.getHomeIcon('wind'),
-                    value: conditionController.windSpeed,
-                    label: 'Wind',
-                  ),
+              ),
+              Expanded(
+                child: WeatherDetailItem(
+                  icon: WeatherUtils.getHomeIcon('wind'),
+                  value: conditionController.windSpeed,
+                  label: 'Wind',
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

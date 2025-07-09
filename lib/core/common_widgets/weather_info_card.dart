@@ -6,9 +6,9 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_styles.dart';
 import '../../core/utils/weather_utils.dart';
 import '../../presentation/home/view/weather_detail_item.dart';
-import 'weather_icon.dart';
 import '../../data/model/weather_model.dart';
 import '../../data/model/forecast_model.dart';
+import '../animation/weather_animation.dart';
 import '../global_service/controllers/condition_controller.dart';
 
 class WeatherInfoCard extends StatelessWidget {
@@ -16,13 +16,13 @@ class WeatherInfoCard extends StatelessWidget {
   final String temperature;
   final String condition;
   final String? minTemp;
-  final String iconUrl;
   final WeatherModel? weatherData;
   final ForecastModel? forecastData;
   final bool useGradient;
   final bool showWeatherDetails;
   final bool showIcon;
   final double? iconSize;
+  final String imagePath;
 
   const WeatherInfoCard({
     super.key,
@@ -30,13 +30,13 @@ class WeatherInfoCard extends StatelessWidget {
     required this.temperature,
     required this.condition,
     this.minTemp,
-    required this.iconUrl,
     this.weatherData,
     this.forecastData,
     this.useGradient = false,
     this.showWeatherDetails = true,
     this.showIcon = true,
     this.iconSize,
+    required this.imagePath,
   });
 
   @override
@@ -66,33 +66,43 @@ class WeatherInfoCard extends StatelessWidget {
       decoration: roundedDecorationWithShadow.copyWith(
         gradient: useGradient ? kGradient : null,
       ),
-      padding: const EdgeInsets.all(kBodyHp),
+      padding: const EdgeInsets.symmetric(
+        horizontal: kBodyHp,
+        vertical: 8.0,
+      ), // Reduced vertical padding even more
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (date != null)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  DateFormat.EEEE().format(date!),
-                  style: headlineSmallStyle.copyWith(color: textColor),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.only(
+                bottom: 4.0,
+              ), // Smaller gap below date
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    DateFormat.EEEE().format(date!),
+                    style: headlineSmallStyle.copyWith(color: textColor),
+                  ),
+                ],
+              ),
             ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (showIcon)
                 SizedBox(
                   width: iconSize ?? largeIcon(context),
-                  child: WeatherIcon(
-                    iconUrl: iconUrl,
-                    size: iconSize ?? largeIcon(context),
-                    weatherData: weatherData,
+                  height: iconSize ?? largeIcon(context),
+                  child: AnimatedWeatherIcon(
+                    imagePath: imagePath,
+                    condition: condition,
+                    width: largeIcon(context),
                   ),
                 ),
-              if (showIcon) const SizedBox(width: kElementWidthGap),
+              if (showIcon) const SizedBox(width: kBodyHp * 2.5),
               Expanded(
                 flex: minTemp != null ? 3 : 5,
                 child: Column(
@@ -132,26 +142,34 @@ class WeatherInfoCard extends StatelessWidget {
             ],
           ),
           if (showWeatherDetails) ...[
-            const SizedBox(height: kElementGap),
+            const SizedBox(height: 8.0), // Reduced gap before weather details
             Padding(
-              padding: kContentPaddingSmall,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+              ), // Applied horizontal padding directly, no vertical
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  WeatherDetailItem(
-                    icon: WeatherUtils.getHomeIcon('precipitation'),
-                    value: displayChanceOfRain,
-                    label: 'Precipitation',
+                  Expanded(
+                    child: WeatherDetailItem(
+                      icon: WeatherUtils.getHomeIcon('precipitation'),
+                      value: displayChanceOfRain,
+                      label: 'Precipitation',
+                    ),
                   ),
-                  WeatherDetailItem(
-                    icon: WeatherUtils.getHomeIcon('humidity'),
-                    value: displayHumidity,
-                    label: 'Humidity',
+                  Expanded(
+                    child: WeatherDetailItem(
+                      icon: WeatherUtils.getHomeIcon('humidity'),
+                      value: displayHumidity,
+                      label: 'Humidity',
+                    ),
                   ),
-                  WeatherDetailItem(
-                    icon: WeatherUtils.getHomeIcon('wind'),
-                    value: displayWindSpeed,
-                    label: 'Wind',
+                  Expanded(
+                    child: WeatherDetailItem(
+                      icon: WeatherUtils.getHomeIcon('wind'),
+                      value: displayWindSpeed,
+                      label: 'Wind',
+                    ),
                   ),
                 ],
               ),
