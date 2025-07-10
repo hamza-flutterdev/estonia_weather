@@ -66,20 +66,33 @@ class OtherCitiesSection extends StatelessWidget {
                               index ==
                               conditionController.otherCitiesWeather.length - 1;
 
-                          return Container(
-                            width: mobileWidth(context) * 0.7,
-                            margin: EdgeInsets.only(
-                              left: isFirst ? kBodyHp * 2 : kElementGap,
-                              right: isLast ? kBodyHp : kElementGap,
-                            ),
-                            decoration: roundedDecorationWithShadow.copyWith(
-                              color: primaryColor,
-                            ),
-                            child: OtherCityCard(
-                              cityName: weather.cityName,
-                              condition: weather.condition,
-                              temperature: '${weather.temperature.round()}°',
-                              iconUrl: weather.iconUrl,
+                          return GestureDetector(
+                            onTap: () {
+                              // Debug information
+                              debugPrint('Tapped on city: ${weather.cityName}');
+                              debugPrint('Card index: $index');
+                              debugPrint('Is first card: $isFirst');
+
+                              // Call the swap function using the weather model
+                              homeController.swapCityWithMainByWeatherModel(
+                                weather,
+                              );
+                            },
+                            child: Container(
+                              width: mobileWidth(context) * 0.7,
+                              margin: EdgeInsets.only(
+                                left: isFirst ? kBodyHp * 2 : kElementGap,
+                                right: isLast ? kBodyHp : kElementGap,
+                              ),
+                              decoration: roundedDecorationWithShadow.copyWith(
+                                color: primaryColor,
+                              ),
+                              child: OtherCityCard(
+                                cityName: weather.cityName,
+                                condition: weather.condition,
+                                temperature: '${weather.temperature.round()}°',
+                                iconUrl: weather.iconUrl,
+                              ),
                             ),
                           );
                         },

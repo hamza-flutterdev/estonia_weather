@@ -3,10 +3,12 @@ import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/common_widgets/custom_drawer.dart';
 import '../../../core/common_widgets/icon_buttons.dart';
 import '../../../core/common_widgets/weather_info_card.dart';
 import '../../../core/constants/constant.dart';
 import '../../../core/global_service/controllers/condition_controller.dart';
+import '../../../extensions/device_size/device_size.dart';
 import '../../../gen/assets.gen.dart';
 import '../../cities/cities_view/cities_view.dart';
 import '../../../core/common_widgets/weather_icon.dart';
@@ -20,28 +22,34 @@ class HourlyForecastView extends StatelessWidget {
     final DateTime selectedDate = Get.arguments;
     final HourlyForecastController controller = Get.find();
     final ConditionController conditionController = Get.find();
-
     controller.setSelectedDate(selectedDate);
 
     return Scaffold(
-      drawer: const Drawer(),
+      drawer: CustomDrawer(),
       extendBodyBehindAppBar: true,
       backgroundColor: bgColor,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final bool isTall = constraints.maxHeight > 850;
-          final bool isMob = constraints.maxHeight > 400;
-          final double imageHeight = constraints.maxHeight * 0.4;
-          final double cardTop = constraints.maxHeight * 0.11;
+          final deviceSize = DeviceSize(constraints, context);
+          final double imageHeight = deviceSize.height * 0.4;
+          final double cardTop = deviceSize.height * 0.11;
           final double cardHeight =
-              isTall
-                  ? constraints.maxHeight * 0.41
-                  : isMob
-                  ? constraints.maxHeight * 0.49
-                  : constraints.maxHeight * 0.53;
+              deviceSize.isTab
+                  ? deviceSize.height * 0.44
+                  : deviceSize.isBig
+                  ? deviceSize.height * 0.42
+                  : deviceSize.isMedium
+                  ? deviceSize.height * 0.48
+                  : deviceSize.isSmall
+                  ? deviceSize.height * 0.48
+                  : deviceSize.height * 0.42;
+          final double listItemHeight =
+              deviceSize.isTab
+                  ? deviceSize.width * 0.12
+                  : deviceSize.width * 0.18;
 
           return SizedBox(
-            height: constraints.maxHeight,
+            height: deviceSize.height,
             width: double.infinity,
             child: Stack(
               children: [
@@ -65,11 +73,16 @@ class HourlyForecastView extends StatelessWidget {
                   ],
                   subtitle: '',
                 ),
-
                 Positioned(
                   top: cardTop,
-                  left: mobileWidth(context) * 0.05,
-                  right: mobileWidth(context) * 0.05,
+                  left:
+                      deviceSize.isTab
+                          ? deviceSize.width * 0.10
+                          : deviceSize.width * 0.05,
+                  right:
+                      deviceSize.isTab
+                          ? deviceSize.width * 0.10
+                          : deviceSize.width * 0.05,
                   child: Obx(() {
                     final selectedDayData = controller.selectedDayData;
                     if (selectedDayData == null) {
@@ -90,7 +103,12 @@ class HourlyForecastView extends StatelessWidget {
                   }),
                 ),
                 Positioned(
-                  top: cardHeight + kBodyHp,
+                  top:
+                      deviceSize.isTab
+                          ? cardHeight + kToolbarHeight + kBodyHp * 4
+                          : deviceSize.isBig
+                          ? cardHeight + kToolbarHeight + kBodyHp
+                          : cardHeight + kToolbarHeight + kElementGap,
                   left: 0,
                   right: 0,
                   bottom: 0,
@@ -105,8 +123,6 @@ class HourlyForecastView extends StatelessWidget {
                             final currentHourIndex = hourlyData.indexWhere(
                               (hour) => controller.getCurrentHourData() == hour,
                             );
-
-                            // Auto-scroll only if it's today and a valid hour index is found
                             if (controller.isSameDate(
                                   controller.selectedDate.value,
                                   DateTime.now(),
@@ -116,18 +132,23 @@ class HourlyForecastView extends StatelessWidget {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 controller.scrollController.animateTo(
                                   currentHourIndex *
-                                      80.0, // Approx height per item
+                                      (listItemHeight + kElementInnerGap),
                                   duration: const Duration(milliseconds: 500),
                                   curve: Curves.easeInOut,
                                 );
                               });
                             }
-
                             return ListView.builder(
                               controller: controller.scrollController,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: kBodyHp,
-                                vertical: kElementInnerGap,
+                              padding: EdgeInsets.fromLTRB(
+                                deviceSize.isTab
+                                    ? deviceSize.width * 0.15
+                                    : kBodyHp,
+                                kElementInnerGap,
+                                deviceSize.isTab
+                                    ? deviceSize.width * 0.15
+                                    : kBodyHp,
+                                0,
                               ),
                               itemCount: hourlyData.length,
                               itemBuilder: (context, index) {
@@ -137,7 +158,6 @@ class HourlyForecastView extends StatelessWidget {
                                 );
                                 final isCurrentHour =
                                     controller.getCurrentHourData() == hourData;
-
                                 return Padding(
                                   padding: const EdgeInsets.only(
                                     bottom: kElementInnerGap,
@@ -156,30 +176,47 @@ class HourlyForecastView extends StatelessWidget {
                                                     width: 2,
                                                   )
                                                   : null,
+                                          borderRadius: BorderRadius.circular(
+                                            24,
+                                          ),
                                         ),
+                                    height: listItemHeight,
                                     padding: kContentPaddingSmall,
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(
-                                          time,
-                                          style: bodyMediumStyle.copyWith(
-                                            color:
-                                                isCurrentHour
-                                                    ? kWhite
-                                                    : primaryColor,
-                                            fontWeight:
-                                                isCurrentHour
-                                                    ? FontWeight.bold
-                                                    : FontWeight.normal,
+                                        SizedBox(
+                                          width:
+                                              deviceSize.isTab
+                                                  ? deviceSize.width * 0.1
+                                                  : deviceSize.width * 0.15,
+                                          child: Text(
+                                            time,
+                                            style: bodyMediumStyle.copyWith(
+                                              color:
+                                                  isCurrentHour
+                                                      ? kWhite
+                                                      : primaryColor,
+                                              fontWeight:
+                                                  isCurrentHour
+                                                      ? FontWeight.bold
+                                                      : FontWeight.normal,
+                                            ),
                                           ),
+                                        ),
+                                        SizedBox(
+                                          width:
+                                              deviceSize.isTab
+                                                  ? deviceSize.width * 0.08
+                                                  : deviceSize.width * 0.14,
                                         ),
                                         WeatherIcon(
                                           iconUrl: hourData['iconUrl'],
                                           size: primaryIcon(context),
                                           weatherData: hourData['condition'],
                                         ),
+                                        const Spacer(),
                                         Text(
                                           '${hourData['temp_c'].round()}°',
                                           style: headlineSmallStyle.copyWith(

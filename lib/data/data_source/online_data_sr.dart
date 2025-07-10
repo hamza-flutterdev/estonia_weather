@@ -12,15 +12,16 @@ class OnlineDataSource {
 
   OnlineDataSource(this.apiKey);
 
-  Future<(WeatherModel, List<ForecastModel>)> getWeatherAndForecast(
-    String cityName, {
+  Future<(WeatherModel, List<ForecastModel>)> getWeatherAndForecast({
+    required double lat,
+    required double lon,
     int days = 7,
   }) async {
-    final response = await http.get(
-      Uri.parse(
-        '$baseUrl?key=$apiKey&q=$cityName&days=$days&aqi=yes&alerts=no',
-      ),
+    final uri = Uri.parse(
+      '$baseUrl?key=$apiKey&q=$lat,$lon&days=$days&aqi=yes&alerts=no',
     );
+
+    final response = await http.get(uri);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -36,6 +37,7 @@ class OnlineDataSource {
       final forecastDays = data['forecast']['forecastday'] as List;
       final forecast =
           forecastDays.map((e) => ForecastModel.fromJson(e)).toList();
+
       return (current, forecast);
     } else {
       throw Exception(

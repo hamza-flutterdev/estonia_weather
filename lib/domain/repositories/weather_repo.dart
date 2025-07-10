@@ -3,6 +3,7 @@ import '../../data/model/forecast_model.dart';
 
 abstract class WeatherRepo {
   Future<(WeatherModel, List<ForecastModel>)> getWeatherAndForecast(
-    String cityName,
+    double lat,
+    double lon,
   );
 }

@@ -4,10 +4,8 @@ import '../../../core/common_widgets/common_shimmer.dart';
 import '../../../core/constants/constant.dart';
 import '../../../core/global_service/controllers/condition_controller.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../daily_forecast/view/daily_forecast_view.dart';
 import '../../hourly_forecast/view/hourly_forecast_view.dart';
 import '../controller/home_controller.dart';
-import '../../../core/common_widgets/section_header.dart';
 import '../../../core/theme/app_styles.dart';
 import '../../../data/model/forecast_model.dart';
 

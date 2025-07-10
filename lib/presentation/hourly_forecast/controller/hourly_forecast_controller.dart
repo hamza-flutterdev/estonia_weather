@@ -55,7 +55,7 @@ class HourlyForecastController extends GetxController {
       );
 
       if (currentHourIndex != -1) {
-        final scrollOffset = currentHourIndex * 50.0;
+        final scrollOffset = currentHourIndex * 60.0;
         final maxScroll = scrollController.position.maxScrollExtent;
 
         scrollController.animateTo(

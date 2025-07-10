@@ -12,10 +12,7 @@ void main() async {
   DependencyInjection.init();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(
-    DevicePreview(
-      enabled: !const bool.fromEnvironment('dart.vm.product'),
-      builder: (context) => const EstoniaWeather(),
-    ),
+    DevicePreview(enabled: false, builder: (context) => const EstoniaWeather()),
   );
 }
 

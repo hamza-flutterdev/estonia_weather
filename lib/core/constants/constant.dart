@@ -8,7 +8,7 @@ const fontSecondary = 'Poppins';
 const double kBodyHp = 16.0;
 const double kElementGap = 12.0;
 const double kElementInnerGap = 8.0;
-const double kElementWidthGap = 8.0;
+const double kElementWidthGap = 6.0;
 const kContentPaddingSmall = EdgeInsets.symmetric(horizontal: 12, vertical: 4);
 const kContentPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 8);
 
@@ -28,7 +28,7 @@ const double kCircularBorderRadius = 50.0;
 double largeIcon(BuildContext context) => mobileWidth(context) * 0.3;
 double mediumIcon(BuildContext context) => mobileWidth(context) * 0.27;
 double primaryIcon(BuildContext context) => mobileWidth(context) * 0.1;
-double secondaryIcon(BuildContext context) => mobileWidth(context) * 0.1;
+double secondaryIcon(BuildContext context) => mobileWidth(context) * 0.075;
 double smallIcon(BuildContext context) => mobileWidth(context) * 0.06;
 
 /// ========== MediaQuery Helpers ==========

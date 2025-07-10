@@ -7,7 +7,10 @@ class GetWeatherAndForecast {
 
   GetWeatherAndForecast(this.weatherRepo);
 
-  Future<(WeatherModel, List<ForecastModel>)> call(String cityName) {
-    return weatherRepo.getWeatherAndForecast(cityName);
+  Future<(WeatherModel, List<ForecastModel>)> call({
+    required double lat,
+    required double lon,
+  }) {
+    return weatherRepo.getWeatherAndForecast(lat, lon);
   }
 }

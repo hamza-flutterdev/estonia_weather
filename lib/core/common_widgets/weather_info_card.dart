@@ -8,7 +8,7 @@ import '../../core/utils/weather_utils.dart';
 import '../../presentation/home/view/weather_detail_item.dart';
 import '../../data/model/weather_model.dart';
 import '../../data/model/forecast_model.dart';
-import '../animation/weather_animation.dart';
+import '../animation/animated_weather_icon.dart';
 import '../global_service/controllers/condition_controller.dart';
 
 class WeatherInfoCard extends StatelessWidget {
@@ -66,28 +66,20 @@ class WeatherInfoCard extends StatelessWidget {
       decoration: roundedDecorationWithShadow.copyWith(
         gradient: useGradient ? kGradient : null,
       ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: kBodyHp,
-        vertical: 8.0,
-      ), // Reduced vertical padding even more
+      padding: const EdgeInsets.symmetric(horizontal: kBodyHp, vertical: 8.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (date != null)
-            Padding(
-              padding: const EdgeInsets.only(
-                bottom: 4.0,
-              ), // Smaller gap below date
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    DateFormat.EEEE().format(date!),
-                    style: headlineSmallStyle.copyWith(color: textColor),
-                  ),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  DateFormat.EEEE().format(date!),
+                  style: headlineSmallStyle.copyWith(color: textColor),
+                ),
+              ],
             ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -142,11 +134,9 @@ class WeatherInfoCard extends StatelessWidget {
             ],
           ),
           if (showWeatherDetails) ...[
-            const SizedBox(height: 8.0), // Reduced gap before weather details
+            const Spacer(),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8.0,
-              ), // Applied horizontal padding directly, no vertical
+              padding: const EdgeInsets.symmetric(horizontal: kElementWidthGap),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [

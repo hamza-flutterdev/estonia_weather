@@ -6,9 +6,9 @@ import '../../../data/model/weather_model.dart';
 import '../../../domain/use_cases/get_current_weather.dart';
 import '../../home/controller/home_controller.dart';
 
-class CitiesController extends GetxController {
+class SelectCityController extends GetxController {
   final GetWeatherAndForecast getCurrentWeather;
-  CitiesController(this.getCurrentWeather);
+  SelectCityController(this.getCurrentWeather);
 
   final homeController = Get.find<HomeController>();
   final TextEditingController searchController = TextEditingController();
@@ -16,30 +16,27 @@ class CitiesController extends GetxController {
   var allCities = <EstonianCity>[].obs;
   var allCitiesWeather = <WeatherModel>[].obs;
   var isLoading = false.obs;
+  var isAdding = false.obs;
+  var errorMessage = ''.obs;
   var filteredCities = <EstonianCity>[].obs;
 
   @override
   void onInit() {
     super.onInit();
     loadDataFromHome();
-    loadSelectedCitiesWeather();
+    loadAllCitiesWeather();
   }
 
   void loadDataFromHome() {
-    allCities.value = homeController.selectedCities;
+    allCities.value = homeController.allCities;
     filteredCities.value = allCities.toList();
   }
 
-  void refreshData() {
-    loadDataFromHome();
-    loadSelectedCitiesWeather();
-  }
-
-  Future<void> loadSelectedCitiesWeather() async {
+  Future<void> loadAllCitiesWeather() async {
     try {
       isLoading.value = true;
+      errorMessage.value = '';
       allCitiesWeather.clear();
-
       final futures =
           allCities.map((city) async {
             try {
@@ -63,11 +60,10 @@ class CitiesController extends GetxController {
               );
             }
           }).toList();
-
       final results = await Future.wait(futures);
       allCitiesWeather.addAll(results);
     } catch (e) {
-      debugPrint('Failed to load weather data: $e');
+      errorMessage.value = 'Failed to load weather data: $e';
     } finally {
       isLoading.value = false;
     }
@@ -86,13 +82,19 @@ class CitiesController extends GetxController {
     }
   }
 
-  Future<void> removeCityFromSelected(EstonianCity city) async {
-    await homeController.removeCityFromSelected(city);
-    refreshData();
+  Future<void> addCityToSelected(EstonianCity city) async {
+    try {
+      isAdding.value = true;
+      await homeController.addCityToSelected(city);
+    } catch (e) {
+      debugPrint('Failed to add city: $e');
+    } finally {
+      isAdding.value = false;
+    }
   }
 
-  bool canRemoveCity() {
-    return homeController.selectedCities.length > 3;
+  bool isCitySelected(EstonianCity city) {
+    return homeController.isCitySelected(city);
   }
 
   String getAirQualityText(AirQualityModel? airQuality) {
