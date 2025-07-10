@@ -70,17 +70,16 @@ class ConditionController extends GetxController {
     if (forecast != null) {
       return '${forecast.humidity}%';
     }
-    return humidity; // Fallback to current weather
+    return humidity;
   }
 
   String getWindSpeedForForecast(ForecastModel? forecast) {
     if (forecast != null) {
       return '${forecast.windSpeed.toStringAsFixed(1)}km/h';
     }
-    return windSpeed; // Fallback to current weather
+    return windSpeed;
   }
 
-  // Raw values for when you need integers/doubles instead of formatted strings
   int get rawChanceOfRain {
     return mainCityWeather.value?.chanceOfRain ?? 0;
   }
@@ -105,15 +104,15 @@ class ConditionController extends GetxController {
     return forecast?.windSpeed ?? rawWindSpeed;
   }
 
+  // FIXED: This getter now correctly returns other cities excluding the main city by name
   List<WeatherModel> get otherCitiesWeather {
     if (selectedCitiesWeather.length <= 1) return [];
-    List<WeatherModel> otherCities = [];
-    for (int i = 0; i < selectedCitiesWeather.length; i++) {
-      if (i != mainCityIndex.value) {
-        otherCities.add(selectedCitiesWeather[i]);
-      }
-    }
-    return otherCities;
+
+    String currentMainCityName = mainCityWeather.value?.cityName ?? '';
+
+    return selectedCitiesWeather
+        .where((weather) => weather.cityName != currentMainCityName)
+        .toList();
   }
 
   void updateWeatherData(

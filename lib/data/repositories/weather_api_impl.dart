@@ -10,10 +10,11 @@ class WeatherApiImpl implements WeatherRepo {
 
   @override
   Future<(WeatherModel, List<ForecastModel>)> getWeatherAndForecast(
-    String cityName,
+    double lat,
+    double lon,
   ) async {
     try {
-      return await onlineDataSource.getWeatherAndForecast(cityName);
+      return await onlineDataSource.getWeatherAndForecast(lat: lat, lon: lon);
     } catch (e) {
       throw Exception('Failed to get weather and forecast: $e');
     }

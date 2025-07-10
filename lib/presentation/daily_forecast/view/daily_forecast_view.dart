@@ -4,10 +4,12 @@ import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/common_widgets/custom_drawer.dart';
 import '../../../core/common_widgets/icon_buttons.dart';
 import '../../../core/common_widgets/weather_info_card.dart';
 import '../../../core/constants/constant.dart';
 import '../../../core/global_service/controllers/condition_controller.dart';
+import '../../../extensions/device_size/device_size.dart';
 import '../../../gen/assets.gen.dart';
 import '../../cities/cities_view/cities_view.dart';
 import '../../../core/common_widgets/weather_icon.dart';
@@ -24,29 +26,31 @@ class ForecastScreen extends StatelessWidget {
         Get.find<ConditionController>();
 
     return Scaffold(
-      drawer: const Drawer(),
+      drawer: CustomDrawer(),
       extendBodyBehindAppBar: true,
       backgroundColor: bgColor,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final bool isTall = constraints.maxHeight > 850;
-          final bool isMob = constraints.maxHeight > 400;
-
-          final double imageHeight = constraints.maxHeight * 0.4;
-          final double cardTop = constraints.maxHeight * 0.11;
-
+          final deviceSize = DeviceSize(constraints, context);
+          final double imageHeight = deviceSize.height * 0.4;
+          final double cardTop = deviceSize.height * 0.11;
           final double cardHeight =
-              isTall
-                  ? constraints.maxHeight * 0.38
-                  : isMob
-                  ? constraints.maxHeight * 0.46
-                  : constraints.maxHeight * 0.52;
-
+              deviceSize.isTab
+                  ? deviceSize.height * 0.44
+                  : deviceSize.isBig
+                  ? deviceSize.height * 0.38
+                  : deviceSize.isMedium
+                  ? deviceSize.height * 0.44
+                  : deviceSize.isSmall
+                  ? deviceSize.height * 0.44
+                  : deviceSize.height * 0.38;
           final double listItemHeight =
-              isMob ? mobileWidth(context) * 0.22 : mobileWidth(context) * 0.22;
+              deviceSize.isTab
+                  ? deviceSize.width * 0.15
+                  : deviceSize.width * 0.22;
 
           return SizedBox(
-            height: constraints.maxHeight,
+            height: deviceSize.height,
             width: double.infinity,
             child: Stack(
               clipBehavior: Clip.none,
@@ -71,11 +75,16 @@ class ForecastScreen extends StatelessWidget {
                   ],
                   subtitle: '',
                 ),
-
                 Positioned(
                   top: cardTop,
-                  left: mobileWidth(context) * 0.05,
-                  right: mobileWidth(context) * 0.05,
+                  left:
+                      deviceSize.isTab
+                          ? deviceSize.width * 0.10
+                          : deviceSize.width * 0.05,
+                  right:
+                      deviceSize.isTab
+                          ? deviceSize.width * 0.10
+                          : deviceSize.width * 0.05,
                   child: SizedBox(
                     height: cardHeight,
                     child: WeatherInfoCard(
@@ -89,9 +98,13 @@ class ForecastScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 Positioned(
-                  top: cardHeight + kBodyHp,
+                  top:
+                      deviceSize.isTab
+                          ? cardHeight + kToolbarHeight + kBodyHp * 4
+                          : deviceSize.isBig
+                          ? cardHeight + kToolbarHeight + kBodyHp
+                          : cardHeight + kToolbarHeight + kElementGap,
                   left: 0,
                   right: 0,
                   bottom: 0,
@@ -99,7 +112,12 @@ class ForecastScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: kBodyHp),
+                          padding: EdgeInsets.symmetric(
+                            horizontal:
+                                deviceSize.isTab
+                                    ? deviceSize.width * 0.15
+                                    : kBodyHp,
+                          ),
                           child: SectionHeader(
                             actionIcon: Icons.location_on,
                             title: '7 Day Forecasts',
@@ -107,11 +125,17 @@ class ForecastScreen extends StatelessWidget {
                             onTap: () {},
                           ),
                         ),
-                        const SizedBox(height: kElementGap),
                         Expanded(
                           child: ListView.builder(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: kBodyHp,
+                            padding: EdgeInsets.fromLTRB(
+                              deviceSize.isTab
+                                  ? deviceSize.width * 0.15
+                                  : kBodyHp,
+                              kBodyHp,
+                              deviceSize.isTab
+                                  ? deviceSize.width * 0.15
+                                  : kBodyHp,
+                              0,
                             ),
                             itemCount: 7,
                             itemBuilder: (context, index) {
@@ -137,7 +161,10 @@ class ForecastScreen extends StatelessWidget {
                                   child: Row(
                                     children: [
                                       SizedBox(
-                                        width: mobileWidth(context) * 0.15,
+                                        width:
+                                            deviceSize.isTab
+                                                ? deviceSize.width * 0.1
+                                                : deviceSize.width * 0.15,
                                         child: Text(
                                           dayData['day'],
                                           style: bodyLargeStyle.copyWith(
@@ -149,7 +176,10 @@ class ForecastScreen extends StatelessWidget {
                                         ),
                                       ),
                                       SizedBox(
-                                        width: mobileWidth(context) * 0.14,
+                                        width:
+                                            deviceSize.isTab
+                                                ? deviceSize.width * 0.08
+                                                : deviceSize.width * 0.14,
                                       ),
                                       WeatherIcon(
                                         iconUrl: dayData['iconUrl'],
@@ -158,13 +188,18 @@ class ForecastScreen extends StatelessWidget {
                                       ),
                                       Expanded(
                                         flex: 2,
-                                        child: Text(
-                                          dayData['condition'],
-                                          style: bodyLargeStyle.copyWith(
-                                            color:
-                                                index == 0
-                                                    ? kWhite
-                                                    : primaryColor,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                            left: deviceSize.isTab ? 16 : 8,
+                                          ),
+                                          child: Text(
+                                            dayData['condition'],
+                                            style: bodyLargeStyle.copyWith(
+                                              color:
+                                                  index == 0
+                                                      ? kWhite
+                                                      : primaryColor,
+                                            ),
                                           ),
                                         ),
                                       ),

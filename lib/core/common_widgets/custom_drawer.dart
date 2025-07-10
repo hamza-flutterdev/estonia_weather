@@ -1,7 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:toastification/toastification.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../gen/assets.gen.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_styles.dart';
+import 'custom_toast.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -25,7 +30,7 @@ class CustomDrawer extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 12.0),
-                    child: Image.asset('assets/images/icon.png', height: 80),
+                    child: Image.asset(Assets.images.rain.path, height: 80),
                   ),
                   Text(
                     'Learn English',
@@ -38,7 +43,7 @@ class CustomDrawer extends StatelessWidget {
               icon: Icons.more,
               title: 'More Apps',
               onTap: () {
-                //moreApp();
+                moreApp();
               },
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
@@ -46,7 +51,7 @@ class CustomDrawer extends StatelessWidget {
               icon: Icons.privacy_tip_rounded,
               title: 'Privacy Policy',
               onTap: () {
-                //privacy();
+                privacy();
               },
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
@@ -54,15 +59,8 @@ class CustomDrawer extends StatelessWidget {
               icon: Icons.star_rounded,
               title: 'Rate Us',
               onTap: () {
-                //  rateUs();
+                rateUs();
               },
-            ),
-            Divider(color: primaryColor.withValues(alpha: 0.1)),
-            DrawerTile(
-              icon: Icons.restart_alt,
-              title: 'Reset App',
-              onTap: () {},
-              //_showResetConfirmation(context),
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
           ],
@@ -70,83 +68,48 @@ class CustomDrawer extends StatelessWidget {
       ),
     );
   }
+}
 
-  //   void _showResetConfirmation(BuildContext context) {
-  //     PanaraConfirmDialog.show(
-  //       context,
-  //       title: "Reset App",
-  //       message:
-  //           "Are you sure you want to reset the app? This will clear all your progress and data.",
-  //       confirmButtonText: "Reset",
-  //       cancelButtonText: "Cancel",
-  //       onTapCancel: () {
-  //         Navigator.pop(context);
-  //       },
-  //       onTapConfirm: () async {
-  //         Navigator.pop(context);
-  //         await _resetApp(context);
-  //       },
-  //       panaraDialogType: PanaraDialogType.custom,
-  //       color: primaryColor,
-  //       barrierDismissible: false,
-  //     );
-  //   }
-  //
-  //   Future<void> _resetApp(BuildContext context) async {
-  //     final prefs = await SharedPreferences.getInstance();
-  //     await prefs.clear();
-  //
-  //     ToastHelper.showCustomToast(
-  //       context: context,
-  //       message: "App is being reset.",
-  //       type: ToastificationType.success,
-  //       primaryColor: primaryColor,
-  //       icon: Icons.restart_alt,
-  //     );
-  //   }
-  // }
-  //
-  // void privacy() async {
-  //   const androidUrl = 'https://privacypolicymuslimapplications.blogspot.com/';
-  //   const iosUrl = 'https://asadarmantech.blogspot.com';
-  //
-  //   final url = Platform.isIOS ? iosUrl : androidUrl;
-  //
-  //   if (await canLaunchUrl(Uri.parse(url))) {
-  //     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-  //   } else {
-  //     throw 'Could not launch $url';
-  //   }
-  // }
-  //
-  // void rateUs() async {
-  //   const androidUrl =
-  //       'https://play.google.com/store/apps/details?id=com.ma.gkquiz.generalknowledge';
-  //   const iosUrl = 'https://apps.apple.com/us/app/GK Quiz/6747742199';
-  //
-  //   final url = Platform.isIOS ? iosUrl : androidUrl;
-  //
-  //   if (await canLaunchUrl(Uri.parse(url))) {
-  //     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-  //   } else {
-  //     throw 'Could not launch $url';
-  //   }
-  // }
-  //
-  // void moreApp() async {
-  //   const androidUrl =
-  //       'https://play.google.com/store/apps/developer?id=Muslim+Applications';
-  //   const iosUrl =
-  //       'https://apps.apple.com/us/developer/muhammad-asad-arman/id1487950157?see-all=i-phonei-pad-apps';
-  //
-  //   final url = Platform.isIOS ? iosUrl : androidUrl;
-  //
-  //   if (await canLaunchUrl(Uri.parse(url))) {
-  //     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-  //   } else {
-  //     throw 'Could not launch $url';
-  //   }
-  // }
+void privacy() async {
+  const androidUrl = 'https://privacypolicymuslimapplications.blogspot.com/';
+  const iosUrl = 'https://asadarmantech.blogspot.com';
+
+  final url = Platform.isIOS ? iosUrl : androidUrl;
+
+  if (await canLaunchUrl(Uri.parse(url))) {
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+
+void rateUs() async {
+  const androidUrl =
+      'https://play.google.com/store/apps/details?id=com.ma.gkquiz.generalknowledge';
+  const iosUrl = 'https://apps.apple.com/us/app/GK Quiz/6747742199';
+
+  final url = Platform.isIOS ? iosUrl : androidUrl;
+
+  if (await canLaunchUrl(Uri.parse(url))) {
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+
+void moreApp() async {
+  const androidUrl =
+      'https://play.google.com/store/apps/developer?id=Muslim+Applications';
+  const iosUrl =
+      'https://apps.apple.com/us/developer/muhammad-asad-arman/id1487950157?see-all=i-phonei-pad-apps';
+
+  final url = Platform.isIOS ? iosUrl : androidUrl;
+
+  if (await canLaunchUrl(Uri.parse(url))) {
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  } else {
+    throw 'Could not launch $url';
+  }
 }
 
 class DrawerTile extends StatelessWidget {

@@ -3,20 +3,6 @@ import 'package:flutter/material.dart';
 import '../constants/constant.dart';
 import '../theme/app_colors.dart';
 
-class BackIconButton extends StatelessWidget {
-  const BackIconButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
-      },
-      child: Icon(Icons.arrow_back_ios_new, color: primaryColor),
-    );
-  }
-}
-
 class IconActionButton extends StatelessWidget {
   final VoidCallback? onTap;
   final IconData icon;

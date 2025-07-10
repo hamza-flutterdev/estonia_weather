@@ -21,20 +21,21 @@ class WeatherUtils {
 
   static String getWeatherIcon(int code) {
     if ([1000].contains(code)) return 'clear';
-    if ([1009, 1030, 1135, 1147, 1003, 1006].contains(code)) return 'cloudy';
+    if ([1087, 1273, 1276, 1279, 1282].contains(code)) return 'thunderstorm';
+    if ([1003, 1006, 1009, 1030, 1135, 1147].contains(code)) return 'cloudy';
     if ([
       1063,
       1150,
+      1153,
       1180,
       1183,
-      1240,
-      1243,
       1186,
+      1189,
       1192,
       1195,
+      1240,
+      1243,
       1246,
-      1273,
-      1276,
     ].contains(code)) {
       return 'rain';
     }
@@ -49,6 +50,7 @@ class WeatherUtils {
       1255,
       1258,
       1114,
+      1117,
     ].contains(code)) {
       return 'snow';
     }
@@ -64,10 +66,11 @@ class WeatherUtils {
       1249,
       1252,
       1237,
+      1261,
+      1264,
     ].contains(code)) {
       return 'sleet';
     }
-    if ([1087, 1273, 1276, 1279, 1282].contains(code)) return 'thunderstorm';
     return 'clear';
   }
 
