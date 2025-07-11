@@ -7,7 +7,7 @@ import '../constants/constant.dart';
 
 class CustomAppBar extends StatelessWidget {
   final List<Widget>? actions;
-  final dynamic title;
+  final String? title;
   final String subtitle;
   final bool useBackButton;
   final VoidCallback? onBackTap;
@@ -46,47 +46,48 @@ class CustomAppBar extends StatelessWidget {
                   color: primaryColor,
                   size: secondaryIcon(context),
                 ),
-
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (hasTitle)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.location_on,
-                          color: primaryColor,
-                          size: secondaryIcon(context),
-                        ),
-                        const SizedBox(width: kElementWidthGap),
-                        if (title is String)
-                          Text(
-                            title as String,
-                            style: titleBoldMediumStyle.copyWith(
-                              color: primaryColor,
-                            ),
-                          )
-                        else if (title is Widget)
-                          DefaultTextStyle(
-                            style: titleBoldMediumStyle.copyWith(
-                              color: primaryColor,
-                            ),
-                            child: title as Widget,
+              child: Align(
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (hasTitle)
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.location_on,
+                            color: primaryColor,
+                            size: secondaryIcon(context),
                           ),
+                        ],
+                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (hasTitle)
+                          Text(
+                            title!,
+                            style: titleBoldMediumStyle.copyWith(
+                              color: primaryColor,
+                            ),
+                          ),
+                        Text(
+                          subtitle,
+                          style: (hasTitle
+                                  ? bodyMediumStyle
+                                  : titleBoldMediumStyle)
+                              .copyWith(color: primaryColor),
+                        ),
                       ],
                     ),
-                  Text(
-                    subtitle,
-                    style: (hasTitle ? bodyMediumStyle : titleBoldMediumStyle)
-                        .copyWith(color: primaryColor),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-
             if (actions != null) ...actions!,
           ],
         ),

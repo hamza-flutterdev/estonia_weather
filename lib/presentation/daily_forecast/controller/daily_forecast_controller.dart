@@ -2,8 +2,9 @@ import 'package:get/get.dart';
 import '../../home/controller/home_controller.dart';
 import '../../../data/model/forecast_model.dart';
 
-class ForecastController extends GetxController {
+class DailyForecastController extends GetxController {
   var forecastData = <ForecastModel>[].obs;
+  final homeController = Get.find<HomeController>();
   var selectedDayIndex = 0.obs;
   var mainCityName = ''.obs;
 
@@ -14,7 +15,6 @@ class ForecastController extends GetxController {
   }
 
   void loadForecastData() {
-    final homeController = Get.find<HomeController>();
     mainCityName.value = homeController.mainCityName;
     forecastData.value = homeController.forecastData;
   }

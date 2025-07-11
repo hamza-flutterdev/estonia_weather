@@ -40,6 +40,9 @@ class $AssetsImagesGen {
   AssetGenImage get humidityDroplet =>
       const AssetGenImage('assets/images/humidity_droplet.png');
 
+  /// File path: assets/images/icon.png
+  AssetGenImage get icon => const AssetGenImage('assets/images/icon.png');
+
   /// File path: assets/images/precipitation_umbrella.png
   AssetGenImage get precipitationUmbrella =>
       const AssetGenImage('assets/images/precipitation_umbrella.png');
@@ -67,6 +70,7 @@ class $AssetsImagesGen {
     dailyForecastBgContainer,
     hourlyForecastBgContainer,
     humidityDroplet,
+    icon,
     precipitationUmbrella,
     rain,
     sleet,

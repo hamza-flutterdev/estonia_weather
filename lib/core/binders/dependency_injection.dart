@@ -1,5 +1,4 @@
 import 'package:estonia_weather/presentation/hourly_forecast/controller/hourly_forecast_controller.dart';
-import 'package:estonia_weather/presentation/selected_city/controller/select_city_controller.dart';
 import 'package:get/get.dart';
 import 'package:estonia_weather/presentation/cities/controller/cities_controller.dart';
 import 'package:estonia_weather/presentation/daily_forecast/controller/daily_forecast_controller.dart';
@@ -40,12 +39,11 @@ class DependencyInjection {
       () => CitiesController(Get.find<GetWeatherAndForecast>()),
       fenix: true,
     );
-    Get.lazyPut<SelectCityController>(
-      () => SelectCityController(Get.find<GetWeatherAndForecast>()),
+
+    Get.lazyPut<DailyForecastController>(
+      () => DailyForecastController(),
       fenix: true,
     );
-
-    Get.lazyPut<ForecastController>(() => ForecastController(), fenix: true);
     Get.lazyPut<ConditionController>(() => ConditionController(), fenix: true);
     Get.lazyPut<HourlyForecastController>(
       () => HourlyForecastController(),

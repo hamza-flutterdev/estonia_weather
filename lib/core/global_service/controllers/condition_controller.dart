@@ -13,8 +13,8 @@ class ConditionController extends GetxController {
 
   String get temperature {
     return mainCityWeather.value != null
-        ? '${mainCityWeather.value!.temperature.round()}°'
-        : '--°';
+        ? '${mainCityWeather.value!.temperature.round()}'
+        : '--';
   }
 
   String get condition {
@@ -39,14 +39,26 @@ class ConditionController extends GetxController {
         : '--km/h';
   }
 
-  String get weatherIconUrl {
-    return mainCityWeather.value != null
-        ? mainCityWeather.value!.iconUrl
-        : WeatherUtils.getDefaultIcon();
+  String get minTemp {
+    if (weeklyForecast.isNotEmpty) {
+      final todayForecast = weeklyForecast.firstWhere(
+        (forecast) => forecast['day'] == 'Today',
+        orElse: () => weeklyForecast.first,
+      );
+      return '${todayForecast['minTemp']?.round() ?? '--'}';
+    }
+    return '--';
   }
 
-  int get weatherCode {
-    return mainCityWeather.value?.code ?? 1003;
+  String get maxTemp {
+    if (weeklyForecast.isNotEmpty) {
+      final todayForecast = weeklyForecast.firstWhere(
+        (forecast) => forecast['day'] == 'Today',
+        orElse: () => weeklyForecast.first,
+      );
+      return '${todayForecast['temp']?.round() ?? '--'}';
+    }
+    return '--';
   }
 
   String get weatherIconPath {
@@ -59,57 +71,9 @@ class ConditionController extends GetxController {
     return WeatherUtils.getWeatherIconPath('clear');
   }
 
-  String getChanceOfRainForForecast(ForecastModel? forecast) {
-    if (forecast != null) {
-      return '${forecast.chanceOfRain}%';
-    }
-    return chanceOfRain;
-  }
-
-  String getHumidityForForecast(ForecastModel? forecast) {
-    if (forecast != null) {
-      return '${forecast.humidity}%';
-    }
-    return humidity;
-  }
-
-  String getWindSpeedForForecast(ForecastModel? forecast) {
-    if (forecast != null) {
-      return '${forecast.windSpeed.toStringAsFixed(1)}km/h';
-    }
-    return windSpeed;
-  }
-
-  int get rawChanceOfRain {
-    return mainCityWeather.value?.chanceOfRain ?? 0;
-  }
-
-  int get rawHumidity {
-    return mainCityWeather.value?.humidity ?? 0;
-  }
-
-  double get rawWindSpeed {
-    return mainCityWeather.value?.windSpeed ?? 0.0;
-  }
-
-  int getRawChanceOfRainForForecast(ForecastModel? forecast) {
-    return forecast?.chanceOfRain ?? rawChanceOfRain;
-  }
-
-  int getRawHumidityForForecast(ForecastModel? forecast) {
-    return forecast?.humidity ?? rawHumidity;
-  }
-
-  double getRawWindSpeedForForecast(ForecastModel? forecast) {
-    return forecast?.windSpeed ?? rawWindSpeed;
-  }
-
-  // FIXED: This getter now correctly returns other cities excluding the main city by name
   List<WeatherModel> get otherCitiesWeather {
     if (selectedCitiesWeather.length <= 1) return [];
-
     String currentMainCityName = mainCityWeather.value?.cityName ?? '';
-
     return selectedCitiesWeather
         .where((weather) => weather.cityName != currentMainCityName)
         .toList();
@@ -158,26 +122,6 @@ class ConditionController extends GetxController {
       return DateFormat('EEE').format(date);
     }
   }
-
-  String getFormattedDate(String dateString) {
-    final date = DateTime.parse(dateString);
-    return DateFormat('dd MMMM').format(date);
-  }
-
-  String getShortDayName(String dateString) {
-    final date = DateTime.parse(dateString);
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final targetDate = DateTime(date.year, date.month, date.day);
-    final difference = targetDate.difference(today).inDays;
-    if (difference == 0) {
-      return 'Today';
-    } else {
-      return DateFormat('EEE').format(date);
-    }
-  }
-
-  bool get hasForecastData => weeklyForecast.isNotEmpty;
 
   Map<String, dynamic>? getForecastForDay(int index) {
     if (index >= 0 && index < weeklyForecast.length) {

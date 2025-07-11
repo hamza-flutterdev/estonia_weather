@@ -13,29 +13,49 @@ class CitiesController extends GetxController {
   final homeController = Get.find<HomeController>();
   final TextEditingController searchController = TextEditingController();
 
+  static const int maxCities = 10;
+
   var allCities = <EstonianCity>[].obs;
   var allCitiesWeather = <WeatherModel>[].obs;
   var isLoading = false.obs;
+  var isAdding = false.obs;
   var filteredCities = <EstonianCity>[].obs;
 
   @override
   void onInit() {
     super.onInit();
     loadDataFromHome();
-    loadSelectedCitiesWeather();
+    loadAllCitiesWeather();
   }
 
   void loadDataFromHome() {
-    allCities.value = homeController.selectedCities;
-    filteredCities.value = allCities.toList();
+    // Load all cities (both selected and unselected)
+    allCities.value = homeController.allCities;
+    filteredCities.value = _getSortedCities();
   }
 
   void refreshData() {
     loadDataFromHome();
-    loadSelectedCitiesWeather();
+    loadAllCitiesWeather();
   }
 
-  Future<void> loadSelectedCitiesWeather() async {
+  // Sort cities with selected ones at the top
+  List<EstonianCity> _getSortedCities() {
+    final selectedCities = <EstonianCity>[];
+    final unselectedCities = <EstonianCity>[];
+
+    for (final city in allCities) {
+      if (homeController.isCitySelected(city)) {
+        selectedCities.add(city);
+      } else {
+        unselectedCities.add(city);
+      }
+    }
+
+    return [...selectedCities, ...unselectedCities];
+  }
+
+  Future<void> loadAllCitiesWeather() async {
     try {
       isLoading.value = true;
       allCitiesWeather.clear();
@@ -75,27 +95,74 @@ class CitiesController extends GetxController {
 
   void searchCities(String query) {
     if (query.isEmpty) {
-      filteredCities.value = allCities.toList();
+      filteredCities.value = _getSortedCities();
     } else {
-      filteredCities.value =
+      final filtered =
           allCities.where((city) {
             final lowerQuery = query.toLowerCase();
             return city.cityAscii.toLowerCase().contains(lowerQuery) ||
                 city.country.toLowerCase().contains(lowerQuery);
           }).toList();
+
+      // Sort filtered results with selected cities first
+      final selectedFiltered = <EstonianCity>[];
+      final unselectedFiltered = <EstonianCity>[];
+
+      for (final city in filtered) {
+        if (homeController.isCitySelected(city)) {
+          selectedFiltered.add(city);
+        } else {
+          unselectedFiltered.add(city);
+        }
+      }
+
+      filteredCities.value = [...selectedFiltered, ...unselectedFiltered];
     }
   }
 
-  Future<void> removeCityFromSelected(EstonianCity city) async {
-    await homeController.removeCityFromSelected(city);
-    refreshData();
+  // Methods for adding cities
+  bool canAddCity() {
+    return homeController.selectedCities.length < maxCities;
   }
 
+  Future<void> addCityToSelected(EstonianCity city) async {
+    try {
+      isAdding.value = true;
+      await homeController.addCityToSelected(city);
+      // Refresh the sorted list after adding
+      if (searchController.text.isEmpty) {
+        filteredCities.value = _getSortedCities();
+      } else {
+        searchCities(searchController.text);
+      }
+    } catch (e) {
+      debugPrint('Failed to add city: $e');
+    } finally {
+      isAdding.value = false;
+    }
+  }
+
+  // Methods for removing cities
   bool canRemoveCity() {
     return homeController.selectedCities.length > 3;
   }
 
-  String getAirQualityText(AirQualityModel? airQuality) {
+  Future<void> removeCityFromSelected(EstonianCity city) async {
+    await homeController.removeCityFromSelected(city);
+    // Refresh the sorted list after removing
+    if (searchController.text.isEmpty) {
+      filteredCities.value = _getSortedCities();
+    } else {
+      searchCities(searchController.text);
+    }
+  }
+
+  // Check if city is selected
+  bool isCitySelected(EstonianCity city) {
+    return homeController.isCitySelected(city);
+  }
+
+  String getAqiText(AirQualityModel? airQuality) {
     if (airQuality == null) return 'Air quality unavailable';
     final aqi = airQuality.calculatedAqi;
     final category = airQuality.getAirQualityCategory(aqi);

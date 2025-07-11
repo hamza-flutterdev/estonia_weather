@@ -15,7 +15,8 @@ class WeatherInfoCard extends StatelessWidget {
   final DateTime? date;
   final String temperature;
   final String condition;
-  final String? minTemp;
+  final String minTemp;
+  final String? maxTemp;
   final WeatherModel? weatherData;
   final ForecastModel? forecastData;
   final bool useGradient;
@@ -29,7 +30,7 @@ class WeatherInfoCard extends StatelessWidget {
     this.date,
     required this.temperature,
     required this.condition,
-    this.minTemp,
+    required this.minTemp,
     this.weatherData,
     this.forecastData,
     this.useGradient = false,
@@ -37,6 +38,7 @@ class WeatherInfoCard extends StatelessWidget {
     this.showIcon = true,
     this.iconSize,
     required this.imagePath,
+    this.maxTemp,
   });
 
   @override
@@ -65,11 +67,10 @@ class WeatherInfoCard extends StatelessWidget {
     return Container(
       decoration: roundedDecorationWithShadow.copyWith(
         gradient: useGradient ? kGradient : null,
+        color: kLightWhite,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: kBodyHp, vertical: 8.0),
+      padding: kContentPaddingSmall,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (date != null)
             Row(
@@ -83,6 +84,7 @@ class WeatherInfoCard extends StatelessWidget {
             ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (showIcon)
                 SizedBox(
@@ -94,43 +96,64 @@ class WeatherInfoCard extends StatelessWidget {
                     width: largeIcon(context),
                   ),
                 ),
-              if (showIcon) const SizedBox(width: kBodyHp * 2.5),
-              Expanded(
-                flex: minTemp != null ? 3 : 5,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment:
-                      minTemp != null
-                          ? CrossAxisAlignment.start
-                          : CrossAxisAlignment.center,
-                  children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        temperature,
-                        style: headlineLargeStyle.copyWith(color: textColor),
-                      ),
+              if (showIcon) const SizedBox(width: kBodyHp * 2),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          temperature,
+                          style: headlineLargeStyle.copyWith(color: textColor),
+                        ),
+                        Text(
+                          '°',
+                          style: headlineLargeStyle.copyWith(
+                            color: textColor,
+                            fontSize: 75,
+                          ),
+                        ),
+                      ],
                     ),
-                    FittedBox(
+                  ),
+                  Center(
+                    child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
                         condition,
-                        style: headlineSmallStyle.copyWith(color: textColor),
+                        style: titleBoldLargeStyle.copyWith(color: textColor),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              if (minTemp != null)
-                Expanded(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      '/$minTemp°',
-                      style: titleBoldMediumStyle.copyWith(color: textColor),
-                    ),
                   ),
-                ),
+                  SizedBox(height: kElementInnerGap),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          '$maxTemp°',
+                          style: titleBoldMediumStyle.copyWith(
+                            color: textColor,
+                          ),
+                        ),
+                      ),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          '/$minTemp°',
+                          style: titleBoldMediumStyle.copyWith(
+                            color: textColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
           if (showWeatherDetails) ...[

@@ -9,9 +9,7 @@ import '../../presentation/home/controller/home_controller.dart';
 class OnlineDataSource {
   static const baseUrl = "https://api.weatherapi.com/v1/forecast.json";
   final String apiKey;
-
   OnlineDataSource(this.apiKey);
-
   Future<(WeatherModel, List<ForecastModel>)> getWeatherAndForecast({
     required double lat,
     required double lon,
@@ -20,24 +18,25 @@ class OnlineDataSource {
     final uri = Uri.parse(
       '$baseUrl?key=$apiKey&q=$lat,$lon&days=$days&aqi=yes&alerts=no',
     );
-
     final response = await http.get(uri);
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-
+      final cityName = data['location']['name'] as String?;
+      if (cityName != null) {
+        HomeController.storeRawDataForCity(cityName, data);
+      }
       try {
         final homeController = Get.find<HomeController>();
-        homeController.rawForecastData.value = data;
+        if (cityName != null && cityName == homeController.mainCityName) {
+          homeController.rawForecastData.value = data;
+        }
       } catch (e) {
-        debugPrint('HomeController not found, raw data not stored: $e');
+        debugPrint('HomeController not found or error updating raw data: $e');
       }
-
       final current = WeatherModel.fromForecastJson(data);
       final forecastDays = data['forecast']['forecastday'] as List;
       final forecast =
           forecastDays.map((e) => ForecastModel.fromJson(e)).toList();
-
       return (current, forecast);
     } else {
       throw Exception(
