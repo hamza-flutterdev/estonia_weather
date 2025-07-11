@@ -10,12 +10,4 @@ class LocalStorage {
   Future<void> setString(String key, String value) async {
     await _secureStorage.write(key: key, value: value);
   }
-
-  Future<void> remove(String key) async {
-    await _secureStorage.delete(key: key);
-  }
-
-  Future<void> clear() async {
-    await _secureStorage.deleteAll();
-  }
 }

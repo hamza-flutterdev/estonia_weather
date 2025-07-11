@@ -1,9 +1,11 @@
+import 'package:estonia_weather/core/constants/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../home/controller/home_controller.dart';
 import '../../../data/model/forecast_model.dart';
 
 class HourlyForecastController extends GetxController {
+  final homeController = Get.find<HomeController>();
   var forecastData = <ForecastModel>[].obs;
   var selectedDate = DateTime.now().obs;
   var mainCityName = ''.obs;
@@ -14,11 +16,9 @@ class HourlyForecastController extends GetxController {
   void onInit() {
     super.onInit();
     loadForecastData();
-    loadHourlyData();
   }
 
   void loadForecastData() {
-    final homeController = Get.find<HomeController>();
     mainCityName.value = homeController.mainCityName;
     forecastData.value = homeController.forecastData;
   }
@@ -29,33 +29,37 @@ class HourlyForecastController extends GetxController {
   }
 
   void loadHourlyData() {
-    final homeController = Get.find<HomeController>();
-    final selectedForecast = forecastData.firstWhereOrNull(
-      (forecast) =>
-          isSameDate(DateTime.parse(forecast.date), selectedDate.value),
-    );
-
-    if (selectedForecast != null) {
-      final hourlyForecast = homeController.getHourlyDataForDate(
-        selectedForecast.date,
+    try {
+      final selectedForecast = forecastData.firstWhereOrNull(
+        (forecast) =>
+            isSameDate(DateTime.parse(forecast.date), selectedDate.value),
       );
-      hourlyData.value = hourlyForecast;
-
-      _autoScrollToCurrentHour();
+      if (selectedForecast != null) {
+        final hourlyForecast = homeController.getHourlyDataForDate(
+          selectedForecast.date,
+        );
+        hourlyData.value = hourlyForecast;
+        _autoScrollToCurrentHour();
+      }
+    } catch (e) {
+      debugPrint('Error loading hourly data: $e');
     }
   }
 
   void _autoScrollToCurrentHour() {
     if (!isSameDate(selectedDate.value, DateTime.now())) return;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!scrollController.hasClients) return;
+      final context = scrollController.position.context.storageContext;
+      final itemWidth = mobileWidth(context) / 5;
 
       final currentHourIndex = hourlyData.indexWhere(
         (hour) => getCurrentHourData() == hour,
       );
 
       if (currentHourIndex != -1) {
-        final scrollOffset = currentHourIndex * 60.0;
+        final scrollOffset = currentHourIndex * itemWidth;
         final maxScroll = scrollController.position.maxScrollExtent;
 
         scrollController.animateTo(
@@ -80,25 +84,6 @@ class HourlyForecastController extends GetxController {
     if (hour == 12) return '12 PM';
     if (hour < 12) return '$hour AM';
     return '${hour - 12} PM';
-  }
-
-  String getFormattedDate() {
-    // Using intl package would be better, but using basic formatting
-    final months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return '${months[selectedDate.value.month - 1]} ${selectedDate.value.day}';
   }
 
   ForecastModel? get selectedDayData {

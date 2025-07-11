@@ -1,12 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../gen/assets.gen.dart';
+import '../constants/constant.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_styles.dart';
-import 'custom_toast.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -18,23 +17,32 @@ class CustomDrawer extends StatelessWidget {
     return Drawer(
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       child: Container(
-        color: secondaryColor,
+        color: bgColor,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: primaryColor),
+              decoration: BoxDecoration(gradient: kGradient),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12.0),
-                    child: Image.asset(Assets.images.rain.path, height: 80),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: kElementGap),
+                      child: Image.asset(
+                        Assets.images.icon.path,
+                        height: largeIcon(context),
+                      ),
+                    ),
                   ),
-                  Text(
-                    'Learn English',
-                    style: headlineMediumStyle.copyWith(color: kWhite),
+                  SizedBox(height: kElementInnerGap),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'Estonia Weather',
+                      style: headlineSmallStyle.copyWith(color: kWhite),
+                    ),
                   ),
                 ],
               ),

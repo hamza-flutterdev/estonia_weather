@@ -4,7 +4,6 @@ import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/common_widgets/custom_drawer.dart';
 import '../../../core/common_widgets/icon_buttons.dart';
 import '../../../core/common_widgets/weather_info_card.dart';
 import '../../../core/constants/constant.dart';
@@ -15,39 +14,23 @@ import '../../cities/cities_view/cities_view.dart';
 import '../../../core/common_widgets/weather_icon.dart';
 import '../controller/daily_forecast_controller.dart';
 
-class ForecastScreen extends StatelessWidget {
-  const ForecastScreen({super.key});
+class DailyForecastView extends StatelessWidget {
+  const DailyForecastView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final DateTime selectedDate = Get.arguments;
-    final ForecastController controller = Get.find<ForecastController>();
+    final DailyForecastController controller =
+        Get.find<DailyForecastController>();
     final ConditionController conditionController =
         Get.find<ConditionController>();
 
     return Scaffold(
-      drawer: CustomDrawer(),
       extendBodyBehindAppBar: true,
       backgroundColor: bgColor,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final deviceSize = DeviceSize(constraints, context);
-          final double imageHeight = deviceSize.height * 0.4;
-          final double cardTop = deviceSize.height * 0.11;
-          final double cardHeight =
-              deviceSize.isTab
-                  ? deviceSize.height * 0.44
-                  : deviceSize.isBig
-                  ? deviceSize.height * 0.38
-                  : deviceSize.isMedium
-                  ? deviceSize.height * 0.44
-                  : deviceSize.isSmall
-                  ? deviceSize.height * 0.44
-                  : deviceSize.height * 0.38;
-          final double listItemHeight =
-              deviceSize.isTab
-                  ? deviceSize.width * 0.15
-                  : deviceSize.width * 0.22;
 
           return SizedBox(
             height: deviceSize.height,
@@ -56,7 +39,7 @@ class ForecastScreen extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 SizedBox(
-                  height: imageHeight,
+                  height: deviceSize.dailyImageHeight,
                   width: double.infinity,
                   child: Image.asset(
                     Assets.images.dailyForecastBgContainer.path,
@@ -64,10 +47,9 @@ class ForecastScreen extends StatelessWidget {
                   ),
                 ),
                 CustomAppBar(
-                  useBackButton: false,
                   actions: [
                     IconActionButton(
-                      onTap: () => Get.to(CitiesScreen()),
+                      onTap: () => Get.to(CitiesView()),
                       icon: Icons.add,
                       color: primaryColor,
                       size: secondaryIcon(context),
@@ -76,21 +58,16 @@ class ForecastScreen extends StatelessWidget {
                   subtitle: '',
                 ),
                 Positioned(
-                  top: cardTop,
-                  left:
-                      deviceSize.isTab
-                          ? deviceSize.width * 0.10
-                          : deviceSize.width * 0.05,
-                  right:
-                      deviceSize.isTab
-                          ? deviceSize.width * 0.10
-                          : deviceSize.width * 0.05,
+                  top: deviceSize.dailyCardTop,
+                  left: deviceSize.dailyCardLeftMargin,
+                  right: deviceSize.dailyCardRightMargin,
                   child: SizedBox(
-                    height: cardHeight,
+                    height: deviceSize.dailyCardHeight,
                     child: WeatherInfoCard(
                       weatherData: conditionController.mainCityWeather.value,
                       date: selectedDate,
                       temperature: conditionController.temperature,
+                      maxTemp: conditionController.maxTemp,
                       condition: conditionController.condition,
                       minTemp:
                           controller.selectedDayData.minTemp.round().toString(),
@@ -99,12 +76,7 @@ class ForecastScreen extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top:
-                      deviceSize.isTab
-                          ? cardHeight + kToolbarHeight + kBodyHp * 4
-                          : deviceSize.isBig
-                          ? cardHeight + kToolbarHeight + kBodyHp
-                          : cardHeight + kToolbarHeight + kElementGap,
+                  top: deviceSize.dailyListContentTop,
                   left: 0,
                   right: 0,
                   bottom: 0,
@@ -113,10 +85,7 @@ class ForecastScreen extends StatelessWidget {
                       children: [
                         Padding(
                           padding: EdgeInsets.symmetric(
-                            horizontal:
-                                deviceSize.isTab
-                                    ? deviceSize.width * 0.15
-                                    : kBodyHp,
+                            horizontal: deviceSize.dailyListPaddingHorizontal,
                           ),
                           child: SectionHeader(
                             actionIcon: Icons.location_on,
@@ -128,13 +97,9 @@ class ForecastScreen extends StatelessWidget {
                         Expanded(
                           child: ListView.builder(
                             padding: EdgeInsets.fromLTRB(
-                              deviceSize.isTab
-                                  ? deviceSize.width * 0.15
-                                  : kBodyHp,
+                              deviceSize.dailyListPaddingHorizontal,
                               kBodyHp,
-                              deviceSize.isTab
-                                  ? deviceSize.width * 0.15
-                                  : kBodyHp,
+                              deviceSize.dailyListPaddingHorizontal,
                               0,
                             ),
                             itemCount: 7,
@@ -142,7 +107,6 @@ class ForecastScreen extends StatelessWidget {
                               final dayData = conditionController
                                   .getForecastForDay(index);
                               if (dayData == null) return const SizedBox();
-
                               return Padding(
                                 padding: const EdgeInsets.only(
                                   bottom: kElementInnerGap,
@@ -150,21 +114,19 @@ class ForecastScreen extends StatelessWidget {
                                 child: Container(
                                   decoration: roundedDecorationWithShadow
                                       .copyWith(
-                                        color:
+                                        gradient:
                                             index == 0
-                                                ? primaryColor
-                                                : secondaryColor,
+                                                ? kContainerGradient
+                                                : null,
+                                        color: index == 0 ? null : bgColor,
                                         borderRadius: BorderRadius.circular(24),
                                       ),
-                                  height: listItemHeight,
+                                  height: deviceSize.dailyListItemHeight,
                                   padding: kContentPaddingSmall,
                                   child: Row(
                                     children: [
                                       SizedBox(
-                                        width:
-                                            deviceSize.isTab
-                                                ? deviceSize.width * 0.1
-                                                : deviceSize.width * 0.15,
+                                        width: deviceSize.dailyDayWidth,
                                         child: Text(
                                           dayData['day'],
                                           style: bodyLargeStyle.copyWith(
@@ -176,21 +138,20 @@ class ForecastScreen extends StatelessWidget {
                                         ),
                                       ),
                                       SizedBox(
-                                        width:
-                                            deviceSize.isTab
-                                                ? deviceSize.width * 0.08
-                                                : deviceSize.width * 0.14,
+                                        width: deviceSize.dailySpacerWidth,
                                       ),
                                       WeatherIcon(
                                         iconUrl: dayData['iconUrl'],
-                                        size: primaryIcon(context),
+                                        size: primaryIcon(context) * 1.25,
                                         weatherData: dayData['condition'],
                                       ),
                                       Expanded(
                                         flex: 2,
                                         child: Padding(
                                           padding: EdgeInsets.only(
-                                            left: deviceSize.isTab ? 16 : 8,
+                                            left:
+                                                deviceSize
+                                                    .dailyConditionPaddingLeft,
                                           ),
                                           child: Text(
                                             dayData['condition'],

@@ -3,7 +3,6 @@ import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/common_widgets/custom_drawer.dart';
 import '../../../core/common_widgets/icon_buttons.dart';
 import '../../../core/common_widgets/weather_info_card.dart';
 import '../../../core/constants/constant.dart';
@@ -25,28 +24,11 @@ class HourlyForecastView extends StatelessWidget {
     controller.setSelectedDate(selectedDate);
 
     return Scaffold(
-      drawer: CustomDrawer(),
       extendBodyBehindAppBar: true,
       backgroundColor: bgColor,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final deviceSize = DeviceSize(constraints, context);
-          final double imageHeight = deviceSize.height * 0.4;
-          final double cardTop = deviceSize.height * 0.11;
-          final double cardHeight =
-              deviceSize.isTab
-                  ? deviceSize.height * 0.44
-                  : deviceSize.isBig
-                  ? deviceSize.height * 0.42
-                  : deviceSize.isMedium
-                  ? deviceSize.height * 0.48
-                  : deviceSize.isSmall
-                  ? deviceSize.height * 0.48
-                  : deviceSize.height * 0.42;
-          final double listItemHeight =
-              deviceSize.isTab
-                  ? deviceSize.width * 0.12
-                  : deviceSize.width * 0.18;
 
           return SizedBox(
             height: deviceSize.height,
@@ -54,7 +36,7 @@ class HourlyForecastView extends StatelessWidget {
             child: Stack(
               children: [
                 SizedBox(
-                  height: imageHeight,
+                  height: deviceSize.hourlyImageHeight,
                   width: double.infinity,
                   child: Image.asset(
                     Assets.images.hourlyForecastBgContainer.path,
@@ -62,34 +44,27 @@ class HourlyForecastView extends StatelessWidget {
                   ),
                 ),
                 CustomAppBar(
-                  useBackButton: false,
                   actions: [
                     IconActionButton(
-                      onTap: () => Get.to(CitiesScreen()),
+                      onTap: () => Get.to(CitiesView()),
                       icon: Icons.add,
                       color: primaryColor,
                       size: secondaryIcon(context),
                     ),
                   ],
-                  subtitle: '',
+                  subtitle: controller.mainCityName.toString(),
                 ),
                 Positioned(
-                  top: cardTop,
-                  left:
-                      deviceSize.isTab
-                          ? deviceSize.width * 0.10
-                          : deviceSize.width * 0.05,
-                  right:
-                      deviceSize.isTab
-                          ? deviceSize.width * 0.10
-                          : deviceSize.width * 0.05,
+                  top: deviceSize.hourlyCardTop,
+                  left: deviceSize.hourlyCardLeftMargin,
+                  right: deviceSize.hourlyCardRightMargin,
                   child: Obx(() {
                     final selectedDayData = controller.selectedDayData;
                     if (selectedDayData == null) {
                       return const SizedBox();
                     }
                     return SizedBox(
-                      height: cardHeight,
+                      height: deviceSize.hourlyCardHeight,
                       child: WeatherInfoCard(
                         weatherData: conditionController.mainCityWeather.value,
                         forecastData: selectedDayData,
@@ -97,18 +72,14 @@ class HourlyForecastView extends StatelessWidget {
                         temperature: selectedDayData.maxTemp.round().toString(),
                         condition: selectedDayData.condition,
                         minTemp: selectedDayData.minTemp.round().toString(),
+                        maxTemp: selectedDayData.maxTemp.round().toString(),
                         imagePath: conditionController.weatherIconPath,
                       ),
                     );
                   }),
                 ),
                 Positioned(
-                  top:
-                      deviceSize.isTab
-                          ? cardHeight + kToolbarHeight + kBodyHp * 4
-                          : deviceSize.isBig
-                          ? cardHeight + kToolbarHeight + kBodyHp
-                          : cardHeight + kToolbarHeight + kElementGap,
+                  top: deviceSize.hourlyListContentTop,
                   left: 0,
                   right: 0,
                   bottom: 0,
@@ -132,7 +103,8 @@ class HourlyForecastView extends StatelessWidget {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 controller.scrollController.animateTo(
                                   currentHourIndex *
-                                      (listItemHeight + kElementInnerGap),
+                                      (deviceSize.hourlyListItemHeight +
+                                          kElementInnerGap),
                                   duration: const Duration(milliseconds: 500),
                                   curve: Curves.easeInOut,
                                 );
@@ -141,13 +113,9 @@ class HourlyForecastView extends StatelessWidget {
                             return ListView.builder(
                               controller: controller.scrollController,
                               padding: EdgeInsets.fromLTRB(
-                                deviceSize.isTab
-                                    ? deviceSize.width * 0.15
-                                    : kBodyHp,
+                                deviceSize.hourlyListPaddingHorizontal,
                                 kElementInnerGap,
-                                deviceSize.isTab
-                                    ? deviceSize.width * 0.15
-                                    : kBodyHp,
+                                deviceSize.hourlyListPaddingHorizontal,
                                 0,
                               ),
                               itemCount: hourlyData.length,
@@ -165,10 +133,11 @@ class HourlyForecastView extends StatelessWidget {
                                   child: Container(
                                     decoration: roundedDecorationWithShadow
                                         .copyWith(
-                                          color:
+                                          color: isCurrentHour ? null : bgColor,
+                                          gradient:
                                               isCurrentHour
-                                                  ? primaryColor
-                                                  : secondaryColor,
+                                                  ? kContainerGradient
+                                                  : null,
                                           border:
                                               isCurrentHour
                                                   ? Border.all(
@@ -180,17 +149,14 @@ class HourlyForecastView extends StatelessWidget {
                                             24,
                                           ),
                                         ),
-                                    height: listItemHeight,
+                                    height: deviceSize.hourlyListItemHeight,
                                     padding: kContentPaddingSmall,
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         SizedBox(
-                                          width:
-                                              deviceSize.isTab
-                                                  ? deviceSize.width * 0.1
-                                                  : deviceSize.width * 0.15,
+                                          width: deviceSize.hourlyTimeWidth,
                                           child: Text(
                                             time,
                                             style: bodyMediumStyle.copyWith(
@@ -206,14 +172,11 @@ class HourlyForecastView extends StatelessWidget {
                                           ),
                                         ),
                                         SizedBox(
-                                          width:
-                                              deviceSize.isTab
-                                                  ? deviceSize.width * 0.08
-                                                  : deviceSize.width * 0.14,
+                                          width: deviceSize.hourlySpacerWidth,
                                         ),
                                         WeatherIcon(
                                           iconUrl: hourData['iconUrl'],
-                                          size: primaryIcon(context),
+                                          size: primaryIcon(context) * 1.25,
                                           weatherData: hourData['condition'],
                                         ),
                                         const Spacer(),

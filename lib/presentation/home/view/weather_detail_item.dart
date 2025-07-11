@@ -4,8 +4,8 @@ import '../../../core/global_service/controllers/condition_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_styles.dart';
 import 'package:get/get.dart';
-
 import '../../../core/utils/weather_utils.dart';
+import '../controller/home_controller.dart';
 
 class WeatherDetailsCard extends StatelessWidget {
   const WeatherDetailsCard({super.key});
@@ -13,11 +13,32 @@ class WeatherDetailsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ConditionController conditionController = Get.find();
+    final HomeController homeController = Get.find();
 
-    return Obx(
-      () => Container(
+    return Obx(() {
+      final selectedForecastIndex = homeController.selectedForecastIndex.value;
+      final forecastData = conditionController.getForecastForDay(
+        selectedForecastIndex,
+      );
+
+      final precipitationValue =
+          forecastData != null
+              ? '${forecastData['chanceOfRain']}%'
+              : conditionController.chanceOfRain;
+
+      final humidityValue =
+          forecastData != null
+              ? '${forecastData['humidity']}%'
+              : conditionController.humidity;
+
+      final windValue =
+          forecastData != null
+              ? '${forecastData['windSpeed'].toStringAsFixed(1)}km/h'
+              : conditionController.windSpeed;
+
+      return Container(
         height: mobileHeight(context) * 0.11,
-        decoration: roundedDecorationWithShadow,
+        decoration: roundedDecorationWithShadow.copyWith(color: kLightWhite),
         child: Padding(
           padding: kContentPaddingSmall,
           child: Row(
@@ -26,29 +47,29 @@ class WeatherDetailsCard extends StatelessWidget {
               Expanded(
                 child: WeatherDetailItem(
                   icon: WeatherUtils.getHomeIcon('precipitation'),
-                  value: conditionController.chanceOfRain,
+                  value: precipitationValue,
                   label: 'Precipitation',
                 ),
               ),
               Expanded(
                 child: WeatherDetailItem(
                   icon: WeatherUtils.getHomeIcon('humidity'),
-                  value: conditionController.humidity,
+                  value: humidityValue,
                   label: 'Humidity',
                 ),
               ),
               Expanded(
                 child: WeatherDetailItem(
                   icon: WeatherUtils.getHomeIcon('wind'),
-                  value: conditionController.windSpeed,
+                  value: windValue,
                   label: 'Wind',
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 

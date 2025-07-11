@@ -62,7 +62,7 @@ class AirQualityModel {
             .round();
       }
     }
-    return 0; // fallback
+    return 0;
   }
 
   final List<List<double>> _pm25Breakpoints = [

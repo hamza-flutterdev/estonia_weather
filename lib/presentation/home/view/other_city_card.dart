@@ -44,7 +44,8 @@ class OtherCitiesSection extends StatelessWidget {
                               (scrollInfo.metrics.pixels / itemWidth).round();
                           final clampedIndex = currentIndex.clamp(
                             0,
-                            conditionController.otherCitiesWeather.length - 1,
+                            conditionController.selectedCitiesWeather.length -
+                                1,
                           );
                           if (homeController.currentOtherCityIndex.value !=
                               clampedIndex) {
@@ -57,26 +58,28 @@ class OtherCitiesSection extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         clipBehavior: Clip.none,
                         itemCount:
-                            conditionController.otherCitiesWeather.length,
+                            conditionController.selectedCitiesWeather.length,
                         itemBuilder: (context, index) {
                           final weather =
-                              conditionController.otherCitiesWeather[index];
+                              conditionController.selectedCitiesWeather[index];
                           final isFirst = index == 0;
                           final isLast =
                               index ==
-                              conditionController.otherCitiesWeather.length - 1;
+                              conditionController.selectedCitiesWeather.length -
+                                  1;
+                          final isMainCity =
+                              index == homeController.mainCityIndex.value;
 
                           return GestureDetector(
                             onTap: () {
-                              // Debug information
                               debugPrint('Tapped on city: ${weather.cityName}');
                               debugPrint('Card index: $index');
-                              debugPrint('Is first card: $isFirst');
-
-                              // Call the swap function using the weather model
-                              homeController.swapCityWithMainByWeatherModel(
-                                weather,
-                              );
+                              debugPrint('Is main city: $isMainCity');
+                              if (!isMainCity) {
+                                homeController.swapCityWithMainByWeatherModel(
+                                  weather,
+                                );
+                              }
                             },
                             child: Container(
                               width: mobileWidth(context) * 0.7,
@@ -85,13 +88,16 @@ class OtherCitiesSection extends StatelessWidget {
                                 right: isLast ? kBodyHp : kElementGap,
                               ),
                               decoration: roundedDecorationWithShadow.copyWith(
-                                color: primaryColor,
+                                gradient:
+                                    isMainCity ? kContainerGradient : null,
+                                color: isMainCity ? null : secondaryColor,
                               ),
                               child: OtherCityCard(
                                 cityName: weather.cityName,
                                 condition: weather.condition,
                                 temperature: '${weather.temperature.round()}°',
                                 iconUrl: weather.iconUrl,
+                                isMainCity: isMainCity,
                               ),
                             ),
                           );
@@ -104,7 +110,7 @@ class OtherCitiesSection extends StatelessWidget {
             () => Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                conditionController.otherCitiesWeather.length.clamp(0, 10),
+                conditionController.selectedCitiesWeather.length.clamp(0, 10),
                 (index) => Container(
                   margin: kPaginationMargin,
                   width: mobileWidth(context) * 0.015,
@@ -131,6 +137,7 @@ class OtherCityCard extends StatelessWidget {
   final String condition;
   final String temperature;
   final String iconUrl;
+  final bool isMainCity;
 
   const OtherCityCard({
     super.key,
@@ -138,6 +145,7 @@ class OtherCityCard extends StatelessWidget {
     required this.condition,
     required this.temperature,
     required this.iconUrl,
+    this.isMainCity = false,
   });
 
   @override

@@ -48,7 +48,7 @@ class TodayForecastSection extends StatelessWidget {
                             index == homeController.selectedForecastIndex.value;
                         return GestureDetector(
                           onTap: () {
-                            homeController.selectForecastDay(index);
+                            homeController.selectForecastDay(0);
                             Get.to(
                               () => const HourlyForecastView(),
                               arguments: DateTime.parse(forecast.date),
@@ -94,11 +94,11 @@ class TodayForecastCard extends StatelessWidget {
       width: mobileWidth(context) * 0.2,
       margin: EdgeInsets.only(
         left: isFirst ? kBodyHp : 0,
-        right: isLast ? kBodyHp : kElementWidthGap,
+        right: isLast ? kBodyHp : kElementGap,
       ),
-      padding: const EdgeInsets.symmetric(vertical: kElementWidthGap),
+      padding: const EdgeInsets.symmetric(vertical: kBodyHp),
       decoration: roundedDecorationWithShadow.copyWith(
-        color: isSelected ? primaryColor : primaryColor.withAlpha(100),
+        color: isSelected ? primaryColor : secondaryColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: FittedBox(
@@ -107,33 +107,39 @@ class TodayForecastCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              day,
-              style: titleBoldMediumStyle.copyWith(color: kWhite),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                day,
+                style: titleSmallBoldStyle.copyWith(color: kWhite),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
             ),
             const SizedBox(height: kElementInnerGap),
             forecastData?.iconUrl.isNotEmpty == true
                 ? Image.network(
                   forecastData!.iconUrl,
-                  width: secondaryIcon(context),
-                  height: secondaryIcon(context),
+                  width: primaryIcon(context),
+                  height: primaryIcon(context),
                   fit: BoxFit.contain,
                 )
                 : Icon(
                   Icons.wb_sunny,
-                  size: secondaryIcon(context),
+                  size: primaryIcon(context),
                   color: kWhite,
                 ),
             const SizedBox(height: kElementInnerGap),
-            Text(
-              forecastData != null
-                  ? '${forecastData!.maxTemp.round()}°/${forecastData!.minTemp.round()}°'
-                  : '0°/0°',
-              style: titleBoldMediumStyle.copyWith(color: kWhite),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                forecastData != null
+                    ? '${forecastData!.maxTemp.round()}°/${forecastData!.minTemp.round()}°'
+                    : '0°/0°',
+                style: titleSmallBoldStyle.copyWith(color: kWhite),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
             ),
           ],
         ),
