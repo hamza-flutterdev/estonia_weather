@@ -71,6 +71,8 @@ class WeatherInfoCard extends StatelessWidget {
       ),
       padding: kContentPaddingSmall,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           if (date != null)
             Row(
@@ -82,82 +84,86 @@ class WeatherInfoCard extends StatelessWidget {
                 ),
               ],
             ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (showIcon)
-                SizedBox(
-                  width: iconSize ?? largeIcon(context),
-                  height: iconSize ?? largeIcon(context),
-                  child: AnimatedWeatherIcon(
-                    imagePath: imagePath,
-                    condition: condition,
-                    width: largeIcon(context),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (showIcon)
+                  SizedBox(
+                    width: iconSize ?? largeIcon(context),
+                    height: iconSize ?? largeIcon(context),
+                    child: AnimatedWeatherIcon(
+                      imagePath: imagePath,
+                      condition: condition,
+                      width: largeIcon(context),
+                    ),
                   ),
-                ),
-              if (showIcon) const SizedBox(width: kBodyHp * 2),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          temperature,
-                          style: headlineLargeStyle.copyWith(color: textColor),
+                if (showIcon) const SizedBox(width: kBodyHp * 2),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            temperature,
+                            style: headlineLargeStyle.copyWith(
+                              color: textColor,
+                            ),
+                          ),
+                          Text(
+                            '°',
+                            style: headlineLargeStyle.copyWith(
+                              color: textColor,
+                              fontSize: 75,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Center(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          condition,
+                          style: titleBoldLargeStyle.copyWith(color: textColor),
                         ),
-                        Text(
-                          '°',
-                          style: headlineLargeStyle.copyWith(
-                            color: textColor,
-                            fontSize: 75,
+                      ),
+                    ),
+                    SizedBox(height: kElementInnerGap),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '$maxTemp°',
+                            style: titleBoldMediumStyle.copyWith(
+                              color: textColor,
+                            ),
+                          ),
+                        ),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '/$minTemp°',
+                            style: titleBoldMediumStyle.copyWith(
+                              color: textColor,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Center(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        condition,
-                        style: titleBoldLargeStyle.copyWith(color: textColor),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: kElementInnerGap),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          '$maxTemp°',
-                          style: titleBoldMediumStyle.copyWith(
-                            color: textColor,
-                          ),
-                        ),
-                      ),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          '/$minTemp°',
-                          style: titleBoldMediumStyle.copyWith(
-                            color: textColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
           if (showWeatherDetails) ...[
-            const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: kElementWidthGap),
               child: Row(

@@ -25,11 +25,10 @@ class OnlineDataSource {
       if (cityName != null) {
         HomeController.storeRawDataForCity(cityName, data);
       }
+
       try {
         final homeController = Get.find<HomeController>();
-        if (cityName != null && cityName == homeController.mainCityName) {
-          homeController.rawForecastData.value = data;
-        }
+        homeController.rawForecastData.value = data;
       } catch (e) {
         debugPrint('HomeController not found or error updating raw data: $e');
       }
@@ -42,6 +41,24 @@ class OnlineDataSource {
       throw Exception(
         'Failed to fetch weather and forecast data: ${response.statusCode}',
       );
+    }
+  }
+
+  Future<String> getCity(double lat, double lon) async {
+    final uri = Uri.parse('$baseUrl?key=$apiKey&q=$lat,$lon');
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final cityName = data['location']['name'] as String?;
+
+      if (cityName != null) {
+        return cityName;
+      } else {
+        throw Exception('City name not found in the response');
+      }
+    } else {
+      throw Exception('Failed to fetch city name: ${response.statusCode}');
     }
   }
 }

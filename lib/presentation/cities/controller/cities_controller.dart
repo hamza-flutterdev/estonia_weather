@@ -13,23 +13,28 @@ class CitiesController extends GetxController {
   final homeController = Get.find<HomeController>();
   final TextEditingController searchController = TextEditingController();
 
-  static const int maxCities = 10;
+  static const int maxCities = 5;
+  static const int minCities = 3;
 
   var allCities = <EstonianCity>[].obs;
   var allCitiesWeather = <WeatherModel>[].obs;
   var isLoading = false.obs;
   var isAdding = false.obs;
   var filteredCities = <EstonianCity>[].obs;
+  var hasSearchError = false.obs; // Add this for error state
+  var searchErrorMessage = ''.obs; // Add this for error message
 
   @override
   void onInit() {
     super.onInit();
     loadDataFromHome();
     loadAllCitiesWeather();
+    searchController.addListener(() {
+      searchCities(searchController.text);
+    });
   }
 
   void loadDataFromHome() {
-    // Load all cities (both selected and unselected)
     allCities.value = homeController.allCities;
     filteredCities.value = _getSortedCities();
   }
@@ -39,7 +44,6 @@ class CitiesController extends GetxController {
     loadAllCitiesWeather();
   }
 
-  // Sort cities with selected ones at the top
   List<EstonianCity> _getSortedCities() {
     final selectedCities = <EstonianCity>[];
     final unselectedCities = <EstonianCity>[];
@@ -96,15 +100,25 @@ class CitiesController extends GetxController {
   void searchCities(String query) {
     if (query.isEmpty) {
       filteredCities.value = _getSortedCities();
+      hasSearchError.value = false;
+      searchErrorMessage.value = '';
     } else {
+      final lowerQuery = query.toLowerCase();
       final filtered =
           allCities.where((city) {
-            final lowerQuery = query.toLowerCase();
             return city.cityAscii.toLowerCase().contains(lowerQuery) ||
                 city.country.toLowerCase().contains(lowerQuery);
           }).toList();
 
-      // Sort filtered results with selected cities first
+      // Check if search has results
+      if (filtered.isEmpty) {
+        hasSearchError.value = true;
+        searchErrorMessage.value = 'No cities found matching "$query"';
+      } else {
+        hasSearchError.value = false;
+        searchErrorMessage.value = '';
+      }
+
       final selectedFiltered = <EstonianCity>[];
       final unselectedFiltered = <EstonianCity>[];
 
@@ -120,7 +134,6 @@ class CitiesController extends GetxController {
     }
   }
 
-  // Methods for adding cities
   bool canAddCity() {
     return homeController.selectedCities.length < maxCities;
   }
@@ -129,10 +142,8 @@ class CitiesController extends GetxController {
     try {
       isAdding.value = true;
       await homeController.addCityToSelected(city);
-      // Refresh the sorted list after adding
-      if (searchController.text.isEmpty) {
-        filteredCities.value = _getSortedCities();
-      } else {
+      loadDataFromHome();
+      if (searchController.text.isNotEmpty) {
         searchCities(searchController.text);
       }
     } catch (e) {
@@ -142,24 +153,50 @@ class CitiesController extends GetxController {
     }
   }
 
-  // Methods for removing cities
-  bool canRemoveCity() {
-    return homeController.selectedCities.length > 3;
-  }
-
-  Future<void> removeCityFromSelected(EstonianCity city) async {
-    await homeController.removeCityFromSelected(city);
-    // Refresh the sorted list after removing
-    if (searchController.text.isEmpty) {
-      filteredCities.value = _getSortedCities();
-    } else {
-      searchCities(searchController.text);
+  Future<void> addCurrentLocationToSelected() async {
+    if (homeController.currentLocationCity.value != null) {
+      try {
+        isAdding.value = true;
+        await homeController.addCurrentLocationToSelectedAsMain();
+        loadDataFromHome();
+        if (searchController.text.isNotEmpty) {
+          searchCities(searchController.text);
+        }
+      } catch (e) {
+        debugPrint('Failed to add current location: $e');
+      } finally {
+        isAdding.value = false;
+      }
     }
   }
 
-  // Check if city is selected
+  bool canRemoveCity() {
+    return homeController.selectedCities.length > minCities;
+  }
+
+  bool canRemoveSpecificCity(EstonianCity city) {
+    if (homeController.isCurrentLocationCity(city)) {
+      return false;
+    }
+    return canRemoveCity();
+  }
+
+  Future<void> removeCityFromSelected(EstonianCity city) async {
+    if (canRemoveSpecificCity(city)) {
+      await homeController.removeCityFromSelected(city);
+      loadDataFromHome();
+      if (searchController.text.isNotEmpty) {
+        searchCities(searchController.text);
+      }
+    }
+  }
+
   bool isCitySelected(EstonianCity city) {
     return homeController.isCitySelected(city);
+  }
+
+  bool isCurrentLocationCity(EstonianCity city) {
+    return homeController.isCurrentLocationCity(city);
   }
 
   String getAqiText(AirQualityModel? airQuality) {

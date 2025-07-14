@@ -19,4 +19,9 @@ class WeatherApiImpl implements WeatherRepo {
       throw Exception('Failed to get weather and forecast: $e');
     }
   }
+
+  @override
+  Future<String> getCity(double lat, double lon) async {
+    return await onlineDataSource.getCity(lat, lon);
+  }
 }

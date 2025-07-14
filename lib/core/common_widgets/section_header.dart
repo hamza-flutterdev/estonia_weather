@@ -4,14 +4,14 @@ import '../theme/app_colors.dart';
 import '../theme/app_styles.dart';
 
 class SectionHeader extends StatelessWidget {
-  final String title;
+  final String? title;
   final String actionText;
   final VoidCallback onTap;
   final IconData? actionIcon;
 
   const SectionHeader({
     super.key,
-    required this.title,
+    this.title,
     required this.actionText,
     required this.onTap,
     this.actionIcon,
@@ -22,7 +22,10 @@ class SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: titleSmallBoldStyle.copyWith(color: primaryColor)),
+        Text(
+          title ?? '',
+          style: titleSmallBoldStyle.copyWith(color: primaryColor),
+        ),
         GestureDetector(
           onTap: onTap,
           child: Row(

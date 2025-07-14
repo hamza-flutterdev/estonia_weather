@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../core/global_service/controllers/condition_controller.dart';
@@ -11,6 +12,7 @@ import '../../../data/model/city_model.dart';
 import '../../../data/model/weather_model.dart';
 import '../../../data/model/forecast_model.dart';
 import '../../../gen/assets.gen.dart';
+import '../../cities/controller/cities_controller.dart';
 
 class HomeController extends GetxController {
   final GetWeatherAndForecast getCurrentWeather;
@@ -19,6 +21,8 @@ class HomeController extends GetxController {
 
   HomeController(this.getCurrentWeather);
 
+  final currentLocation = ''.obs;
+  final currentLocationCity = Rx<EstonianCity?>(null);
   final selectedCities = <EstonianCity>[].obs;
   final allCities = <EstonianCity>[].obs;
   final forecastData = <ForecastModel>[].obs;
@@ -28,6 +32,7 @@ class HomeController extends GetxController {
   final selectedForecastIndex = 0.obs;
   final currentOtherCityIndex = 0.obs;
   final isLoading = false.obs;
+  final isFirstLaunch = true.obs;
 
   static final Map<String, Map<String, dynamic>> _rawDataStorage = {};
 
@@ -36,7 +41,168 @@ class HomeController extends GetxController {
     super.onInit();
     _updateCurrentDate();
     _loadAllCities();
-    _loadSelectedCitiesFromStorage();
+    _checkFirstLaunch();
+  }
+
+  Future<void> _checkFirstLaunch() async {
+    try {
+      final savedCitiesJson = await localStorage.getString('selected_cities');
+      final hasCurrentLocation =
+          await localStorage.getBool('has_current_location') ?? false;
+
+      if (savedCitiesJson == null || !hasCurrentLocation) {
+        isFirstLaunch.value = true;
+        await _setupFirstLaunch();
+      } else {
+        isFirstLaunch.value = false;
+        await _fetchCurrentLocation(); // Still fetch current location for comparison
+        await _loadSelectedCitiesFromStorage();
+      }
+    } catch (e) {
+      debugPrint('Error checking first launch: $e');
+      isFirstLaunch.value = true;
+      await _setupFirstLaunch();
+    }
+  }
+
+  Future<void> _setupFirstLaunch() async {
+    try {
+      isLoading.value = true;
+
+      // Fetch current location first
+      await _fetchCurrentLocation();
+
+      // Setup default cities
+      final tallinn = allCities.firstWhere(
+        (city) => city.city.toLowerCase() == 'tallinn',
+        orElse: () => allCities.first,
+      );
+
+      final currentCity = currentLocationCity.value;
+      final otherCity = allCities.firstWhere(
+        (city) =>
+            city.city.toLowerCase() != 'tallinn' &&
+            city.city.toLowerCase() != currentCity?.city.toLowerCase(),
+        orElse: () => allCities.length > 1 ? allCities[1] : allCities.first,
+      );
+
+      selectedCities.clear();
+
+      // Add current location as the main city (index 0)
+      if (currentCity != null) {
+        selectedCities.add(currentCity);
+        mainCityIndex.value = 0;
+      }
+
+      // Add Tallinn if it's not already the current location
+      if (currentCity == null ||
+          !selectedCities.any(
+            (c) => c.city.toLowerCase() == tallinn.city.toLowerCase(),
+          )) {
+        selectedCities.add(tallinn);
+        // If no current location, make Tallinn the main city
+        if (currentCity == null) {
+          mainCityIndex.value = selectedCities.length - 1;
+        }
+      }
+
+      // Add another city if needed
+      if (!selectedCities.any(
+        (c) => c.city.toLowerCase() == otherCity.city.toLowerCase(),
+      )) {
+        selectedCities.add(otherCity);
+      }
+
+      // Save the setup
+      await _saveSelectedCitiesToStorage();
+      await localStorage.setBool('has_current_location', currentCity != null);
+
+      // Load weather data
+      await loadSelectedCitiesWeather();
+
+      // Mark first launch as complete only after everything is loaded
+      isFirstLaunch.value = false;
+    } catch (e) {
+      debugPrint('Failed to setup first launch: $e');
+      // Fallback setup
+      selectedCities.value = allCities.take(3).toList();
+      mainCityIndex.value = 0;
+      await _saveSelectedCitiesToStorage();
+      await loadSelectedCitiesWeather();
+      isFirstLaunch.value = false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> _fetchCurrentLocation() async {
+    try {
+      final city = await getCurrentWeather.getCity();
+      currentLocation.value = city;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        throw Exception('Location permission denied');
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings: LocationSettings(
+          accuracy: LocationAccuracy.best,
+          timeLimit: Duration(seconds: 30),
+        ),
+      );
+
+      final foundCity = allCities.firstWhere(
+        (c) => c.city.toLowerCase() == city.toLowerCase(),
+        orElse:
+            () => EstonianCity(
+              city: city,
+              cityAscii: city,
+              lat: position.latitude,
+              lng: position.longitude,
+              country: 'Current Location',
+              iso2: 'CL',
+              iso3: 'CUR',
+              adminName: 'Current Location',
+              capital: 'primary',
+              population: 0,
+              id: 999999,
+            ),
+      );
+
+      currentLocationCity.value = foundCity;
+    } catch (e) {
+      debugPrint('Failed to fetch current location: $e');
+      currentLocation.value = 'Unknown';
+      currentLocationCity.value = null;
+    }
+  }
+
+  Future<void> addCurrentLocationToSelectedAsMain() async {
+    if (currentLocationCity.value != null) {
+      if (!isCitySelected(currentLocationCity.value!)) {
+        selectedCities.insert(0, currentLocationCity.value!);
+
+        if (selectedCities.length > CitiesController.maxCities) {
+          selectedCities.removeLast();
+        }
+      } else {
+        selectedCities.removeWhere(
+          (city) => city.city == currentLocationCity.value!.city,
+        );
+        selectedCities.insert(0, currentLocationCity.value!);
+      }
+
+      mainCityIndex.value = 0;
+
+      await _saveSelectedCitiesToStorage();
+      await loadSelectedCitiesWeather();
+    }
   }
 
   Future<void> addCityToSelected(EstonianCity city) async {
@@ -48,8 +214,18 @@ class HomeController extends GetxController {
   }
 
   Future<void> removeCityFromSelected(EstonianCity city) async {
-    if (selectedCities.length > 3) {
+    if (currentLocationCity.value != null &&
+        city.city == currentLocationCity.value!.city) {
+      return;
+    }
+
+    if (selectedCities.length > 2) {
       selectedCities.removeWhere((c) => c.city == city.city);
+
+      if (mainCityIndex.value >= selectedCities.length) {
+        mainCityIndex.value = selectedCities.length - 1;
+      }
+
       unawaited(_saveSelectedCitiesToStorage());
       unawaited(loadSelectedCitiesWeather());
     }
@@ -58,10 +234,23 @@ class HomeController extends GetxController {
   bool isCitySelected(EstonianCity city) =>
       selectedCities.any((c) => c.city == city.city);
 
+  bool isCurrentLocationCity(EstonianCity city) =>
+      currentLocationCity.value != null &&
+      city.city == currentLocationCity.value!.city;
+
+  Future<void> addCurrentLocationToSelected() async {
+    if (currentLocationCity.value != null &&
+        !isCitySelected(currentLocationCity.value!)) {
+      selectedCities.insert(0, currentLocationCity.value!);
+      mainCityIndex.value = mainCityIndex.value + 1;
+      await _saveSelectedCitiesToStorage();
+      await loadSelectedCitiesWeather();
+    }
+  }
+
   Future<void> swapCityWithMainByWeatherModel(WeatherModel weatherModel) async {
     try {
       isLoading.value = true;
-
       int newMainCityIndex = selectedCities.indexWhere(
         (c) => c.cityAscii.toLowerCase() == weatherModel.cityName.toLowerCase(),
       );
@@ -121,6 +310,7 @@ class HomeController extends GetxController {
   }
 
   void selectForecastDay(int index) => selectedForecastIndex.value = index;
+
   void updateOtherCityIndex(int index) => currentOtherCityIndex.value = index;
 
   String get mainCityName =>
@@ -151,21 +341,29 @@ class HomeController extends GetxController {
 
   Future<void> _loadSelectedCitiesFromStorage() async {
     try {
+      debugPrint('Loading weather for ${selectedCities.length} cities');
       final savedCitiesJson = await localStorage.getString('selected_cities');
+      final mainCityIdx = await localStorage.getInt('main_city_index') ?? 0;
+
       if (savedCitiesJson != null) {
         final List<dynamic> savedCitiesData = json.decode(savedCitiesJson);
         final savedCities =
             savedCitiesData.map((e) => EstonianCity.fromJson(e)).toList();
+
         selectedCities.value =
-            savedCities.length >= 3 ? savedCities : allCities.take(3).toList();
+            savedCities.length >= 2 ? savedCities : allCities.take(2).toList();
+        mainCityIndex.value = mainCityIdx.clamp(0, selectedCities.length - 1);
       } else {
-        selectedCities.value = allCities.take(3).toList();
+        selectedCities.value = allCities.take(2).toList();
         await _saveSelectedCitiesToStorage();
+        debugPrint('Main city index: ${mainCityIndex.value}');
+        debugPrint('Raw data storage keys: ${_rawDataStorage.keys.toList()}');
       }
+
       await loadSelectedCitiesWeather();
     } catch (e) {
       debugPrint("Failed to load selected cities from storage: $e");
-      selectedCities.value = allCities.take(3).toList();
+      selectedCities.value = allCities.take(2).toList();
       await _saveSelectedCitiesToStorage();
       await loadSelectedCitiesWeather();
     }
@@ -177,6 +375,7 @@ class HomeController extends GetxController {
         selectedCities.map((e) => e.toJson()).toList(),
       );
       await localStorage.setString('selected_cities', citiesJson);
+      await localStorage.setInt('main_city_index', mainCityIndex.value);
     } catch (e) {
       debugPrint("Failed to save selected cities to storage: $e");
     }
@@ -185,22 +384,30 @@ class HomeController extends GetxController {
   Future<void> loadSelectedCitiesWeather() async {
     try {
       isLoading.value = true;
+
       List<WeatherModel> weatherList = [];
       List<ForecastModel> mainCityForecast = [];
       Map<String, dynamic>? mainCityRawData;
 
       for (int i = 0; i < selectedCities.length; i++) {
         final city = selectedCities[i];
-        final (weather, forecast) = await getCurrentWeather(
-          lat: city.lat,
-          lon: city.lng,
-        );
-        weatherList.add(weather);
 
-        if (i == mainCityIndex.value) {
-          mainCityForecast = forecast;
-          forecastData.value = forecast;
-          mainCityRawData = _rawDataStorage[city.city];
+        try {
+          final (weather, forecast) = await getCurrentWeather(
+            lat: city.lat,
+            lon: city.lng,
+          );
+
+          weatherList.add(weather);
+
+          if (i == mainCityIndex.value) {
+            mainCityForecast = forecast;
+            forecastData.value = forecast;
+            mainCityRawData = _rawDataStorage[city.city];
+          }
+        } catch (e) {
+          debugPrint('Failed to load weather for ${city.city}: $e');
+          // Continue with other cities even if one fails
         }
       }
 
@@ -208,14 +415,17 @@ class HomeController extends GetxController {
         rawForecastData.value = mainCityRawData;
       }
 
-      conditionController.updateWeatherData(
-        weatherList,
-        mainCityIndex.value,
-        mainCityName,
-      );
+      // Only update if we have weather data
+      if (weatherList.isNotEmpty) {
+        conditionController.updateWeatherData(
+          weatherList,
+          mainCityIndex.value,
+          mainCityName,
+        );
 
-      if (mainCityForecast.isNotEmpty) {
-        conditionController.updateWeeklyForecast(mainCityForecast);
+        if (mainCityForecast.isNotEmpty) {
+          conditionController.updateWeeklyForecast(mainCityForecast);
+        }
       }
     } catch (e) {
       debugPrint('Failed to load weather data: $e');

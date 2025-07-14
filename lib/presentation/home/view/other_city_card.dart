@@ -16,8 +16,56 @@ class OtherCitiesSection extends StatelessWidget {
     final HomeController homeController = Get.find();
     final ConditionController conditionController = Get.find();
 
-    return Obx(
-      () => Column(
+    return Obx(() {
+      // Don't show anything if still loading or if it's first launch and data isn't ready
+      if (homeController.isLoading.value ||
+          (homeController.isFirstLaunch.value &&
+              conditionController.selectedCitiesWeather.isEmpty)) {
+        return const SizedBox.shrink();
+      }
+
+      // Create a list of cities with their original indices, excluding current location
+      final otherCitiesWithIndex = <Map<String, dynamic>>[];
+
+      for (
+        int i = 0;
+        i < conditionController.selectedCitiesWeather.length;
+        i++
+      ) {
+        final weather = conditionController.selectedCitiesWeather[i];
+
+        // Skip the main city (the one currently being displayed prominently)
+        if (i == homeController.mainCityIndex.value) {
+          continue;
+        }
+
+        // Additional check: if there's a current location city, exclude it from other cities
+        // only if it's not the main city
+        bool shouldExclude = false;
+        if (homeController.currentLocationCity.value != null) {
+          final currentLocationName =
+              homeController.currentLocationCity.value!.city
+                  .toLowerCase()
+                  .trim();
+          final weatherCityName = weather.cityName.toLowerCase().trim();
+
+          // Only exclude if it matches current location AND it's not the main city
+          shouldExclude =
+              weatherCityName == currentLocationName &&
+              i != homeController.mainCityIndex.value;
+        }
+
+        if (!shouldExclude) {
+          otherCitiesWithIndex.add({'weather': weather, 'originalIndex': i});
+        }
+      }
+
+      // If no other cities to show, return empty container
+      if (otherCitiesWithIndex.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return Column(
         children: [
           SizedBox(
             height: mobileHeight(context) * 0.1,
@@ -35,7 +83,7 @@ class OtherCitiesSection extends StatelessWidget {
                           ),
                       itemDecoration: roundedDecorationWithShadow,
                     )
-                    : NotificationListener<ScrollNotification>(
+                    : NotificationListener(
                       onNotification: (ScrollNotification scrollInfo) {
                         if (scrollInfo is ScrollUpdateNotification) {
                           final itemWidth =
@@ -44,9 +92,9 @@ class OtherCitiesSection extends StatelessWidget {
                               (scrollInfo.metrics.pixels / itemWidth).round();
                           final clampedIndex = currentIndex.clamp(
                             0,
-                            conditionController.selectedCitiesWeather.length -
-                                1,
+                            otherCitiesWithIndex.length - 1,
                           );
+
                           if (homeController.currentOtherCityIndex.value !=
                               clampedIndex) {
                             homeController.updateOtherCityIndex(clampedIndex);
@@ -57,24 +105,25 @@ class OtherCitiesSection extends StatelessWidget {
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         clipBehavior: Clip.none,
-                        itemCount:
-                            conditionController.selectedCitiesWeather.length,
+                        itemCount: otherCitiesWithIndex.length,
                         itemBuilder: (context, index) {
-                          final weather =
-                              conditionController.selectedCitiesWeather[index];
+                          final cityData = otherCitiesWithIndex[index];
+                          final weather = cityData['weather'];
+                          final originalIndex = cityData['originalIndex'];
                           final isFirst = index == 0;
                           final isLast =
-                              index ==
-                              conditionController.selectedCitiesWeather.length -
-                                  1;
+                              index == otherCitiesWithIndex.length - 1;
                           final isMainCity =
-                              index == homeController.mainCityIndex.value;
+                              originalIndex ==
+                              homeController.mainCityIndex.value;
 
                           return GestureDetector(
                             onTap: () {
                               debugPrint('Tapped on city: ${weather.cityName}');
                               debugPrint('Card index: $index');
+                              debugPrint('Original index: $originalIndex');
                               debugPrint('Is main city: $isMainCity');
+
                               if (!isMainCity) {
                                 homeController.swapCityWithMainByWeatherModel(
                                   weather,
@@ -110,7 +159,7 @@ class OtherCitiesSection extends StatelessWidget {
             () => Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                conditionController.selectedCitiesWeather.length.clamp(0, 10),
+                otherCitiesWithIndex.length.clamp(0, 10),
                 (index) => Container(
                   margin: kPaginationMargin,
                   width: mobileWidth(context) * 0.015,
@@ -127,8 +176,8 @@ class OtherCitiesSection extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
+      );
+    });
   }
 }
 
