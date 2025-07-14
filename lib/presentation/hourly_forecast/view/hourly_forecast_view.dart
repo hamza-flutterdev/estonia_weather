@@ -1,6 +1,7 @@
 import 'package:estonia_weather/core/common_widgets/custom_appbar.dart';
 import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
+import 'package:estonia_weather/presentation/hourly_forecast/view/bottom_arc.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/common_widgets/icon_buttons.dart';
@@ -29,18 +30,24 @@ class HourlyForecastView extends StatelessWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final deviceSize = DeviceSize(constraints, context);
+          print(
+            'Device height in Hourly: ${DeviceSize(constraints, context).height}',
+          );
 
           return SizedBox(
             height: deviceSize.height,
             width: double.infinity,
             child: Stack(
               children: [
-                SizedBox(
-                  height: deviceSize.hourlyImageHeight,
-                  width: double.infinity,
-                  child: Image.asset(
-                    Assets.images.hourlyForecastBgContainer.path,
-                    fit: BoxFit.cover,
+                ClipPath(
+                  clipper: BottomArcClipper(),
+                  child: SizedBox(
+                    height: deviceSize.hourlyImageHeight,
+                    width: double.infinity,
+                    child: Image.asset(
+                      Assets.images.hourlyForecastBgContainer.path,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 CustomAppBar(
@@ -52,7 +59,7 @@ class HourlyForecastView extends StatelessWidget {
                       size: secondaryIcon(context),
                     ),
                   ],
-                  subtitle: controller.mainCityName.toString(),
+                  subtitle: '',
                 ),
                 Positioned(
                   top: deviceSize.hourlyCardTop,

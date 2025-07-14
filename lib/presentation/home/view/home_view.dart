@@ -52,6 +52,10 @@ class HomeView extends StatelessWidget {
               LayoutBuilder(
                 builder: (context, constraints) {
                   final deviceSize = DeviceSize(constraints, context);
+                  print(
+                    'Device height in Home: ${DeviceSize(constraints, context).height}',
+                  );
+
                   return Obx(
                     () => SizedBox(
                       height: deviceSize.height,
@@ -103,7 +107,6 @@ class HomeView extends StatelessWidget {
                             left: deviceSize.horizontalPadding,
                             right: deviceSize.horizontalPadding,
                             child: SectionHeader(
-                              title: 'Today',
                               actionText: '7 Day Forecasts >',
                               onTap: () {
                                 final selectedDate = DateTime.now();

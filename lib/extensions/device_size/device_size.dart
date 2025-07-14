@@ -7,8 +7,8 @@ class DeviceSize {
 
   DeviceSize(this.constraints, this.context);
 
-  double get width => constraints.maxWidth;
-  double get height => constraints.maxHeight;
+  double get width => mobileWidth(context);
+  double get height => mobileHeight(context);
 
   bool get isSmall => height < 675;
   bool get isMedium => height >= 675 && height < 780;
@@ -23,63 +23,63 @@ class DeviceSize {
       isTab
           ? height * 0.1
           : isSmall
-          ? height * 0.29
+          ? height * 0.27
           : isMedium
           ? height * 0.24
           : isBig
-          ? height * 0.24
-          : height * 0.21;
+          ? height * 0.19
+          : height * 0.20;
   double get weatherIconSize => largeIcon(context);
   double get detailsCardTop =>
       isTab
           ? height * 0.34
           : isSmall
-          ? height * 0.50
+          ? height * 0.45
           : isMedium
-          ? height * 0.445
+          ? height * 0.405
           : isBig
-          ? height * 0.38
-          : height * 0.40;
+          ? height * 0.36
+          : height * 0.39;
   double get todayHeaderTop =>
       isTab
           ? height * 0.46
           : isSmall
-          ? height * 0.615
+          ? height * 0.56
           : isMedium
-          ? height * 0.57
+          ? height * 0.53
           : isBig
-          ? height * 0.50
-          : height * 0.535;
+          ? height * 0.475
+          : height * 0.50;
   double get todayForecastTop =>
       isTab
           ? height * 0.49
           : isSmall
-          ? height * 0.65
+          ? height * 0.6
           : isMedium
-          ? height * 0.608
+          ? height * 0.565
           : isBig
-          ? height * 0.53
-          : height * 0.57;
+          ? height * 0.505
+          : height * 0.535;
   double get otherCitiesHeaderTop =>
       isTab
           ? height * 0.65
           : isSmall
-          ? height * 0.79
+          ? height * 0.74
           : isMedium
-          ? height * 0.755
+          ? height * 0.725
           : isBig
-          ? height * 0.68
-          : height * 0.735;
+          ? height * 0.647
+          : height * 0.68;
   double get otherCitiesTop =>
       isTab
           ? height * 0.68
           : isSmall
-          ? height * 0.84
+          ? height * 0.79
           : isMedium
-          ? height * 0.80
+          ? height * 0.765
           : isBig
-          ? height * 0.71
-          : height * 0.78;
+          ? height * 0.68
+          : height * 0.72;
 
   // Hourly Forecast Layout Constants
   double get hourlyImageHeight => height * 0.4;
@@ -93,7 +93,7 @@ class DeviceSize {
           ? height * 0.48
           : isSmall
           ? height * 0.48
-          : height * 0.42;
+          : height * 0.50;
   double get hourlyListItemHeight => isTab ? width * 0.12 : width * 0.18;
   double get hourlyCardLeftMargin => isTab ? width * 0.10 : width * 0.05;
   double get hourlyCardRightMargin => isTab ? width * 0.10 : width * 0.05;
@@ -107,7 +107,6 @@ class DeviceSize {
   double get hourlyTimeWidth => isTab ? width * 0.1 : width * 0.15;
   double get hourlySpacerWidth => isTab ? width * 0.08 : width * 0.14;
 
-  // Daily Forecast Layout Constants
   double get dailyImageHeight => height * 0.4;
   double get dailyCardTop => height * 0.11;
   double get dailyCardHeight =>
@@ -119,7 +118,7 @@ class DeviceSize {
           ? height * 0.44
           : isSmall
           ? height * 0.44
-          : height * 0.38;
+          : height * 0.48;
   double get dailyListItemHeight => isTab ? width * 0.15 : width * 0.22;
   double get dailyCardLeftMargin => isTab ? width * 0.10 : width * 0.05;
   double get dailyCardRightMargin => isTab ? width * 0.10 : width * 0.05;
