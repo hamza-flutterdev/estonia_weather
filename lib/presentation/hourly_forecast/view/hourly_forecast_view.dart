@@ -34,10 +34,6 @@ class HourlyForecastView extends StatelessWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final deviceSize = DeviceSize(constraints, context);
-          print(
-            'Device height in Hourly: ${DeviceSize(constraints, context).height}',
-          );
-
           return SizedBox(
             height: deviceSize.height,
             width: double.infinity,

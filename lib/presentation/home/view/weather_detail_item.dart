@@ -3,12 +3,15 @@ import '../../../core/constants/constant.dart';
 import '../../../core/global_service/controllers/condition_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_styles.dart';
+import '../../../extensions/device_size/device_size.dart';
 import 'package:get/get.dart';
 import '../../../core/utils/weather_utils.dart';
 import '../controller/home_controller.dart';
 
 class WeatherDetailsCard extends StatelessWidget {
-  const WeatherDetailsCard({super.key});
+  final DeviceSize deviceSize;
+
+  const WeatherDetailsCard({super.key, required this.deviceSize});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +40,7 @@ class WeatherDetailsCard extends StatelessWidget {
               : conditionController.windSpeed;
 
       return Container(
-        height: mobileHeight(context) * 0.11,
+        height: deviceSize.height * 0.11,
         decoration: roundedDecorationWithShadow.copyWith(color: kLightWhite),
         child: Padding(
           padding: kContentPaddingSmall,

@@ -15,6 +15,9 @@ const Color greyColor = Color(0xff626262);
 const kOrange = Color(0xffFF7600);
 const kRed = Color(0xffe30000);
 
+//Green
+const kGreen = Color(0xff55ff00);
+
 //text color
 const Color blackTextColor = Color(0xFF000000);
 const Color textGreyColor = Color(0xff626262);

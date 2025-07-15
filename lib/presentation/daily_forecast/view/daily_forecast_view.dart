@@ -75,7 +75,11 @@ class DailyForecastView extends StatelessWidget {
                       maxTemp: conditionController.maxTemp,
                       condition: conditionController.condition,
                       minTemp:
-                          controller.selectedDayData.minTemp.round().toString(),
+                          controller.selectedDayData?.minTemp
+                              .round()
+                              .toString() ??
+                          '--',
+
                       imagePath: conditionController.weatherIconPath,
                     ),
                   ),
@@ -103,7 +107,7 @@ class DailyForecastView extends StatelessWidget {
                           child: ListView.builder(
                             padding: EdgeInsets.fromLTRB(
                               deviceSize.dailyListPaddingHorizontal,
-                              kBodyHp,
+                              kElementInnerGap,
                               deviceSize.dailyListPaddingHorizontal,
                               0,
                             ),

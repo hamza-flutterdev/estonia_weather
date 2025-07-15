@@ -34,52 +34,52 @@ class DeviceSize {
       isTab
           ? height * 0.34
           : isSmall
-          ? height * 0.45
+          ? height * 0.46
           : isMedium
           ? height * 0.405
           : isBig
           ? height * 0.36
-          : height * 0.39;
+          : height * 0.41;
   double get todayHeaderTop =>
       isTab
           ? height * 0.46
           : isSmall
-          ? height * 0.56
+          ? height * 0.57
           : isMedium
           ? height * 0.53
           : isBig
-          ? height * 0.475
-          : height * 0.50;
+          ? height * 0.47
+          : height * 0.52;
   double get todayForecastTop =>
       isTab
           ? height * 0.49
           : isSmall
-          ? height * 0.6
+          ? height * 0.61
           : isMedium
           ? height * 0.565
           : isBig
-          ? height * 0.505
-          : height * 0.535;
+          ? height * 0.495
+          : height * 0.55;
   double get otherCitiesHeaderTop =>
       isTab
           ? height * 0.65
           : isSmall
-          ? height * 0.74
+          ? height * 0.747
           : isMedium
           ? height * 0.725
           : isBig
-          ? height * 0.647
-          : height * 0.68;
+          ? height * 0.637
+          : height * 0.69;
   double get otherCitiesTop =>
       isTab
           ? height * 0.68
           : isSmall
-          ? height * 0.79
+          ? height * 0.795
           : isMedium
           ? height * 0.765
           : isBig
-          ? height * 0.68
-          : height * 0.72;
+          ? height * 0.67
+          : height * 0.73;
 
   // Hourly Forecast Layout Constants
   double get hourlyImageHeight => height * 0.4;
@@ -88,21 +88,21 @@ class DeviceSize {
       isTab
           ? height * 0.44
           : isBig
-          ? height * 0.42
+          ? height * 0.364
           : isMedium
-          ? height * 0.48
+          ? height * 0.41
           : isSmall
           ? height * 0.48
-          : height * 0.50;
+          : height * 0.43;
   double get hourlyListItemHeight => isTab ? width * 0.12 : width * 0.18;
   double get hourlyCardLeftMargin => isTab ? width * 0.10 : width * 0.05;
   double get hourlyCardRightMargin => isTab ? width * 0.10 : width * 0.05;
   double get hourlyListContentTop =>
       isTab
-          ? hourlyCardHeight + kToolbarHeight + kBodyHp * 4
+          ? hourlyCardHeight + kToolbarHeight
           : isBig
-          ? hourlyCardHeight + kToolbarHeight + kBodyHp
-          : hourlyCardHeight + kToolbarHeight + kElementGap;
+          ? hourlyCardHeight + kToolbarHeight
+          : hourlyCardHeight + kToolbarHeight;
   double get hourlyListPaddingHorizontal => isTab ? width * 0.15 : kBodyHp;
   double get hourlyTimeWidth => isTab ? width * 0.1 : width * 0.15;
   double get hourlySpacerWidth => isTab ? width * 0.08 : width * 0.14;
@@ -113,21 +113,21 @@ class DeviceSize {
       isTab
           ? height * 0.44
           : isBig
-          ? height * 0.40
+          ? height * 0.364
           : isMedium
-          ? height * 0.44
+          ? height * 0.41
           : isSmall
           ? height * 0.44
-          : height * 0.48;
+          : height * 0.43;
   double get dailyListItemHeight => isTab ? width * 0.15 : width * 0.22;
   double get dailyCardLeftMargin => isTab ? width * 0.10 : width * 0.05;
   double get dailyCardRightMargin => isTab ? width * 0.10 : width * 0.05;
   double get dailyListContentTop =>
       isTab
-          ? dailyCardHeight + kToolbarHeight + kBodyHp * 4
-          : isBig
           ? dailyCardHeight + kToolbarHeight + kBodyHp
-          : dailyCardHeight + kToolbarHeight + kElementGap;
+          : isBig
+          ? dailyCardHeight + kToolbarHeight + kElementGap
+          : dailyCardHeight + kToolbarHeight;
   double get dailyListPaddingHorizontal => isTab ? width * 0.15 : kBodyHp;
   double get dailyDayWidth => isTab ? width * 0.1 : width * 0.15;
   double get dailySpacerWidth => isTab ? width * 0.08 : width * 0.14;

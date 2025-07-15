@@ -1,10 +1,11 @@
 import 'package:estonia_weather/core/constants/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../core/global_service/connectivity_service.dart';
 import '../../home/controller/home_controller.dart';
 import '../../../data/model/forecast_model.dart';
 
-class HourlyForecastController extends GetxController {
+class HourlyForecastController extends GetxController with ConnectivityMixin {
   final homeController = Get.find<HomeController>();
   var forecastData = <ForecastModel>[].obs;
   var selectedDate = DateTime.now().obs;
@@ -16,6 +17,29 @@ class HourlyForecastController extends GetxController {
   void onInit() {
     super.onInit();
     loadForecastData();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    _initWithConnectivityCheck(Get.context!);
+  }
+
+  Future<void> _initWithConnectivityCheck(BuildContext context) async {
+    debugPrint('[CitiesController] Initializing with connectivity check');
+
+    final hasInternet = await connectivityService.checkInternetWithDialog(
+      context,
+      onRetry: () => _initWithConnectivityCheck(context),
+    );
+
+    if (hasInternet) {
+      loadForecastData();
+    } else {
+      debugPrint(
+        '[CitiesController] No internet at startup – retry dialog shown',
+      );
+    }
   }
 
   void loadForecastData() {

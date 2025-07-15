@@ -1,3 +1,4 @@
+import 'package:estonia_weather/core/global_service/connectivity_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/model/aqi_model.dart';
@@ -6,7 +7,7 @@ import '../../../data/model/weather_model.dart';
 import '../../../domain/use_cases/get_current_weather.dart';
 import '../../home/controller/home_controller.dart';
 
-class CitiesController extends GetxController {
+class CitiesController extends GetxController with ConnectivityMixin {
   final GetWeatherAndForecast getCurrentWeather;
   CitiesController(this.getCurrentWeather);
 
@@ -21,17 +22,49 @@ class CitiesController extends GetxController {
   var isLoading = false.obs;
   var isAdding = false.obs;
   var filteredCities = <EstonianCity>[].obs;
-  var hasSearchError = false.obs; // Add this for error state
-  var searchErrorMessage = ''.obs; // Add this for error message
+  var hasSearchError = false.obs;
+  var searchErrorMessage = ''.obs;
 
   @override
-  void onInit() {
-    super.onInit();
-    loadDataFromHome();
-    loadAllCitiesWeather();
+  void onReady() {
+    super.onReady();
+    _initWithConnectivityCheck(Get.context!);
     searchController.addListener(() {
       searchCities(searchController.text);
     });
+  }
+
+  Future<void> _initWithConnectivityCheck(BuildContext context) async {
+    debugPrint('[CitiesController] Initializing with connectivity check');
+
+    final hasInternet = await connectivityService.checkInternetWithDialog(
+      context,
+      onRetry: () => _initWithConnectivityCheck(context),
+    );
+
+    loadDataFromHome();
+
+    if (hasInternet) {
+      await loadAllCitiesWeather();
+    } else {
+      debugPrint(
+        '[CitiesController] No internet at startup – retry dialog shown',
+      );
+    }
+  }
+
+  @override
+  void onInternetConnected() {
+    super.onInternetConnected();
+    debugPrint(
+      '[CitiesController] Internet connected — waiting for user retry',
+    );
+  }
+
+  @override
+  void onInternetDisconnected() {
+    super.onInternetDisconnected();
+    debugPrint('[CitiesController] Internet disconnected');
   }
 
   void loadDataFromHome() {
@@ -154,7 +187,7 @@ class CitiesController extends GetxController {
   }
 
   Future<void> addCurrentLocationToSelected() async {
-    if (homeController.currentLocationCity.value != null) {
+    if (homeController.currentLocationCity != null) {
       try {
         isAdding.value = true;
         await homeController.addCurrentLocationToSelectedAsMain();

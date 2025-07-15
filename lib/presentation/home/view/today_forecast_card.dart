@@ -4,13 +4,16 @@ import '../../../core/common_widgets/common_shimmer.dart';
 import '../../../core/constants/constant.dart';
 import '../../../core/global_service/controllers/condition_controller.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../extensions/device_size/device_size.dart';
 import '../../hourly_forecast/view/hourly_forecast_view.dart';
 import '../controller/home_controller.dart';
 import '../../../core/theme/app_styles.dart';
 import '../../../data/model/forecast_model.dart';
 
 class TodayForecastSection extends StatelessWidget {
-  const TodayForecastSection({super.key});
+  final DeviceSize deviceSize;
+
+  const TodayForecastSection({super.key, required this.deviceSize});
 
   @override
   Widget build(BuildContext context) {
@@ -21,14 +24,14 @@ class TodayForecastSection extends StatelessWidget {
       () => Stack(
         children: [
           SizedBox(
-            height: mobileHeight(context) * 0.14,
-            width: mobileWidth(context),
+            height: deviceSize.height * 0.14,
+            width: deviceSize.width,
             child:
                 homeController.isLoading.value
                     ? ShimmerListView(
                       itemCount: 7,
-                      itemWidth: mobileWidth(context) * 0.2,
-                      itemHeight: mobileHeight(context) * 0.14,
+                      itemWidth: deviceSize.width * 0.2,
+                      itemHeight: deviceSize.height * 0.14,
                       itemMargin:
                           (index) => EdgeInsets.only(
                             left: index == 0 ? kBodyHp : 0,
@@ -61,6 +64,7 @@ class TodayForecastSection extends StatelessWidget {
                             isLast:
                                 index == homeController.forecastData.length - 1,
                             forecastData: forecast,
+                            deviceSize: deviceSize,
                           ),
                         );
                       },
@@ -78,6 +82,7 @@ class TodayForecastCard extends StatelessWidget {
   final bool isFirst;
   final bool isLast;
   final ForecastModel? forecastData;
+  final DeviceSize deviceSize;
 
   const TodayForecastCard({
     super.key,
@@ -86,12 +91,13 @@ class TodayForecastCard extends StatelessWidget {
     this.isFirst = false,
     this.isLast = false,
     this.forecastData,
+    required this.deviceSize,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: mobileWidth(context) * 0.2,
+      width: deviceSize.width * 0.2,
       margin: EdgeInsets.only(
         left: isFirst ? kBodyHp : 0,
         right: isLast ? kBodyHp : kElementGap,

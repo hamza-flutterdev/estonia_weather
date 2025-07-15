@@ -19,9 +19,6 @@ class WeatherInfoCard extends StatelessWidget {
   final String? maxTemp;
   final WeatherModel? weatherData;
   final ForecastModel? forecastData;
-  final bool useGradient;
-  final bool showWeatherDetails;
-  final bool showIcon;
   final double? iconSize;
   final String imagePath;
 
@@ -33,9 +30,6 @@ class WeatherInfoCard extends StatelessWidget {
     required this.minTemp,
     this.weatherData,
     this.forecastData,
-    this.useGradient = false,
-    this.showWeatherDetails = true,
-    this.showIcon = true,
     this.iconSize,
     required this.imagePath,
     this.maxTemp,
@@ -43,7 +37,7 @@ class WeatherInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = useGradient ? kWhite : primaryColor;
+    final textColor = primaryColor;
     final controller = Get.find<ConditionController>();
 
     final String displayHumidity;
@@ -65,10 +59,7 @@ class WeatherInfoCard extends StatelessWidget {
     }
 
     return Container(
-      decoration: roundedDecorationWithShadow.copyWith(
-        gradient: useGradient ? kGradient : null,
-        color: kLightWhite,
-      ),
+      decoration: roundedDecorationWithShadow.copyWith(color: kLightWhite),
       padding: kContentPaddingSmall,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -87,20 +78,17 @@ class WeatherInfoCard extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (showIcon)
-                  SizedBox(
+                SizedBox(
+                  width: iconSize ?? largeIcon(context),
+                  height: iconSize ?? largeIcon(context),
+                  child: AnimatedWeatherIcon(
+                    imagePath: imagePath,
+                    condition: condition,
                     width: iconSize ?? largeIcon(context),
-                    height: iconSize ?? largeIcon(context),
-                    child: AnimatedWeatherIcon(
-                      imagePath: imagePath,
-                      condition: condition,
-                      width: largeIcon(context),
-                    ),
                   ),
-                if (showIcon) const SizedBox(width: kBodyHp * 2),
+                ),
+                SizedBox(width: kElementGap),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -119,7 +107,7 @@ class WeatherInfoCard extends StatelessWidget {
                             '°',
                             style: headlineLargeStyle.copyWith(
                               color: textColor,
-                              fontSize: 75,
+                              fontSize: 50,
                             ),
                           ),
                         ],
@@ -134,7 +122,7 @@ class WeatherInfoCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: kElementInnerGap),
+                    const SizedBox(height: kElementInnerGap),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -158,12 +146,13 @@ class WeatherInfoCard extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: kElementInnerGap),
                   ],
                 ),
               ],
             ),
           ),
-          if (showWeatherDetails) ...[
+          ...[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: kElementWidthGap),
               child: Row(

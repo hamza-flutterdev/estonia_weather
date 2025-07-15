@@ -22,10 +22,12 @@ import 'other_city_card.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final HomeController homeController = Get.find();
     final ConditionController conditionController = Get.find();
+
     // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
@@ -52,9 +54,6 @@ class HomeView extends StatelessWidget {
               LayoutBuilder(
                 builder: (context, constraints) {
                   final deviceSize = DeviceSize(constraints, context);
-                  print(
-                    'Device height in Home: ${DeviceSize(constraints, context).height}',
-                  );
 
                   return Obx(
                     () => SizedBox(
@@ -100,7 +99,7 @@ class HomeView extends StatelessWidget {
                             top: deviceSize.detailsCardTop,
                             left: deviceSize.horizontalPadding,
                             right: deviceSize.horizontalPadding,
-                            child: const WeatherDetailsCard(),
+                            child: WeatherDetailsCard(deviceSize: deviceSize),
                           ),
                           Positioned(
                             top: deviceSize.todayHeaderTop,
@@ -121,7 +120,7 @@ class HomeView extends StatelessWidget {
                             top: deviceSize.todayForecastTop,
                             left: 0,
                             right: 0,
-                            child: const TodayForecastSection(),
+                            child: TodayForecastSection(deviceSize: deviceSize),
                           ),
                           // Other Cities Header
                           Positioned(
@@ -140,7 +139,7 @@ class HomeView extends StatelessWidget {
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            child: const OtherCitiesSection(),
+                            child: OtherCitiesSection(deviceSize: deviceSize),
                           ),
                         ],
                       ),
