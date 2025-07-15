@@ -56,6 +56,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/snow.png
   AssetGenImage get snow => const AssetGenImage('assets/images/snow.png');
 
+  /// File path: assets/images/splash.png
+  AssetGenImage get splash => const AssetGenImage('assets/images/splash.png');
+
   /// File path: assets/images/thunderstorm.png
   AssetGenImage get thunderstorm =>
       const AssetGenImage('assets/images/thunderstorm.png');
@@ -75,6 +78,7 @@ class $AssetsImagesGen {
     rain,
     sleet,
     snow,
+    splash,
     thunderstorm,
     windy,
   ];

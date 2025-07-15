@@ -1,4 +1,6 @@
+import 'package:estonia_weather/core/global_service/connectivity_service.dart';
 import 'package:estonia_weather/presentation/hourly_forecast/controller/hourly_forecast_controller.dart';
+import 'package:estonia_weather/presentation/splash/controller/splash_controller.dart';
 import 'package:get/get.dart';
 import 'package:estonia_weather/presentation/cities/controller/cities_controller.dart';
 import 'package:estonia_weather/presentation/daily_forecast/controller/daily_forecast_controller.dart';
@@ -12,6 +14,8 @@ import '../global_service/controllers/condition_controller.dart';
 
 class DependencyInjection {
   static void init() {
+    // Connection
+    Get.lazyPut<ConnectivityService>(() => ConnectivityService(), fenix: true);
     // 🗂 Data Source
     Get.lazyPut<OnlineDataSource>(() => OnlineDataSource(apiKey), fenix: true);
 
@@ -28,10 +32,12 @@ class DependencyInjection {
     );
 
     // 📦 Controllers
+    Get.lazyPut<SplashController>(
+      () => SplashController(Get.find<GetWeatherAndForecast>()),
+      fenix: true,
+    );
     Get.lazyPut<HomeController>(
-      () => HomeController(
-        Get.find<GetWeatherAndForecast>(),
-      ), // Fixed: Only pass one parameter
+      () => HomeController(Get.find<GetWeatherAndForecast>()),
       fenix: true,
     );
 

@@ -44,7 +44,6 @@ class CitiesView extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Error message display
                 Obx(
                   () =>
                       controller.hasSearchError.value
@@ -59,15 +58,15 @@ class CitiesView extends StatelessWidget {
                               children: [
                                 Icon(
                                   Icons.error_outline,
-                                  color: Colors.red,
-                                  size: 16,
+                                  color: kRed,
+                                  size: smallIcon(context),
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: kElementWidthGap),
                                 Expanded(
                                   child: Text(
                                     controller.searchErrorMessage.value,
                                     style: bodyBoldSmallStyle.copyWith(
-                                      color: Colors.red,
+                                      color: kRed,
                                     ),
                                   ),
                                 ),
@@ -107,7 +106,6 @@ class CitiesView extends StatelessWidget {
                       );
                     }).toList();
 
-                // Separate selected and unselected cities
                 final selectedCities = <Widget>[];
                 final unselectedCities = <Widget>[];
 
@@ -133,7 +131,6 @@ class CitiesView extends StatelessWidget {
                 final allItems = <Widget>[];
                 allItems.addAll(selectedCities);
 
-                // Add divider between selected and unselected if both exist
                 if (selectedCities.isNotEmpty && unselectedCities.isNotEmpty) {
                   allItems.add(
                     Padding(
@@ -166,12 +163,7 @@ class CitiesView extends StatelessWidget {
                 allItems.addAll(unselectedCities);
 
                 return ListView(
-                  padding: const EdgeInsets.fromLTRB(
-                    kBodyHp,
-                    kBodyHp,
-                    kBodyHp,
-                    0,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(kBodyHp, 0, kBodyHp, 0),
                   children: allItems,
                 );
               }),
