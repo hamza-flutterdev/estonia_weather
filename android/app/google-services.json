@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "58764781720",
+    "project_id": "estonia-weather-forecast",
+    "storage_bucket": "estonia-weather-forecast.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:58764781720:android:a710316016852b98a688ed",
+        "android_client_info": {
+          "package_name": "com.unisoftaps.estoniaweatherforecast"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBe2kTZ2ggyWl_qszKcCI1p7yeW2YvpmjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -4,6 +4,7 @@ import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../ads_manager/interstitial_ads.dart';
 import '../../../core/common_widgets/search_bar.dart';
 import '../controller/cities_controller.dart';
 import 'city_card.dart';
@@ -14,6 +15,9 @@ class CitiesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Future.delayed(Duration.zero, () {
+      Get.find<InterstitialAdController>().checkAndShowAd();
+    });
     final CitiesController controller = Get.find();
 
     return Scaffold(

@@ -4,6 +4,7 @@ import 'package:estonia_weather/core/theme/app_styles.dart';
 import 'package:estonia_weather/presentation/hourly_forecast/view/bottom_arc.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../ads_manager/interstitial_ads.dart';
 import '../../../core/common_widgets/icon_buttons.dart';
 import '../../../core/common_widgets/weather_info_card.dart';
 import '../../../core/constants/constant.dart';
@@ -19,6 +20,9 @@ class HourlyForecastView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Future.delayed(Duration.zero, () {
+      Get.find<InterstitialAdController>().checkAndShowAd();
+    });
     final DateTime selectedDate = Get.arguments;
     final HourlyForecastController controller = Get.find();
     final ConditionController conditionController = Get.find();
