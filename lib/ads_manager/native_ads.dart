@@ -190,10 +190,11 @@ class NativeAdMeduimController extends GetxController {
     }
   }
 
+
   void loadNativeAd() {
     final unitId = Platform.isAndroid
-        ? 'ca-app-pub-3118392277684870/8301439454'
-        : 'ca-app-pub-5405847310750111/9804849545';
+        ? 'ca-app-pub-8172082069591999/6795197344'
+        : ' ';
     _nativeAd = NativeAd(
       adUnitId:unitId,
       request: const AdRequest(),
@@ -234,33 +235,6 @@ class NativeAdMeduimController extends GetxController {
       adWidget.value = shimmerWidget(adHeight);
     }
   }
-
-  // void updateAdWidget() {
-  //   final screenHeight = MediaQuery.of(Get.context!).size.height;
-  //   // final adHeight = screenHeight * 0.37;
-  //   final adHeight = min(screenHeight * 0.37, 350);
-  //   if (isAdReady && _nativeAd != null) {
-  //     adWidget.value = Container(
-  //       height: adHeight,
-  //       margin: const EdgeInsets.symmetric(vertical:5,),
-  //       decoration: BoxDecoration(
-  //         color: Colors.white,
-  //         borderRadius: BorderRadius.circular(16),
-  //         boxShadow: [
-  //           BoxShadow(
-  //             color: Colors.black.withOpacity(0.05),
-  //             blurRadius: 8,
-  //             offset: Offset(0, 2),
-  //           ),
-  //         ],
-  //       ),
-  //       child: AdWidget(ad: _nativeAd!),
-  //     );
-  //   } else {
-  //     adWidget.value = shimmerWidget(adHeight);
-  //   }
-  // }
-
   Widget shimmerWidget(double width) {
     return Shimmer.fromColors(
       baseColor: Colors.black12,

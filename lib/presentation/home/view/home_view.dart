@@ -1,3 +1,4 @@
+import 'package:estonia_weather/ads_manager/banner_ads.dart';
 import 'package:estonia_weather/core/common_widgets/custom_appbar.dart';
 import 'package:estonia_weather/core/common_widgets/custom_drawer.dart';
 import 'package:estonia_weather/core/theme/app_colors.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
+import '../../../ads_manager/interstitial_ads.dart';
 import '../../../core/animation/animated_weather_icon.dart';
 import '../../../core/common_widgets/icon_buttons.dart';
 import '../../../core/common_widgets/section_header.dart';
@@ -27,6 +29,8 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final HomeController homeController = Get.find();
     final ConditionController conditionController = Get.find();
+    final BannerAdController bannerAdController = Get.put(BannerAdController());
+
 
     // ignore: deprecated_member_use
     return WillPopScope(
@@ -150,6 +154,12 @@ class HomeView extends StatelessWidget {
             ],
           ),
         ),
+        bottomNavigationBar:
+        Get.find<InterstitialAdController>().isAdReady
+            ? SizedBox()
+            : Obx(() {
+          return bannerAdController.getBannerAdWidget('ad1');
+        }),
       ),
     );
   }

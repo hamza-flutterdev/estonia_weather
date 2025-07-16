@@ -4,6 +4,7 @@ import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../ads_manager/banner_ads.dart';
 import '../../../ads_manager/interstitial_ads.dart';
 import '../../../core/common_widgets/icon_buttons.dart';
 import '../../../core/common_widgets/weather_info_card.dart';
@@ -20,10 +21,6 @@ class DailyForecastView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration.zero, () {
-      Get.find<InterstitialAdController>().checkAndShowAd();
-    });
-
     final DateTime selectedDate = Get.arguments;
     final DailyForecastController controller =
         Get.find<DailyForecastController>();
@@ -199,6 +196,12 @@ class DailyForecastView extends StatelessWidget {
           );
         },
       ),
+      bottomNavigationBar:
+      Get.find<InterstitialAdController>().isAdReady
+          ? SizedBox()
+          : Obx(() {
+        return Get.find<BannerAdController>().getBannerAdWidget('ad2');
+      }),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:estonia_weather/ads_manager/banner_ads.dart';
 import 'package:estonia_weather/presentation/splash/controller/splash_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -51,7 +52,8 @@ class HomeController extends GetxController with ConnectivityMixin {
 
   @override
   void onInit() {
-    super.onInit(); // This will call ConnectivityMixin.onInit()
+    Get.find<BannerAdController>().loadBannerAd('ad1');
+    super.onInit(); 
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 100));

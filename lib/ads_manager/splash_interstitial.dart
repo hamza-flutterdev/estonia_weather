@@ -37,9 +37,9 @@ class SplashInterstitialAdController extends GetxController {
 
   String get spInterstitialAdUnitId {
     if (Platform.isAndroid) {
-      return 'ca-app-pub-3118392277684870/7745522791';
+      return 'ca-app-pub-8172082069591999/3661250625';
     } else if (Platform.isIOS) {
-      return 'ca-app-pub-5405847310750111/8032602876';
+      return ' ';
     } else {
       throw UnsupportedError('Unsupported platform');
     }
@@ -87,7 +87,7 @@ class SplashInterstitialAdController extends GetxController {
           loadInterstitialAd();
           update();
 
-          if (onAdComplete != null) onAdComplete(); // Still call to prevent logic deadlock
+          if (onAdComplete != null) onAdComplete();
         },
       );
 

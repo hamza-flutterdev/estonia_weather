@@ -1,6 +1,8 @@
 import 'package:estonia_weather/core/global_service/connectivity_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../ads_manager/banner_ads.dart';
+import '../../../ads_manager/interstitial_ads.dart';
 import '../../../data/model/aqi_model.dart';
 import '../../../data/model/city_model.dart';
 import '../../../data/model/weather_model.dart';
@@ -25,6 +27,12 @@ class CitiesController extends GetxController with ConnectivityMixin {
   var hasSearchError = false.obs;
   var searchErrorMessage = ''.obs;
 
+  @override
+  void onInit() {
+    Get.find<InterstitialAdController>().checkAndShowAd();
+    super.onInit();
+  }
+  
   @override
   void onReady() {
     super.onReady();

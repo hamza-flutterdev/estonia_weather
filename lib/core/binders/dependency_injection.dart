@@ -1,3 +1,4 @@
+import 'package:estonia_weather/ads_manager/banner_ads.dart';
 import 'package:estonia_weather/core/global_service/connectivity_service.dart';
 import 'package:estonia_weather/presentation/hourly_forecast/controller/hourly_forecast_controller.dart';
 import 'package:estonia_weather/presentation/splash/controller/splash_controller.dart';
@@ -56,8 +57,7 @@ class DependencyInjection {
       () => HourlyForecastController(),
       fenix: true,
     );
+    Get.lazyPut<BannerAdController>(() => BannerAdController(), fenix: true);
     Get.lazyPut<InterstitialAdController>(() => InterstitialAdController());
-
-    // Get.lazyPut<InterstitialAdController>(() => InterstitialAdController(), fenix:true);
   }
 }

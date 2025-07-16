@@ -119,7 +119,7 @@ class InterstitialAdController extends GetxController {
         showInterstitialAd();
       } else {
         print("### Interstitial Ad not ready yet.");
-        screenVisitCount = 0; // Reset even if ad is not ready
+        screenVisitCount = 0;
       }
     }
   }
