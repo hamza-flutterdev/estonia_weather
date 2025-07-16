@@ -1,8 +1,9 @@
 import 'package:estonia_weather/core/global_service/connectivity_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../ads_manager/banner_ads.dart';
-import '../../../ads_manager/interstitial_ads.dart';
+import 'package:toastification/toastification.dart';
+import '../../../core/common_widgets/custom_toast.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../data/model/aqi_model.dart';
 import '../../../data/model/city_model.dart';
 import '../../../data/model/weather_model.dart';
@@ -27,12 +28,6 @@ class CitiesController extends GetxController with ConnectivityMixin {
   var hasSearchError = false.obs;
   var searchErrorMessage = ''.obs;
 
-  @override
-  void onInit() {
-    Get.find<InterstitialAdController>().checkAndShowAd();
-    super.onInit();
-  }
-  
   @override
   void onReady() {
     super.onReady();
@@ -151,7 +146,6 @@ class CitiesController extends GetxController with ConnectivityMixin {
                 city.country.toLowerCase().contains(lowerQuery);
           }).toList();
 
-      // Check if search has results
       if (filtered.isEmpty) {
         hasSearchError.value = true;
         searchErrorMessage.value = 'No cities found matching "$query"';
@@ -194,20 +188,77 @@ class CitiesController extends GetxController with ConnectivityMixin {
     }
   }
 
-  Future<void> addCurrentLocationToSelected() async {
-    if (homeController.currentLocationCity != null) {
-      try {
-        isAdding.value = true;
+  Future<void> addCurrentLocationToSelected(BuildContext context) async {
+    try {
+      isAdding.value = true;
+
+      final cityName = await getCurrentWeather.getCity();
+
+      final latStr = await homeController.localStorage.getString('latitude');
+      final lonStr = await homeController.localStorage.getString('longitude');
+      final lat = latStr != null ? double.tryParse(latStr) : null;
+      final lon = lonStr != null ? double.tryParse(lonStr) : null;
+
+      await homeController.setCurrentLocationCity(
+        cityName: cityName,
+        lat: lat,
+        lon: lon,
+      );
+
+      if (homeController.currentLocationCity != null) {
         await homeController.addCurrentLocationToSelectedAsMain();
         loadDataFromHome();
+
         if (searchController.text.isNotEmpty) {
           searchCities(searchController.text);
         }
-      } catch (e) {
-        debugPrint('Failed to add current location: $e');
-      } finally {
-        isAdding.value = false;
+
+        SimpleToast.showCustomToast(
+          context: context,
+          message: 'Current location is now the main city',
+          type: ToastificationType.success,
+          primaryColor: primaryColor,
+          icon: Icons.location_on,
+        );
+      } else {
+        SimpleToast.showCustomToast(
+          context: context,
+          message: 'Failed to detect your current location. Try again later.',
+          type: ToastificationType.error,
+          primaryColor: kRed,
+          icon: Icons.error_outline,
+        );
+        debugPrint('Current location city is null after permission check');
       }
+    } catch (e) {
+      final errorMessage = e.toString().toLowerCase();
+
+      String userMessage;
+      if (errorMessage.contains('permanently denied')) {
+        userMessage =
+            'Location access is permanently denied. Please enable it in app settings.';
+      } else if (errorMessage.contains('denied')) {
+        userMessage =
+            'Location permission denied. Please allow access to use your current location.';
+      } else if (errorMessage.contains('services are disabled')) {
+        userMessage = 'Location services are disabled. Please enable them.';
+      } else if (errorMessage.contains('timed out')) {
+        userMessage = 'Location request timed out. Please try again.';
+      } else {
+        userMessage = 'Failed to get current location. Please try again.';
+      }
+
+      SimpleToast.showCustomToast(
+        context: context,
+        message: userMessage,
+        type: ToastificationType.error,
+        primaryColor: kRed,
+        icon: Icons.error_outline,
+      );
+
+      debugPrint('Failed to add current location: $e');
+    } finally {
+      isAdding.value = false;
     }
   }
 

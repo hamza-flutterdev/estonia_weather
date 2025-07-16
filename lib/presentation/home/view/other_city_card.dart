@@ -20,14 +20,12 @@ class OtherCitiesSection extends StatelessWidget {
     final ConditionController conditionController = Get.find();
 
     return Obx(() {
-      // Don't show anything if still loading or if it's first launch and data isn't ready
       if (homeController.isLoading.value ||
           (homeController.isFirstLaunch &&
               conditionController.selectedCitiesWeather.isEmpty)) {
         return const SizedBox.shrink();
       }
 
-      // Create a list of cities with their original indices, excluding current location
       final otherCitiesWithIndex = <Map<String, dynamic>>[];
       for (
         int i = 0;
@@ -35,22 +33,13 @@ class OtherCitiesSection extends StatelessWidget {
         i++
       ) {
         final weather = conditionController.selectedCitiesWeather[i];
-        // Skip the main city (the one currently being displayed prominently)
-        if (i == homeController.mainCityIndex) {
-          continue;
-        }
 
-        // Additional check: if there's a current location city, exclude it from other cities
-        // only if it's not the main city
         bool shouldExclude = false;
         if (homeController.currentLocationCity != null) {
           final currentLocationName =
               homeController.currentLocationCity!.city.toLowerCase().trim();
           final weatherCityName = weather.cityName.toLowerCase().trim();
-          // Only exclude if it matches current location AND it's not the main city
-          shouldExclude =
-              weatherCityName == currentLocationName &&
-              i != homeController.mainCityIndex;
+          shouldExclude = weatherCityName == currentLocationName;
         }
 
         if (!shouldExclude) {
@@ -58,7 +47,6 @@ class OtherCitiesSection extends StatelessWidget {
         }
       }
 
-      // If no other cities to show, return empty container
       if (otherCitiesWithIndex.isEmpty) {
         return const SizedBox.shrink();
       }

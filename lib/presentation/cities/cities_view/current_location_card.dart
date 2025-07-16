@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:toastification/toastification.dart';
-import '../../../core/common_widgets/custom_toast.dart';
+import 'package:get/get.dart';
 import '../../../core/constants/constant.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_styles.dart';
@@ -15,15 +14,7 @@ class CurrentLocationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        await controller.addCurrentLocationToSelected();
-
-        SimpleToast.showCustomToast(
-          context: context,
-          message: 'Current location is now the main city',
-          type: ToastificationType.success,
-          primaryColor: primaryColor,
-          icon: Icons.location_on,
-        );
+        await controller.addCurrentLocationToSelected(context);
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: kBodyHp * 1.5),
@@ -44,19 +35,43 @@ class CurrentLocationCard extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.my_location,
-                      color: kWhite,
-                      size: smallIcon(context),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.my_location,
+                          color: kWhite,
+                          size: smallIcon(context),
+                        ),
+                        const SizedBox(width: kElementWidthGap),
+                        Expanded(
+                          child: Text(
+                            'Get Current Location',
+                            style: titleSmallBoldStyle.copyWith(color: kWhite),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: kElementWidthGap),
-                    Text(
-                      'Get Current Location',
-                      style: titleSmallBoldStyle.copyWith(color: kWhite),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    Obx(() {
+                      final currentCity =
+                          controller.homeController.currentLocationCity;
+                      if (currentCity != null) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            currentCity.city,
+                            style: bodyLargeStyle.copyWith(
+                              color: kWhite.withValues(alpha: 0.8),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    }),
                   ],
                 ),
               ),

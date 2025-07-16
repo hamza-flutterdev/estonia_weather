@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:estonia_weather/ads_manager/banner_ads.dart';
 import 'package:estonia_weather/presentation/splash/controller/splash_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,13 +32,11 @@ class HomeController extends GetxController with ConnectivityMixin {
   final currentOtherCityIndex = 0.obs;
   final isLoading = false.obs;
 
-  // Connectivity-related reactive variables
   final needsDataRefresh = false.obs;
   final lastDataFetch = Rx<DateTime?>(null);
 
   static final Map<String, Map<String, dynamic>> _rawDataStorage = {};
 
-  // Getters
   EstonianCity? get currentLocationCity => _currentLocationCity.value;
   List<EstonianCity> get selectedCities => _selectedCities.toList();
   List<EstonianCity> get allCities {
@@ -52,8 +49,7 @@ class HomeController extends GetxController with ConnectivityMixin {
 
   @override
   void onInit() {
-    Get.find<BannerAdController>().loadBannerAd('ad1');
-    super.onInit(); 
+    super.onInit();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 100));
@@ -110,6 +106,44 @@ class HomeController extends GetxController with ConnectivityMixin {
 
     if (splashController.isAppReady) {
       _initializeWeatherData();
+    }
+  }
+
+  Future<void> setCurrentLocationCity({
+    required String cityName,
+    double? lat,
+    double? lon,
+  }) async {
+    final matchedCity = allCities.firstWhereOrNull(
+      (city) => city.city.toLowerCase() == cityName.toLowerCase(),
+    );
+
+    if (matchedCity != null) {
+      _currentLocationCity.value = matchedCity;
+      currentLocation.value = matchedCity.city;
+      debugPrint(
+        '[HomeController] Current location city set to: ${matchedCity.city}',
+      );
+    } else {
+      final fallbackCity = EstonianCity(
+        city: cityName,
+        cityAscii: cityName,
+        lat: lat ?? 0.0,
+        lng: lon ?? 0.0,
+        country: 'Current Location',
+        iso2: 'CL',
+        iso3: 'CUR',
+        adminName: 'Current Location',
+        capital: 'primary',
+        population: 0,
+        id: 999999,
+      );
+
+      _currentLocationCity.value = fallbackCity;
+      currentLocation.value = fallbackCity.city;
+      debugPrint(
+        '[HomeController] No match found — fallback city set: ${fallbackCity.city}',
+      );
     }
   }
 
@@ -195,12 +229,10 @@ class HomeController extends GetxController with ConnectivityMixin {
       unawaited(_saveSelectedCitiesToStorage());
       unawaited(_updateSplashController());
 
-      // Use connectivity-aware loading
       unawaited(_loadWeatherWithConnectivityCheck());
     }
   }
 
-  // Connectivity-aware weather loading
   Future<void> _loadWeatherWithConnectivityCheck() async {
     await ensureInternetConnection(
       action: () async {
@@ -225,7 +257,6 @@ class HomeController extends GetxController with ConnectivityMixin {
       await _saveSelectedCitiesToStorage();
       await _updateSplashController();
 
-      // Use connectivity-aware loading
       await _loadWeatherWithConnectivityCheck();
     }
   }
@@ -251,7 +282,6 @@ class HomeController extends GetxController with ConnectivityMixin {
         await _saveSelectedCitiesToStorage();
         await _updateSplashController();
 
-        // Use connectivity-aware loading
         await _loadWeatherWithConnectivityCheck();
       }
     } catch (e) {
@@ -259,17 +289,6 @@ class HomeController extends GetxController with ConnectivityMixin {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  // Method to manually refresh data (for pull-to-refresh)
-  Future<void> refreshWeatherData() async {
-    await ensureInternetConnection(
-      action: () async {
-        await loadSelectedCitiesWeather();
-        lastDataFetch.value = DateTime.now();
-      },
-      context: Get.context,
-    );
   }
 
   List<Map<String, dynamic>> getHourlyDataForDate(String date) {
@@ -344,7 +363,6 @@ class HomeController extends GetxController with ConnectivityMixin {
   }
 
   Future<void> loadSelectedCitiesWeather() async {
-    // Skip if no internet connection
     if (!connectivityService.isConnected) {
       debugPrint('[HomeController] No internet - skipping weather load');
       return;
