@@ -255,7 +255,7 @@ mixin ConnectivityMixin on GetxController {
   }
 
   void onInternetStatusChanged(bool hasInternet) {
-    debugPrint('[${runtimeType}] Internet status changed: $hasInternet');
+    debugPrint('[$runtimeType] Internet status changed: $hasInternet');
 
     if (hasInternet) {
       onInternetConnected();
@@ -266,12 +266,12 @@ mixin ConnectivityMixin on GetxController {
 
   void onInternetConnected() {
     // Called when internet becomes available
-    debugPrint('[${runtimeType}] Internet connected - refreshing data');
+    debugPrint('[$runtimeType] Internet connected - refreshing data');
   }
 
   void onInternetDisconnected() {
     // Called when internet becomes unavailable
-    debugPrint('[${runtimeType}] Internet disconnected');
+    debugPrint('[$runtimeType] Internet disconnected');
   }
 
   // Helper method to check internet before performing actions
@@ -293,7 +293,7 @@ mixin ConnectivityMixin on GetxController {
       await action();
       return true;
     } catch (e) {
-      debugPrint('[${runtimeType}] Action failed: $e');
+      debugPrint('[$runtimeType] Action failed: $e');
       return false;
     }
   }

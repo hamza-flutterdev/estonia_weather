@@ -1,5 +1,4 @@
 import 'package:estonia_weather/ads_manager/banner_ads.dart';
-import 'package:estonia_weather/presentation/home/view/home_view.dart';
 import 'package:estonia_weather/presentation/splash/view/splash_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +35,7 @@ class EstoniaWeather extends StatelessWidget {
       builder: DevicePreview.appBuilder,
       debugShowCheckedModeBanner: false,
       useInheritedMediaQuery: true,
-      title: 'Learn English',
+      title: 'Estonia Weather',
       home: const SplashView(),
       theme: ThemeData(fontFamily: fontPrimary),
     );

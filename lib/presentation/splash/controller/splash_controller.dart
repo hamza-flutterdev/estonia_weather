@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:estonia_weather/core/global_service/connectivity_service.dart';
 import 'package:estonia_weather/presentation/home/view/home_view.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../../core/local_storage/local_storage.dart';
 import '../../../core/global_service/controllers/condition_controller.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../domain/use_cases/get_current_weather.dart';
 import '../../../data/model/city_model.dart';
 import '../../../data/model/weather_model.dart';
@@ -21,6 +21,9 @@ class SplashController extends GetxController with ConnectivityMixin {
   SplashController(this.getCurrentWeather);
   ConditionController get conditionController =>
       Get.find<ConditionController>();
+  Timer? _timer;
+  Timer? _flickerTimer;
+  Timer? _letterTimer;
   final isLoading = true.obs;
   final isDataLoaded = false.obs;
   final loadingProgress = 0.0.obs;
@@ -31,6 +34,44 @@ class SplashController extends GetxController with ConnectivityMixin {
   final mainCityIndex = 0.obs;
   final isFirstLaunch = true.obs;
   static final Map<String, Map<String, dynamic>> _rawDataStorage = {};
+  var showButton = false.obs;
+  var visibleLetters = 0.obs;
+  var title = primaryColor.obs;
+  final String _targetText = 'Live Forecasts Across Estonia!';
+  bool _colorUpdate = true;
+
+  final Color _color1 = secondaryColor;
+  final Color _color2 = primaryColor;
+
+  @override
+  void onInit() {
+    super.onInit();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startSloganAnimation();
+      _animateTitle();
+    });
+  }
+
+  void _animateTitle() {
+    _letterTimer?.cancel();
+    _letterTimer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
+      if (visibleLetters.value < _targetText.length) {
+        visibleLetters.value++;
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  void _startSloganAnimation() {
+    title.value = _color1;
+    _flickerTimer?.cancel();
+
+    _flickerTimer = Timer.periodic(const Duration(milliseconds: 800), (_) {
+      title.value = _colorUpdate ? _color2 : _color1;
+      _colorUpdate = !_colorUpdate;
+    });
+  }
 
   @override
   void onReady() {
@@ -61,42 +102,28 @@ class SplashController extends GetxController with ConnectivityMixin {
     try {
       isLoading.value = true;
       isDataLoaded.value = false;
-
-      // Step 1: Load cities data
       await _loadAllCities();
       _updateProgress(0.25, 'Loading cities...');
-
-      // Step 2: Check if first launch
       await _checkFirstLaunch();
       _updateProgress(0.5, 'Checking configuration...');
-
-      // Step 3: Get current location
       await _getCurrentLocation();
       _updateProgress(0.75, 'Getting location...');
-
-      // Step 4: Setup cities or load from storage
       if (isFirstLaunch.value) {
         await _setupFirstLaunch();
       } else {
         await _loadSelectedCitiesFromStorage();
       }
-
       _updateProgress(0.9, 'Loading weather data...');
-
-      // Step 5: Load weather data
       await _loadWeatherData();
-
       _updateProgress(1.0, 'Ready!');
-
-      // Mark as complete
       isDataLoaded.value = true;
     } catch (e) {
       debugPrint('Error during app initialization: $e');
-      // Fallback setup
       await _fallbackSetup();
       isDataLoaded.value = true;
     } finally {
       isLoading.value = false;
+      showButton.value = true;
     }
   }
 
@@ -296,7 +323,6 @@ class SplashController extends GetxController with ConnectivityMixin {
     try {
       List<WeatherModel> weatherList = [];
       List<ForecastModel> mainCityForecast = [];
-      Map<String, dynamic>? mainCityRawData;
 
       for (int i = 0; i < selectedCities.length; i++) {
         final city = selectedCities[i];
@@ -310,14 +336,12 @@ class SplashController extends GetxController with ConnectivityMixin {
 
           if (i == mainCityIndex.value) {
             mainCityForecast = forecast;
-            mainCityRawData = _rawDataStorage[city.city];
           }
         } catch (e) {
           debugPrint('Failed to load weather for ${city.city}: $e');
         }
       }
 
-      // Update condition controller with weather data
       if (weatherList.isNotEmpty) {
         conditionController.updateWeatherData(
           weatherList,
@@ -344,7 +368,6 @@ class SplashController extends GetxController with ConnectivityMixin {
           ? selectedCities[mainCityIndex.value].city
           : 'Loading...';
 
-  // Getters for other controllers to access
   bool get isAppReady => isDataLoaded.value;
   List<EstonianCity> get loadedCities => selectedCities.toList();
   EstonianCity? get currentCity => currentLocationCity.value;
@@ -352,4 +375,11 @@ class SplashController extends GetxController with ConnectivityMixin {
   bool get isFirstTime => isFirstLaunch.value;
   Map<String, dynamic> get rawWeatherData =>
       _rawDataStorage[mainCityName] ?? {};
+  @override
+  void onClose() {
+    _timer?.cancel();
+    _flickerTimer?.cancel();
+    _letterTimer?.cancel();
+    super.onClose();
+  }
 }

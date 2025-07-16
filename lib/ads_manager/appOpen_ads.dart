@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:ui';
+
 class AppOpenAdController extends GetxController with WidgetsBindingObserver {
   final RxBool isShowingOpenAd = false.obs;
 
@@ -44,8 +44,7 @@ class AppOpenAdController extends GetxController with WidgetsBindingObserver {
     initializeRemoteConfig();
   }
 
-
-    Future<void> initializeRemoteConfig() async {
+  Future<void> initializeRemoteConfig() async {
     final remoteConfig = FirebaseRemoteConfig.instance;
 
     try {
@@ -65,9 +64,8 @@ class AppOpenAdController extends GetxController with WidgetsBindingObserver {
     }
   }
 
-
   void showAdIfAvailable() {
-   if (_isAdAvailable && _appOpenAd != null && !isCooldownActive) {
+    if (_isAdAvailable && _appOpenAd != null && !isCooldownActive) {
       _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdShowedFullScreenContent: (ad) {
           print('App Open Ad is showing.');
@@ -106,8 +104,7 @@ class AppOpenAdController extends GetxController with WidgetsBindingObserver {
     });
   }
 
-
-    String get appOpenAdUnitId {
+  String get appOpenAdUnitId {
     if (Platform.isAndroid) {
       return 'ca-app-pub-8172082069591999/5234703662';
     } else if (Platform.isIOS) {
@@ -120,7 +117,7 @@ class AppOpenAdController extends GetxController with WidgetsBindingObserver {
   void loadAd() {
     if (!shouldShowAppOpenAd) return;
     AppOpenAd.load(
-      adUnitId:appOpenAdUnitId,
+      adUnitId: appOpenAdUnitId,
       request: const AdRequest(),
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
@@ -135,6 +132,7 @@ class AppOpenAdController extends GetxController with WidgetsBindingObserver {
       ),
     );
   }
+
   void setInterstitialAdDismissed() {
     _interstitialAdDismissed = true;
     print("Interstitial Ad dismissed, flag set.");

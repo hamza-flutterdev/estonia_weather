@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'appOpen_ads.dart';
 
 class InterstitialAdController extends GetxController {
   InterstitialAd? _interstitialAd;
@@ -21,10 +20,12 @@ class InterstitialAdController extends GetxController {
     final remoteConfig = FirebaseRemoteConfig.instance;
 
     try {
-      await remoteConfig.setConfigSettings(RemoteConfigSettings(
-        fetchTimeout: const Duration(seconds: 10),
-        minimumFetchInterval: const Duration(seconds: 1),
-      ));
+      await remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: const Duration(seconds: 10),
+          minimumFetchInterval: const Duration(seconds: 1),
+        ),
+      );
 
       await remoteConfig.fetchAndActivate();
 
@@ -37,7 +38,8 @@ class InterstitialAdController extends GetxController {
         throw UnsupportedError('Unsupported platform');
       }
 
-      if (remoteConfig.getValue(interstitialKey).source != ValueSource.valueStatic) {
+      if (remoteConfig.getValue(interstitialKey).source !=
+          ValueSource.valueStatic) {
         adTriggerCount = remoteConfig.getInt(interstitialKey);
         print("### Remote Config: Ad Trigger Count = $adTriggerCount");
       } else {
@@ -53,8 +55,8 @@ class InterstitialAdController extends GetxController {
   String get interstitialAdUnitId {
     if (Platform.isAndroid) {
       return
-        //'ca-app-pub-3940256099942544/1033173712';
-        'ca-app-pub-8172082069591999/2985343646';
+      //'ca-app-pub-3940256099942544/1033173712';
+      'ca-app-pub-8172082069591999/2985343646';
     } else if (Platform.isIOS) {
       return 'ca-app-pub-5405847310750111/5611630690';
     } else {
@@ -64,7 +66,7 @@ class InterstitialAdController extends GetxController {
 
   void loadInterstitialAd() {
     InterstitialAd.load(
-      adUnitId:interstitialAdUnitId,
+      adUnitId: interstitialAdUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
