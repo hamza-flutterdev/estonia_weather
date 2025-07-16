@@ -24,9 +24,16 @@ class SplashInterstitialAdController extends GetxController {
         fetchTimeout: const Duration(seconds: 10),
         minimumFetchInterval: const Duration(seconds: 1),
       ));
-
+      String interstitialKey;
+      if (Platform.isAndroid) {
+        interstitialKey = 'SplashInterstitialAd';
+      } else if (Platform.isIOS) {
+        interstitialKey = 'SplashInterstitial';
+      } else {
+        throw UnsupportedError('Unsupported platform');
+      }
       await remoteConfig.fetchAndActivate();
-      showSplashAd = remoteConfig.getBool('SplashInterstitial');
+      showSplashAd = remoteConfig.getBool(interstitialKey);
       print("#################### Remote Config: Show Splash Ad = $showSplashAd");
       update();
     } catch (e) {
@@ -39,7 +46,7 @@ class SplashInterstitialAdController extends GetxController {
     if (Platform.isAndroid) {
       return 'ca-app-pub-8172082069591999/3661250625';
     } else if (Platform.isIOS) {
-      return ' ';
+      return 'ca-app-pub-5405847310750111/3152988310';
     } else {
       throw UnsupportedError('Unsupported platform');
     }

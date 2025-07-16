@@ -7,7 +7,7 @@ void initializeOneSignal() {
     OneSignal.initialize("f7c3a91b-c522-4730-a7bd-2554bd9d1822");
     OneSignal.Notifications.requestPermission(true);
   } else if (Platform.isIOS) {
-    OneSignal.initialize(" ");
+    OneSignal.initialize("54df0907-3214-46d8-ba21-82405aea910a");
     OneSignal.Notifications.requestPermission(true);
   } else {
     print("Unsupported platform for OneSignal");

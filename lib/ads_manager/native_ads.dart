@@ -180,7 +180,7 @@ class NativeAdMeduimController extends GetxController {
         minimumFetchInterval: const Duration(seconds: 1),
       ));
       await remoteConfig.fetchAndActivate();
-      final key = Platform.isAndroid ? 'NativeAdv' : 'NativeAdvAd';
+      final key = Platform.isAndroid ? 'NativeAdvAd' : 'NativeAdv';
       showAd = remoteConfig.getBool(key);
       if (showAd) {
         loadNativeAd();
@@ -194,7 +194,7 @@ class NativeAdMeduimController extends GetxController {
   void loadNativeAd() {
     final unitId = Platform.isAndroid
         ? 'ca-app-pub-8172082069591999/6795197344'
-        : ' ';
+        : 'ca-app-pub-5405847310750111/6074665121';
     _nativeAd = NativeAd(
       adUnitId:unitId,
       request: const AdRequest(),

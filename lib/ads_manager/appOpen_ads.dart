@@ -52,7 +52,7 @@ class AppOpenAdController extends GetxController with WidgetsBindingObserver {
       await remoteConfig.fetchAndActivate();
       String remoteConfigKey;
       if (Platform.isAndroid) {
-        remoteConfigKey = 'AppOpenAD';
+        remoteConfigKey = 'AppOpenAd';
       } else if (Platform.isIOS) {
         remoteConfigKey = 'AppOpen';
       } else {
@@ -111,7 +111,7 @@ class AppOpenAdController extends GetxController with WidgetsBindingObserver {
     if (Platform.isAndroid) {
       return 'ca-app-pub-8172082069591999/5234703662';
     } else if (Platform.isIOS) {
-      return '';
+      return 'ca-app-pub-5405847310750111/5252538047';
     } else {
       throw UnsupportedError('Unsupported platform');
     }

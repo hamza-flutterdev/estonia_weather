@@ -13,7 +13,8 @@ class DeviceSize {
   // Screen categories
   bool get isSmall => height < 675;
   bool get isMedium => height >= 675 && height < 772;
-  bool get isLarge => height >= 772 && height < 800;
+  bool get isLarge => height >= 801 && height < 920;
+  // bool get isLarge => height >= 772 && height < 800;
   bool get isBig => height >= 900;
   bool get isTab => width >= 600;
 
@@ -45,7 +46,7 @@ class DeviceSize {
           : isMedium
           ? height * 0.405
           : isLarge
-          ? height * 0.335
+          ? height * 0.385
           : isBig
           ? height * 0.36
           : height * 0.30;
@@ -58,7 +59,7 @@ class DeviceSize {
           : isMedium
           ? height * 0.523
           : isLarge
-          ? height * 0.45
+          ? height * 0.50
           : isBig
           ? height * 0.47
           : height * 0.415;
@@ -71,7 +72,7 @@ class DeviceSize {
           : isMedium
           ? height * 0.565
           : isLarge
-          ? height * 0.48
+          ? height * 0.54
           : isBig
           ? height * 0.495
           : height * 0.445;
@@ -84,7 +85,7 @@ class DeviceSize {
           : isMedium
           ? height * 0.715
           : isLarge
-          ? height * 0.627
+          ? height * 0.687
           : isBig
           ? height * 0.635
           : height * 0.59;
@@ -97,7 +98,7 @@ class DeviceSize {
           : isMedium
           ? height * 0.765
           : isLarge
-          ? height * 0.665
+          ? height * 0.740
           : isBig
           ? height * 0.67
           : height * 0.63;
