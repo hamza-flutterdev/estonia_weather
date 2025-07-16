@@ -36,7 +36,7 @@ class EstoniaWeather extends StatelessWidget {
       builder: DevicePreview.appBuilder,
       debugShowCheckedModeBanner: false,
       useInheritedMediaQuery: true,
-      title: 'Learn English',
+      title: 'Estonia Weather',
       home: const SplashView(),
       theme: ThemeData(fontFamily: fontPrimary),
     );
