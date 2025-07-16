@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../core/common_widgets/custom_text_button.dart';
-import '../../../core/global_service/controllers/condition_controller.dart';
 import '../../../core/theme/app_styles.dart';
 import '../../../gen/assets.gen.dart';
 import '../controller/splash_controller.dart';

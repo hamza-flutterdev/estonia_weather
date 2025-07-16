@@ -108,27 +108,31 @@ class BannerAdController extends GetxController {
     if (isAdEnabled.value &&
         _ads.containsKey(key) &&
         _adLoaded[key]?.value == true) {
-      return Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300, width: 2),
-          borderRadius: BorderRadius.circular(2),
+      return SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300, width: 2),
+            borderRadius: BorderRadius.circular(2),
+          ),
+          height: _ads[key]!.size.height.toDouble(),
+          width: double.infinity,
+          child: AdWidget(ad: _ads[key]!),
         ),
-        height: _ads[key]!.size.height.toDouble(),
-        width: double.infinity,
-        child: AdWidget(ad: _ads[key]!),
       );
     } else {
-      return Shimmer.fromColors(
-        baseColor: bgColor,
-        highlightColor: secondaryColor,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            height: 50,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5.0),
+      return SafeArea(
+        child: Shimmer.fromColors(
+          baseColor: bgColor,
+          highlightColor: secondaryColor,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              height: 50,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5.0),
+              ),
             ),
           ),
         ),

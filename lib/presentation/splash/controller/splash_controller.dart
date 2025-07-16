@@ -39,35 +39,6 @@ class SplashController extends GetxController with ConnectivityMixin {
   var title = primaryColor.obs;
   final String _targetText = 'Live Forecasts Across Estonia!';
   bool _colorUpdate = true;
-  final splashImages = [
-    Assets.images.clear.path,
-    Assets.images.rain.path,
-    Assets.images.thunderstorm.path,
-    Assets.images.snow.path,
-    Assets.images.sleet.path,
-  ];
-
-  final PageController pageController = PageController(initialPage: 1000);
-  final currentPage = 1000.obs;
-
-  Timer? _imageScrollTimer;
-
-  void _startAutoScrollImages() {
-    _imageScrollTimer?.cancel();
-    _imageScrollTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-      currentPage.value++;
-      if (currentPage.value > 1100) {
-        currentPage.value = 1000;
-        pageController.jumpToPage(currentPage.value);
-      } else {
-        pageController.animateToPage(
-          currentPage.value,
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOut,
-        );
-      }
-    });
-  }
 
   final Color _color1 = secondaryColor;
   final Color _color2 = primaryColor;
@@ -78,10 +49,6 @@ class SplashController extends GetxController with ConnectivityMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startSloganAnimation();
       _animateTitle();
-      _startAutoScrollImages();
-      Future.delayed(const Duration(seconds: 4), () {
-        showButton.value = true;
-      });
     });
   }
 
@@ -98,7 +65,7 @@ class SplashController extends GetxController with ConnectivityMixin {
 
   void _startSloganAnimation() {
     title.value = _color1;
-    _flickerTimer?.cancel(); // ensure no multiple timers
+    _flickerTimer?.cancel();
 
     _flickerTimer = Timer.periodic(const Duration(milliseconds: 800), (_) {
       title.value = _colorUpdate ? _color2 : _color1;
@@ -156,6 +123,7 @@ class SplashController extends GetxController with ConnectivityMixin {
       isDataLoaded.value = true;
     } finally {
       isLoading.value = false;
+      showButton.value = true;
     }
   }
 
@@ -374,7 +342,6 @@ class SplashController extends GetxController with ConnectivityMixin {
         }
       }
 
-      // Update condition controller with weather data
       if (weatherList.isNotEmpty) {
         conditionController.updateWeatherData(
           weatherList,
@@ -401,7 +368,6 @@ class SplashController extends GetxController with ConnectivityMixin {
           ? selectedCities[mainCityIndex.value].city
           : 'Loading...';
 
-  // Getters for other controllers to access
   bool get isAppReady => isDataLoaded.value;
   List<EstonianCity> get loadedCities => selectedCities.toList();
   EstonianCity? get currentCity => currentLocationCity.value;
@@ -414,8 +380,6 @@ class SplashController extends GetxController with ConnectivityMixin {
     _timer?.cancel();
     _flickerTimer?.cancel();
     _letterTimer?.cancel();
-    _imageScrollTimer?.cancel();
-    pageController.dispose();
     super.onClose();
   }
 }
