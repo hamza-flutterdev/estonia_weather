@@ -76,7 +76,7 @@ class HomeView extends StatelessWidget {
                             ],
                           ),
                           Positioned(
-                            top: constraints.maxHeight * 0.115,
+                            top: kToolbarHeight,
                             left: deviceSize.weatherCardHorizontalMargin,
                             right: deviceSize.weatherCardHorizontalMargin,
                             child: MainCard(

@@ -190,7 +190,6 @@ class SplashController extends GetxController with ConnectivityMixin {
 
   Future<void> _setupFirstLaunch() async {
     try {
-      // Setup default cities
       final tallinn = allCities.firstWhere(
         (city) => city.city.toLowerCase() == 'tallinn',
         orElse: () => allCities.first,
