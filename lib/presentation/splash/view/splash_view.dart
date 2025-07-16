@@ -1,3 +1,4 @@
+import 'package:estonia_weather/core/animation/animated_weather_icon.dart';
 import 'package:estonia_weather/core/constants/constant.dart';
 import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/presentation/home/view/home_view.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../core/common_widgets/custom_text_button.dart';
+import '../../../core/global_service/controllers/condition_controller.dart';
 import '../../../core/theme/app_styles.dart';
 import '../../../gen/assets.gen.dart';
 import '../controller/splash_controller.dart';
@@ -34,11 +36,12 @@ class SplashView extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const SizedBox(height: kBodyHp * 1.5),
+                      const SizedBox(height: kElementInnerGap),
                       AnimatedDefaultTextStyle(
                         style: headlineLargeStyle.copyWith(
                           color: controller.title.value,
                           fontFamily: fontSecondary,
+                          fontSize: 75,
                         ),
                         duration: const Duration(milliseconds: 1500),
                         child: Text.rich(
@@ -48,11 +51,9 @@ class SplashView extends StatelessWidget {
                               const TextSpan(text: 'weather'),
                             ],
                           ),
-                          textAlign:
-                              TextAlign.center, // Center align both lines
+                          textAlign: TextAlign.center,
                         ),
                       ),
-                      const SizedBox(height: kElementInnerGap),
                       RichText(
                         text: TextSpan(
                           children: List.generate(
@@ -62,7 +63,7 @@ class SplashView extends StatelessWidget {
                                   index < controller.visibleLetters.value;
                               return TextSpan(
                                 text: 'Live Forecasts Across Estonia!'[index],
-                                style: headlineSmallStyle.copyWith(
+                                style: titleSmallStyle.copyWith(
                                   color: isVisible ? primaryColor : transparent,
                                 ),
                               );
@@ -70,7 +71,11 @@ class SplashView extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: kElementInnerGap),
+                      AnimatedWeatherIcon(
+                        imagePath: Assets.images.splashIcon.path,
+                        condition: 'thunderstorm',
+                        width: mobileHeight(context) * 0.3,
+                      ),
                       Column(
                         children: [
                           Container(
@@ -91,12 +96,12 @@ class SplashView extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(height: kBodyHp),
+                          const SizedBox(height: kElementInnerGap),
                           Text(
                             controller.loadingMessage.value,
                             style: bodyLargeStyle.copyWith(color: primaryColor),
                           ),
-                          const SizedBox(height: kBodyHp),
+                          const SizedBox(height: kElementInnerGap),
                           Padding(
                             padding: EdgeInsets.only(
                               bottom: mobileHeight(context) * 0.1,
@@ -134,43 +139,6 @@ class SplashView extends StatelessWidget {
                                       ),
                             ),
                           ),
-
-                          // if (controller.isDataLoaded.value)
-                          //   ElevatedButton(
-                          //     onPressed: controller.navigateToHome,
-                          //     style: ElevatedButton.styleFrom(
-                          //       backgroundColor: Colors.blue,
-                          //       foregroundColor: const Color(0xFF1976D2),
-                          //       padding: const EdgeInsets.symmetric(
-                          //         horizontal: 32,
-                          //         vertical: 16,
-                          //       ),
-                          //       shape: RoundedRectangleBorder(
-                          //         borderRadius: BorderRadius.circular(25),
-                          //       ),
-                          //     ),
-                          //     child: const Row(
-                          //       mainAxisSize: MainAxisSize.min,
-                          //       children: [
-                          //         Text(
-                          //           'Get Started',
-                          //           style: TextStyle(
-                          //             fontSize: 18,
-                          //             fontWeight: FontWeight.w600,
-                          //             color: kWhite,
-                          //           ),
-                          //         ),
-                          //         SizedBox(width: 8),
-                          //         Icon(Icons.arrow_forward, color: kWhite),
-                          //       ],
-                          //     ),
-                          //   )
-                          // else
-                          //   const CircularProgressIndicator(
-                          //     valueColor: AlwaysStoppedAnimation<Color>(
-                          //       Colors.blue,
-                          //     ),
-                          //   ),
                         ],
                       ),
                     ],

@@ -39,9 +39,38 @@ class SplashController extends GetxController with ConnectivityMixin {
   var title = primaryColor.obs;
   final String _targetText = 'Live Forecasts Across Estonia!';
   bool _colorUpdate = true;
+  final splashImages = [
+    Assets.images.clear.path,
+    Assets.images.rain.path,
+    Assets.images.thunderstorm.path,
+    Assets.images.snow.path,
+    Assets.images.sleet.path,
+  ];
 
-  final Color _color1 = primaryColor;
-  final Color _color2 = kOrange;
+  final PageController pageController = PageController(initialPage: 1000);
+  final currentPage = 1000.obs;
+
+  Timer? _imageScrollTimer;
+
+  void _startAutoScrollImages() {
+    _imageScrollTimer?.cancel();
+    _imageScrollTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      currentPage.value++;
+      if (currentPage.value > 1100) {
+        currentPage.value = 1000;
+        pageController.jumpToPage(currentPage.value);
+      } else {
+        pageController.animateToPage(
+          currentPage.value,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  final Color _color1 = secondaryColor;
+  final Color _color2 = primaryColor;
 
   @override
   void onInit() {
@@ -49,6 +78,7 @@ class SplashController extends GetxController with ConnectivityMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startSloganAnimation();
       _animateTitle();
+      _startAutoScrollImages();
       Future.delayed(const Duration(seconds: 4), () {
         showButton.value = true;
       });
@@ -105,38 +135,23 @@ class SplashController extends GetxController with ConnectivityMixin {
     try {
       isLoading.value = true;
       isDataLoaded.value = false;
-
-      // Step 1: Load cities data
       await _loadAllCities();
       _updateProgress(0.25, 'Loading cities...');
-
-      // Step 2: Check if first launch
       await _checkFirstLaunch();
       _updateProgress(0.5, 'Checking configuration...');
-
-      // Step 3: Get current location
       await _getCurrentLocation();
       _updateProgress(0.75, 'Getting location...');
-
-      // Step 4: Setup cities or load from storage
       if (isFirstLaunch.value) {
         await _setupFirstLaunch();
       } else {
         await _loadSelectedCitiesFromStorage();
       }
-
       _updateProgress(0.9, 'Loading weather data...');
-
-      // Step 5: Load weather data
       await _loadWeatherData();
-
       _updateProgress(1.0, 'Ready!');
-
-      // Mark as complete
       isDataLoaded.value = true;
     } catch (e) {
       debugPrint('Error during app initialization: $e');
-      // Fallback setup
       await _fallbackSetup();
       isDataLoaded.value = true;
     } finally {
@@ -399,6 +414,8 @@ class SplashController extends GetxController with ConnectivityMixin {
     _timer?.cancel();
     _flickerTimer?.cancel();
     _letterTimer?.cancel();
+    _imageScrollTimer?.cancel();
+    pageController.dispose();
     super.onClose();
   }
 }

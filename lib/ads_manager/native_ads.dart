@@ -7,17 +7,19 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../core/theme/app_colors.dart';
 import 'appOpen_ads.dart';
 import 'interstitial_ads.dart';
+
 class NativeAdController extends GetxController {
   NativeAd? _nativeAd;
   bool isAdReady = false;
   bool showAd = false;
   final Rx<Widget> adWidget = Rx<Widget>(SizedBox.shrink());
-  final AppOpenAdController openAdController=Get.put(AppOpenAdController());
-  final InterstitialAdController interAds=Get.put(InterstitialAdController());
-  final SplashInterstitialAdController spAds=Get.put(SplashInterstitialAdController());
+  final AppOpenAdController openAdController = Get.put(AppOpenAdController());
+  final InterstitialAdController interAds = Get.put(InterstitialAdController());
+  final SplashInterstitialAdController spAds = Get.put(
+    SplashInterstitialAdController(),
+  );
 
   @override
   void onInit() {
@@ -28,10 +30,12 @@ class NativeAdController extends GetxController {
   Future<void> initializeRemoteConfig() async {
     try {
       final remoteConfig = FirebaseRemoteConfig.instance;
-      await remoteConfig.setConfigSettings(RemoteConfigSettings(
-        fetchTimeout: const Duration(seconds: 10),
-        minimumFetchInterval: const Duration(seconds: 1),
-      ));
+      await remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: const Duration(seconds: 10),
+          minimumFetchInterval: const Duration(seconds: 1),
+        ),
+      );
       await remoteConfig.fetchAndActivate();
       final key = Platform.isAndroid ? 'NativeAdv' : 'NativeAdvAd';
       showAd = remoteConfig.getBool(key);
@@ -44,11 +48,12 @@ class NativeAdController extends GetxController {
   }
 
   void loadNativeAd() {
-    final unitId = Platform.isAndroid
-        ? 'ca-app-pub-3118392277684870/8301439454'
-        : 'ca-app-pub-5405847310750111/9804849545';
+    final unitId =
+        Platform.isAndroid
+            ? 'ca-app-pub-3118392277684870/8301439454'
+            : 'ca-app-pub-5405847310750111/9804849545';
     _nativeAd = NativeAd(
-      adUnitId:unitId,
+      adUnitId: unitId,
       request: const AdRequest(),
       listener: NativeAdListener(
         onAdLoaded: (ad) {
@@ -76,7 +81,7 @@ class NativeAdController extends GetxController {
     if (isAdReady && _nativeAd != null) {
       adWidget.value = Container(
         height: adHeight,
-        margin: const EdgeInsets.symmetric(vertical:5,),
+        margin: const EdgeInsets.symmetric(vertical: 5),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -97,10 +102,10 @@ class NativeAdController extends GetxController {
 
   Widget shimmerWidget(double width) {
     return Shimmer.fromColors(
-      baseColor:Colors.black12,
+      baseColor: Colors.black12,
       highlightColor: Colors.grey.shade100,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20,),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -115,7 +120,7 @@ class NativeAdController extends GetxController {
                 ),
               ),
             ),
-            const SizedBox(height:10),
+            const SizedBox(height: 10),
             // First Text Line
             Container(
               width: double.infinity,
@@ -125,10 +130,10 @@ class NativeAdController extends GetxController {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            const SizedBox(height:10),
+            const SizedBox(height: 10),
             Container(
               width: width * 0.7,
-              height:12,
+              height: 12,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
@@ -143,8 +148,7 @@ class NativeAdController extends GetxController {
   Widget nativeAdWidget() {
     if (openAdController.isShowingOpenAd.value) {
       return const SizedBox();
-    }
-    else{
+    } else {
       return Obx(() => adWidget.value);
     }
   }
@@ -156,15 +160,16 @@ class NativeAdController extends GetxController {
   }
 }
 
-
 class NativeAdMeduimController extends GetxController {
   NativeAd? _nativeAd;
   bool isAdReady = false;
   bool showAd = false;
   final Rx<Widget> adWidget = Rx<Widget>(SizedBox.shrink());
-  final AppOpenAdController openAdController=Get.put(AppOpenAdController());
-  final InterstitialAdController interAds=Get.put(InterstitialAdController());
-  final SplashInterstitialAdController spAds=Get.put(SplashInterstitialAdController());
+  final AppOpenAdController openAdController = Get.put(AppOpenAdController());
+  final InterstitialAdController interAds = Get.put(InterstitialAdController());
+  final SplashInterstitialAdController spAds = Get.put(
+    SplashInterstitialAdController(),
+  );
 
   @override
   void onInit() {
@@ -175,10 +180,12 @@ class NativeAdMeduimController extends GetxController {
   Future<void> initializeRemoteConfig() async {
     try {
       final remoteConfig = FirebaseRemoteConfig.instance;
-      await remoteConfig.setConfigSettings(RemoteConfigSettings(
-        fetchTimeout: const Duration(seconds: 10),
-        minimumFetchInterval: const Duration(seconds: 1),
-      ));
+      await remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: const Duration(seconds: 10),
+          minimumFetchInterval: const Duration(seconds: 1),
+        ),
+      );
       await remoteConfig.fetchAndActivate();
       final key = Platform.isAndroid ? 'NativeAdv' : 'NativeAdvAd';
       showAd = remoteConfig.getBool(key);
@@ -190,13 +197,11 @@ class NativeAdMeduimController extends GetxController {
     }
   }
 
-
   void loadNativeAd() {
-    final unitId = Platform.isAndroid
-        ? 'ca-app-pub-8172082069591999/6795197344'
-        : ' ';
+    final unitId =
+        Platform.isAndroid ? 'ca-app-pub-8172082069591999/6795197344' : ' ';
     _nativeAd = NativeAd(
-      adUnitId:unitId,
+      adUnitId: unitId,
       request: const AdRequest(),
       listener: NativeAdListener(
         onAdLoaded: (ad) {
@@ -217,6 +222,7 @@ class NativeAdMeduimController extends GetxController {
 
     _nativeAd!.load();
   }
+
   void updateAdWidget() {
     final screenHeight = MediaQuery.of(Get.context!).size.height;
     final adHeight = min(screenHeight * 0.37, 350.0);
@@ -235,6 +241,7 @@ class NativeAdMeduimController extends GetxController {
       adWidget.value = shimmerWidget(adHeight);
     }
   }
+
   Widget shimmerWidget(double width) {
     return Shimmer.fromColors(
       baseColor: Colors.black12,
@@ -259,18 +266,17 @@ class NativeAdMeduimController extends GetxController {
             // First Text Line - taller
             Container(
               width: double.infinity,
-              height:20, // increased height
+              height: 20, // increased height
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
             const SizedBox(height: 14), // more spacing
-
             // Second Text Line - also taller
             Container(
               width: width * 0.7,
-              height:20, // increased height
+              height: 20, // increased height
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
@@ -283,12 +289,9 @@ class NativeAdMeduimController extends GetxController {
   }
 
   Widget nativeAdWidget() {
-    if (openAdController.isShowingOpenAd.value
-
-    ) {
+    if (openAdController.isShowingOpenAd.value) {
       return const SizedBox();
-    }
-    else{
+    } else {
       return Obx(() => adWidget.value);
     }
   }
