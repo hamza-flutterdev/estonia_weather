@@ -212,11 +212,11 @@ class HourlyForecastView extends StatelessWidget {
         },
       ),
       bottomNavigationBar:
-      Get.find<InterstitialAdController>().isAdReady
-          ? SizedBox()
-          : Obx(() {
-        return Get.find<BannerAdController>().getBannerAdWidget('ad4');
-      }),
+          Get.find<InterstitialAdController>().isAdReady
+              ? SizedBox()
+              : Obx(() {
+                return Get.find<BannerAdController>().getBannerAdWidget('ad4');
+              }),
     );
   }
 }

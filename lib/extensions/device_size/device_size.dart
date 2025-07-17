@@ -10,15 +10,12 @@ class DeviceSize {
   double get width => mobileWidth(context);
   double get height => mobileHeight(context);
 
-  // Screen categories
   bool get isSmall => height < 675;
-  bool get isMedium => height >= 675 && height < 772;
-  bool get isLarge => height >= 801 && height < 920;
-  // bool get isLarge => height >= 772 && height < 800;
-  bool get isBig => height >= 900;
+  bool get isMedium => height >= 675 && height < 773;
+  bool get isLarge => height >= 773 && height < 850;
+  bool get isBig => height >= 890;
   bool get isTab => width >= 600;
 
-  // Shared padding/margins
   double get horizontalPadding => isTab ? width * 0.08 : width * 0.05;
   double get weatherCardHorizontalMargin => isTab ? width * 0.2 : width * 0.15;
   double get weatherIconLeft => isTab ? width * 0.12 : width * 0.08;
@@ -29,9 +26,9 @@ class DeviceSize {
           : isSmall
           ? height * 0.27
           : isMedium
-          ? height * 0.22
+          ? height * 0.18
           : isLarge
-          ? height * 0.16
+          ? height * 0.15
           : isBig
           ? height * 0.19
           : height * 0.14;
@@ -44,9 +41,9 @@ class DeviceSize {
           : isSmall
           ? height * 0.46
           : isMedium
-          ? height * 0.405
+          ? height * 0.33
           : isLarge
-          ? height * 0.385
+          ? height * 0.375
           : isBig
           ? height * 0.36
           : height * 0.30;
@@ -57,9 +54,9 @@ class DeviceSize {
           : isSmall
           ? height * 0.57
           : isMedium
-          ? height * 0.523
+          ? height * 0.453
           : isLarge
-          ? height * 0.50
+          ? height * 0.49
           : isBig
           ? height * 0.47
           : height * 0.415;
@@ -70,9 +67,9 @@ class DeviceSize {
           : isSmall
           ? height * 0.61
           : isMedium
-          ? height * 0.565
+          ? height * 0.49
           : isLarge
-          ? height * 0.54
+          ? height * 0.53
           : isBig
           ? height * 0.495
           : height * 0.445;
@@ -83,9 +80,9 @@ class DeviceSize {
           : isSmall
           ? height * 0.747
           : isMedium
-          ? height * 0.715
+          ? height * 0.64
           : isLarge
-          ? height * 0.687
+          ? height * 0.67
           : isBig
           ? height * 0.635
           : height * 0.59;
@@ -96,14 +93,13 @@ class DeviceSize {
           : isSmall
           ? height * 0.795
           : isMedium
-          ? height * 0.765
+          ? height * 0.677
           : isLarge
-          ? height * 0.740
+          ? height * 0.707
           : isBig
           ? height * 0.67
           : height * 0.63;
 
-  // Hourly Forecast Layout
   double get hourlyImageHeight => height * 0.4;
   double get hourlyCardTop => height * 0.11;
 
@@ -113,7 +109,7 @@ class DeviceSize {
           : isBig
           ? height * 0.364
           : isLarge
-          ? height * 0.48
+          ? height * 0.50
           : isMedium
           ? height * 0.515
           : isSmall
@@ -131,7 +127,6 @@ class DeviceSize {
   double get hourlyTimeWidth => isTab ? width * 0.1 : width * 0.15;
   double get hourlySpacerWidth => isTab ? width * 0.08 : width * 0.14;
 
-  // Daily Forecast Layout
   double get dailyImageHeight => height * 0.4;
   double get dailyCardTop => height * 0.11;
 
@@ -141,7 +136,7 @@ class DeviceSize {
           : isBig
           ? height * 0.364
           : isLarge
-          ? height * 0.48
+          ? height * 0.50
           : isMedium
           ? height * 0.515
           : isSmall

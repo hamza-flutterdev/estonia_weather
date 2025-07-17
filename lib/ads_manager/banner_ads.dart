@@ -109,6 +109,10 @@ class BannerAdController extends GetxController {
         _ads.containsKey(key) &&
         _adLoaded[key]?.value == true) {
       return SafeArea(
+        top: false,
+        bottom: true,
+        left: false,
+        right: false,
         child: Container(
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey.shade300, width: 2),
@@ -121,6 +125,10 @@ class BannerAdController extends GetxController {
       );
     } else {
       return SafeArea(
+        top: false,
+        bottom: true,
+        left: false,
+        right: false,
         child: Shimmer.fromColors(
           baseColor: bgColor,
           highlightColor: secondaryColor,

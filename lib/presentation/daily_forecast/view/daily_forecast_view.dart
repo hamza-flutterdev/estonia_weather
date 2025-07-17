@@ -197,11 +197,11 @@ class DailyForecastView extends StatelessWidget {
         },
       ),
       bottomNavigationBar:
-      Get.find<InterstitialAdController>().isAdReady
-          ? SizedBox()
-          : Obx(() {
-        return Get.find<BannerAdController>().getBannerAdWidget('ad2');
-      }),
+          Get.find<InterstitialAdController>().isAdReady
+              ? SizedBox()
+              : Obx(() {
+                return Get.find<BannerAdController>().getBannerAdWidget('ad2');
+              }),
     );
   }
 }

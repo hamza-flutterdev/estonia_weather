@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:device_preview/device_preview.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'ads_manager/appOpen_ads.dart';
 import 'ads_manager/interstitial_ads.dart';
@@ -24,7 +23,7 @@ void main() async {
   Get.put(InterstitialAdController());
   initializeOneSignal();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  runApp(EstoniaWeather());
+  runApp(const EstoniaWeather());
 }
 
 class EstoniaWeather extends StatelessWidget {
@@ -33,13 +32,10 @@ class EstoniaWeather extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
       debugShowCheckedModeBanner: false,
-      useInheritedMediaQuery: true,
       title: 'Estonia Weather',
-      home: const SplashView(),
       theme: ThemeData(fontFamily: fontPrimary),
+      home: const SplashView(),
     );
   }
 }

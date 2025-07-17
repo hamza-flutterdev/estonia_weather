@@ -177,14 +177,13 @@ class CitiesView extends StatelessWidget {
         ),
       ),
       bottomNavigationBar:
-      Get.find<InterstitialAdController>().isAdReady
-          ? SizedBox()
-          : Obx(() {
-        final banner = Get.find<BannerAdController>();
-        print('[UI] isAdEnabled=${banner.isAdEnabled.value}');
-        return banner.getBannerAdWidget('ad3');
-      }),
-
+          Get.find<InterstitialAdController>().isAdReady
+              ? SizedBox()
+              : Obx(() {
+                final banner = Get.find<BannerAdController>();
+                print('[UI] isAdEnabled=${banner.isAdEnabled.value}');
+                return banner.getBannerAdWidget('ad3');
+              }),
     );
   }
 }
