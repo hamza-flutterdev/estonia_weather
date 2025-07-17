@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -20,10 +19,12 @@ class SplashInterstitialAdController extends GetxController {
   Future<void> initializeRemoteConfig() async {
     final remoteConfig = FirebaseRemoteConfig.instance;
     try {
-      await remoteConfig.setConfigSettings(RemoteConfigSettings(
-        fetchTimeout: const Duration(seconds: 10),
-        minimumFetchInterval: const Duration(seconds: 1),
-      ));
+      await remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: const Duration(seconds: 10),
+          minimumFetchInterval: const Duration(seconds: 1),
+        ),
+      );
       String interstitialKey;
       if (Platform.isAndroid) {
         interstitialKey = 'SplashInterstitialAd';
@@ -34,7 +35,9 @@ class SplashInterstitialAdController extends GetxController {
       }
       await remoteConfig.fetchAndActivate();
       showSplashAd = remoteConfig.getBool(interstitialKey);
-      print("#################### Remote Config: Show Splash Ad = $showSplashAd");
+      print(
+        "#################### Remote Config: Show Splash Ad = $showSplashAd",
+      );
       update();
     } catch (e) {
       print('Error fetching Remote Config: $e');
@@ -51,9 +54,10 @@ class SplashInterstitialAdController extends GetxController {
       throw UnsupportedError('Unsupported platform');
     }
   }
+
   void loadInterstitialAd() {
     InterstitialAd.load(
-      adUnitId:spInterstitialAdUnitId,
+      adUnitId: spInterstitialAdUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
@@ -68,7 +72,8 @@ class SplashInterstitialAdController extends GetxController {
       ),
     );
   }
-  Future<void> showInterstitialAd() async{
+
+  Future<void> showInterstitialAd() async {
     if (!showSplashAd) {
       print("### Splash Ad Disabled via Remote Config");
       return;
@@ -104,6 +109,3 @@ class SplashInterstitialAdController extends GetxController {
     super.onClose();
   }
 }
-
-
-
