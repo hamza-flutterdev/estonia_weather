@@ -31,7 +31,7 @@ class CustomDrawer extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(top: kElementGap),
                       child: Image.asset(
-                        'assets/images/appicon1.jpg',
+                        Assets.images.icon.path,
                         height: largeIcon(context),
                       ),
                     ),
@@ -94,7 +94,8 @@ void privacy() async {
 void rateUs() async {
   const androidUrl =
       'https://play.google.com/store/apps/details?id=com.unisoftaps.estoniaweatherforecast';
-  const iosUrl = 'https://apps.apple.com/us/app/Estonia Weather Forecast/6748671693';
+  const iosUrl =
+      'https://apps.apple.com/us/app/Estonia Weather Forecast/6748671693';
 
   final url = Platform.isIOS ? iosUrl : androidUrl;
 
