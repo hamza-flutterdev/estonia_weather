@@ -5,13 +5,26 @@ import 'package:estonia_weather/presentation/home/view/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import '../../../ads_manager/splash_interstitial.dart';
 import '../../../core/common_widgets/custom_text_button.dart';
 import '../../../core/theme/app_styles.dart';
 import '../../../gen/assets.gen.dart';
 import '../controller/splash_controller.dart';
 
-class SplashView extends StatelessWidget {
+class SplashView extends StatefulWidget {
   const SplashView({super.key});
+
+  @override
+  State<SplashView> createState() => _SplashViewState();
+}
+
+class _SplashViewState extends State<SplashView> {
+
+  @override
+  void initState() {
+    Get.find<SplashInterstitialAdController>().loadInterstitialAd();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +138,11 @@ class SplashView extends StatelessWidget {
                                             width: mobileWidth(context) * 0.6,
                                             backgroundColor: primaryColor,
                                             textColor: kWhite,
-                                            onPressed: () {
+                                            onPressed: () async{
+                                              if (Get.find<SplashInterstitialAdController>().isAdReady) {
+                                                print("################# ads is ready");
+                                                await Get.find<SplashInterstitialAdController>().showInterstitialAd();
+                                              }
                                               Get.to(() => HomeView());
                                             },
                                             text: "Let's Go",

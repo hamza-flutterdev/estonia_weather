@@ -9,6 +9,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'ads_manager/appOpen_ads.dart';
 import 'ads_manager/interstitial_ads.dart';
 import 'ads_manager/onesignal.dart';
+import 'ads_manager/splash_interstitial.dart';
 import 'core/binders/dependency_injection.dart';
 import 'core/constants/constant.dart';
 
@@ -18,7 +19,8 @@ void main() async {
   MobileAds.instance.initialize();
   Get.put(AppOpenAdController());
   DependencyInjection.init();
-  Get.find<BannerAdController>();
+  Get.put(SplashInterstitialAdController());
+  Get.put(BannerAdController());
   Get.put(InterstitialAdController());
   initializeOneSignal();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);

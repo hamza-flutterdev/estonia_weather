@@ -113,7 +113,7 @@ class DeviceSize {
           : isBig
           ? height * 0.364
           : isLarge
-          ? height * 0.46
+          ? height * 0.48
           : isMedium
           ? height * 0.515
           : isSmall
@@ -141,7 +141,7 @@ class DeviceSize {
           : isBig
           ? height * 0.364
           : isLarge
-          ? height * 0.46
+          ? height * 0.48
           : isMedium
           ? height * 0.515
           : isSmall

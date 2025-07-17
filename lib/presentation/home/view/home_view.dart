@@ -50,8 +50,12 @@ class HomeView extends StatelessWidget {
         return exit ?? false;
       },
       child: Scaffold(
+        key: homeController.globalKey,
         backgroundColor: bgColor,
         drawer: CustomDrawer(),
+        onDrawerChanged: (isOpen) {
+            homeController.isDrawerOpen.value = isOpen;
+        },
         body: SafeArea(
           child: Stack(
             children: [
@@ -154,12 +158,17 @@ class HomeView extends StatelessWidget {
             ],
           ),
         ),
-        bottomNavigationBar:
-        Get.find<InterstitialAdController>().isAdReady
-            ? SizedBox()
-            : Obx(() {
-          return bannerAdController.getBannerAdWidget('ad1');
+        bottomNavigationBar: Obx(() {
+          final interstitialReady = Get.find<InterstitialAdController>().isAdReady;
+          final isDrawerOpen = homeController.isDrawerOpen.value;
+
+          if (!interstitialReady && !isDrawerOpen) {
+            return bannerAdController.getBannerAdWidget('ad1');
+          } else {
+            return SizedBox();
+          }
         }),
+
       ),
     );
   }

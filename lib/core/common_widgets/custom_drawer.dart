@@ -31,7 +31,7 @@ class CustomDrawer extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(top: kElementGap),
                       child: Image.asset(
-                        Assets.images.icon.path,
+                        'assets/images/appicon1.jpg',
                         height: largeIcon(context),
                       ),
                     ),

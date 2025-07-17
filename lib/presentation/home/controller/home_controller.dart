@@ -63,6 +63,9 @@ class HomeController extends GetxController with ConnectivityMixin {
     });
   }
 
+  final GlobalKey<ScaffoldState> globalKey=GlobalKey<ScaffoldState>();
+  var isDrawerOpen=false.obs;
+
   @override
   void onInternetConnected() {
     super.onInternetConnected();

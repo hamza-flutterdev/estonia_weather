@@ -122,7 +122,7 @@ class WeatherInfoCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: kElementInnerGap),
+                     SizedBox(height:5),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -146,7 +146,7 @@ class WeatherInfoCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: kElementInnerGap),
+                    SizedBox(height:5),
                   ],
                 ),
               ],
@@ -154,7 +154,7 @@ class WeatherInfoCard extends StatelessWidget {
           ),
           ...[
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kElementWidthGap),
+              padding: const EdgeInsets.symmetric(horizontal: kElementWidthGap,),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [

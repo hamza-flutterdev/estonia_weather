@@ -19,7 +19,7 @@ const double kBorderRadius = 8.0;
 const double kCircularBorderRadius = 50.0;
 
 /// ========== Icon Sizes ==========
-double largeIcon(BuildContext context) => mobileWidth(context) * 0.32;
+double largeIcon(BuildContext context) => mobileWidth(context) * 0.30;
 double mediumIcon(BuildContext context) => mobileWidth(context) * 0.27;
 double primaryIcon(BuildContext context) => mobileWidth(context) * 0.1;
 double secondaryIcon(BuildContext context) => mobileWidth(context) * 0.075;
