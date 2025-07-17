@@ -56,6 +56,8 @@ dependencies:
   onesignal_flutter: ^5.0.0
   html: ^0.15.6
   app_tracking_transparency: ^2.0.6+1
+  shared_preferences: ^2.5.3
+  flutter_background_service: ^5.1.0
 
 dev_dependencies:
   flutter_test:
