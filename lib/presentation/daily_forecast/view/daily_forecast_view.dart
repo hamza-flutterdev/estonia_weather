@@ -10,7 +10,6 @@ import '../../../core/common_widgets/icon_buttons.dart';
 import '../../../core/common_widgets/weather_info_card.dart';
 import '../../../core/constants/constant.dart';
 import '../../../core/global_service/controllers/condition_controller.dart';
-import '../../../extensions/device_size/device_size.dart';
 import '../../../gen/assets.gen.dart';
 import '../../cities/cities_view/cities_view.dart';
 import '../../../core/common_widgets/weather_icon.dart';
@@ -22,186 +21,141 @@ class DailyForecastView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DateTime selectedDate = Get.arguments;
-    final DailyForecastController controller =
-        Get.find<DailyForecastController>();
-    final ConditionController conditionController =
-        Get.find<ConditionController>();
+    final controller = Get.find<DailyForecastController>();
+    final conditionController = Get.find<ConditionController>();
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: bgColor,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final deviceSize = DeviceSize(constraints, context);
-
-          return SizedBox(
-            height: deviceSize.height,
+      body: Stack(
+        children: [
+          SizedBox(
+            height: mobileHeight(context) * 0.4,
             width: double.infinity,
-            child: Stack(
-              clipBehavior: Clip.none,
+            child: Image.asset(
+              Assets.images.dailyForecastBgContainer.path,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const CustomAppBar(
+            actions: [
+              IconActionButton(
+                onTap: CitiesView.new,
+                icon: Icons.add,
+                color: primaryColor,
+              ),
+            ],
+            subtitle: '',
+          ),
+          SafeArea(
+            child: Column(
               children: [
-                SizedBox(
-                  height: deviceSize.dailyImageHeight,
-                  width: double.infinity,
-                  child: Image.asset(
-                    Assets.images.dailyForecastBgContainer.path,
-                    fit: BoxFit.cover,
+                const SizedBox(height: kToolbarHeight),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mobileWidth(context) * 0.05,
+                  ),
+                  child: WeatherInfoCard(
+                    weatherData: conditionController.mainCityWeather.value,
+                    date: selectedDate,
+                    temperature: conditionController.temperature,
+                    maxTemp: conditionController.maxTemp,
+                    condition: conditionController.condition,
+                    minTemp:
+                        controller.selectedDayData?.minTemp
+                            .round()
+                            .toString() ??
+                        '--',
+                    imagePath: conditionController.weatherIconPath,
                   ),
                 ),
-                CustomAppBar(
-                  actions: [
-                    IconActionButton(
-                      onTap: () => Get.to(CitiesView()),
-                      icon: Icons.add,
-                      color: primaryColor,
-                      size: secondaryIcon(context),
-                    ),
-                  ],
-                  subtitle: '',
+                const SizedBox(height: kElementGap),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mobileHeight(context) * 0.026,
+                  ),
+                  child: SectionHeader(
+                    actionIcon: Icons.location_on,
+                    title: '7 Day Forecasts',
+                    actionText: controller.mainCityName.toString(),
+                    onTap: () {},
+                  ),
                 ),
-                Positioned(
-                  top: deviceSize.dailyCardTop,
-                  left: deviceSize.dailyCardLeftMargin,
-                  right: deviceSize.dailyCardRightMargin,
-                  child: SizedBox(
-                    height: deviceSize.dailyCardHeight,
-                    child: WeatherInfoCard(
-                      weatherData: conditionController.mainCityWeather.value,
-                      date: selectedDate,
-                      temperature: conditionController.temperature,
-                      maxTemp: conditionController.maxTemp,
-                      condition: conditionController.condition,
-                      minTemp:
-                          controller.selectedDayData?.minTemp
-                              .round()
-                              .toString() ??
-                          '--',
+                const SizedBox(height: kElementGap),
+                Expanded(
+                  child: ListView.builder(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: mobileWidth(context) * 0.05,
+                    ),
+                    itemCount: 7,
+                    itemBuilder: (context, index) {
+                      final dayData = conditionController.getForecastForDay(
+                        index,
+                      );
+                      if (dayData == null) return const SizedBox();
 
-                      imagePath: conditionController.weatherIconPath,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: deviceSize.dailyListContentTop,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: SafeArea(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: deviceSize.dailyListPaddingHorizontal,
-                          ),
-                          child: SectionHeader(
-                            actionIcon: Icons.location_on,
-                            title: '7 Day Forecasts',
-                            actionText: controller.mainCityName.toString(),
-                            onTap: () {},
-                          ),
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: kElementInnerGap,
                         ),
-                        Expanded(
-                          child: ListView.builder(
-                            padding: EdgeInsets.fromLTRB(
-                              deviceSize.dailyListPaddingHorizontal,
-                              kElementInnerGap,
-                              deviceSize.dailyListPaddingHorizontal,
-                              0,
-                            ),
-                            itemCount: 7,
-                            itemBuilder: (context, index) {
-                              final dayData = conditionController
-                                  .getForecastForDay(index);
-                              if (dayData == null) return const SizedBox();
-                              return Padding(
-                                padding: const EdgeInsets.only(
-                                  bottom: kElementInnerGap,
-                                ),
-                                child: Container(
-                                  decoration: roundedDecorationWithShadow
-                                      .copyWith(
-                                        gradient:
-                                            index == 0
-                                                ? kContainerGradient
-                                                : null,
-                                        color: index == 0 ? null : bgColor,
-                                        borderRadius: BorderRadius.circular(24),
-                                      ),
-                                  height: deviceSize.dailyListItemHeight,
-                                  padding: kContentPaddingSmall,
-                                  child: Row(
-                                    children: [
-                                      SizedBox(
-                                        width: deviceSize.dailyDayWidth,
-                                        child: Text(
-                                          dayData['day'],
-                                          style: bodyLargeStyle.copyWith(
-                                            color:
-                                                index == 0
-                                                    ? kWhite
-                                                    : primaryColor,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: deviceSize.dailySpacerWidth,
-                                      ),
-                                      WeatherIcon(
-                                        iconUrl: dayData['iconUrl'],
-                                        size: primaryIcon(context) * 1.25,
-                                        weatherData: dayData['condition'],
-                                      ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                            left:
-                                                deviceSize
-                                                    .dailyConditionPaddingLeft,
-                                          ),
-                                          child: Text(
-                                            dayData['condition'],
-                                            style: bodyLargeStyle.copyWith(
-                                              color:
-                                                  index == 0
-                                                      ? kWhite
-                                                      : primaryColor,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                      Text(
-                                        '${dayData['temp'].round()}° / ${dayData['minTemp'].round()}°',
-                                        style: bodyLargeStyle.copyWith(
-                                          color:
-                                              index == 0
-                                                  ? kWhite
-                                                  : primaryColor,
-                                        ),
-                                      ),
-                                    ],
+                        child: Container(
+                          height: mobileHeight(context) * 0.09,
+                          decoration: roundedDecorationWithShadow.copyWith(
+                            gradient: index == 0 ? kContainerGradient : null,
+                            color: index == 0 ? null : bgColor,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          padding: kContentPaddingSmall,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: mobileWidth(context) * 0.15,
+                                child: Text(
+                                  dayData['day'],
+                                  style: bodyLargeStyle.copyWith(
+                                    color: index == 0 ? kWhite : primaryColor,
                                   ),
                                 ),
-                              );
-                            },
+                              ),
+                              WeatherIcon(
+                                iconUrl: dayData['iconUrl'],
+                                size: primaryIcon(context) * 1.25,
+                                weatherData: dayData['condition'],
+                              ),
+                              const SizedBox(width: kElementWidthGap),
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  dayData['condition'],
+                                  style: bodyLargeStyle.copyWith(
+                                    color: index == 0 ? kWhite : primaryColor,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '${dayData['temp'].round()}° / ${dayData['minTemp'].round()}°',
+                                style: bodyLargeStyle.copyWith(
+                                  color: index == 0 ? kWhite : primaryColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ),
               ],
             ),
-          );
-        },
+          ),
+        ],
       ),
       bottomNavigationBar:
           Get.find<InterstitialAdController>().isAdReady
-              ? SizedBox()
-              : Obx(() {
-                return Get.find<BannerAdController>().getBannerAdWidget('ad2');
-              }),
+              ? const SizedBox()
+              : Obx(
+                () => Get.find<BannerAdController>().getBannerAdWidget('ad2'),
+              ),
     );
   }
 }

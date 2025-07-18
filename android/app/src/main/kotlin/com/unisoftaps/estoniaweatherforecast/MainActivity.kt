@@ -32,6 +32,13 @@ class MainActivity : FlutterActivity() {
                             result.error("UPDATE_ERROR", "Failed to update widget: ${e.message}", null)
                         }
                     }
+
+                    // ✅ Check if widget is active
+                    "isWidgetActive" -> {
+                        val isActive = isWidgetActive()
+                        result.success(isActive)
+                    }
+
                     else -> {
                         result.notImplemented()
                     }
@@ -48,5 +55,13 @@ class MainActivity : FlutterActivity() {
         for (appWidgetId in appWidgetIds) {
             MyAppWidgetProvider.updateWidget(context, appWidgetManager, appWidgetId, weatherData)
         }
+    }
+
+    private fun isWidgetActive(): Boolean {
+        val context: Context = this
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val componentName = ComponentName(context, MyAppWidgetProvider::class.java)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+        return appWidgetIds.isNotEmpty()
     }
 }

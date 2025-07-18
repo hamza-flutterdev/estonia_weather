@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/constant.dart';
+
 /*
 This is look very very messy
 this is all you make fix size every container/
@@ -107,57 +108,4 @@ class DeviceSize {
 
   double get hourlyImageHeight => height * 0.4;
   double get hourlyCardTop => height * 0.11;
-
-  double get hourlyCardHeight =>
-      isTab
-          ? height * 0.44
-          : isBig
-          ? height * 0.364
-          : isLarge
-          ? height * 0.50
-          : isMedium
-          ? height * 0.515
-          : isSmall
-          ? height * 0.48
-          : height * 0.38;
-
-  double get hourlyListItemHeight => isTab ? width * 0.12 : width * 0.18;
-  double get hourlyCardLeftMargin => isTab ? width * 0.10 : width * 0.05;
-  double get hourlyCardRightMargin => isTab ? width * 0.10 : width * 0.05;
-
-  double get hourlyListContentTop => hourlyCardHeight + kToolbarHeight;
-
-  double get hourlyListPaddingHorizontal => isTab ? width * 0.15 : kBodyHp;
-
-  double get hourlyTimeWidth => isTab ? width * 0.1 : width * 0.15;
-  double get hourlySpacerWidth => isTab ? width * 0.08 : width * 0.14;
-
-  double get dailyImageHeight => height * 0.4;
-  double get dailyCardTop => height * 0.11;
-
-  double get dailyCardHeight =>
-      isTab
-          ? height * 0.44
-          : isBig
-          ? height * 0.364
-          : isLarge
-          ? height * 0.50
-          : isMedium
-          ? height * 0.515
-          : isSmall
-          ? height * 0.44
-          : height * 0.38;
-
-  double get dailyListItemHeight => isTab ? width * 0.15 : width * 0.22;
-  double get dailyCardLeftMargin => isTab ? width * 0.10 : width * 0.05;
-  double get dailyCardRightMargin => isTab ? width * 0.10 : width * 0.05;
-
-  double get dailyListContentTop =>
-      dailyCardHeight + kToolbarHeight + (isTab ? kBodyHp : kElementGap);
-
-  double get dailyListPaddingHorizontal => isTab ? width * 0.15 : kBodyHp;
-
-  double get dailyDayWidth => isTab ? width * 0.1 : width * 0.15;
-  double get dailySpacerWidth => isTab ? width * 0.08 : width * 0.14;
-  double get dailyConditionPaddingLeft => isTab ? 16.0 : 8.0;
 }

@@ -9,14 +9,20 @@ import 'package:estonia_weather/core/utils/weather_utils.dart';
 class WidgetUpdateManager {
   static Timer? _timer;
 
-  static void startPeriodicUpdate() {
+  static void startPeriodicUpdate() async {
     _timer?.cancel();
+
+    final isActive = await WidgetUpdaterService.isWidgetActive();
+    if (!isActive) {
+      debugPrint("📵 Widget not active. Skipping periodic updates.");
+      return;
+    }
 
     updateWeatherWidget();
 
     _timer = Timer.periodic(const Duration(seconds: 5), (_) {
       updateWeatherWidget();
-      print('###########Refreshing Widget');
+      debugPrint('Refreshing widget...');
     });
   }
 
@@ -41,10 +47,6 @@ class WidgetUpdateManager {
       debugPrint("Error updating widget with weather data: $e");
     }
   }
-
-  static void stopPeriodicUpdate() {
-    _timer?.cancel();
-  }
 }
 
 class WidgetUpdaterService {
@@ -56,7 +58,17 @@ class WidgetUpdaterService {
     try {
       await _platform.invokeMethod('updateWidget', weatherData);
     } on PlatformException catch (e) {
-      print("Failed to update widget: ${e.message}");
+      debugPrint("Failed to update widget: ${e.message}");
+    }
+  }
+
+  static Future<bool> isWidgetActive() async {
+    try {
+      final bool? result = await _platform.invokeMethod('isWidgetActive');
+      return result ?? false;
+    } catch (e) {
+      debugPrint('Error checking widget activity: $e');
+      return false;
     }
   }
 }
