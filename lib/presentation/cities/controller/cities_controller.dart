@@ -188,6 +188,9 @@ class CitiesController extends GetxController with ConnectivityMixin {
     }
   }
 
+  // in this function there is messy code make this short
+  // or create a separate file for messages switch statement will cover this
+
   Future<void> addCurrentLocationToSelected(BuildContext context) async {
     try {
       isAdding.value = true;

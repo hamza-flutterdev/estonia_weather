@@ -5,7 +5,9 @@ import '../../core/local_storage/local_storage.dart';
 import '../../data/model/weather_model.dart';
 import '../../data/model/forecast_model.dart';
 import '../repositories/weather_repo.dart';
-
+/*
+remove unnecessary conditions?????????????
+*/
 class GetWeatherAndForecast {
   final WeatherRepo weatherRepo;
   final storage = LocalStorage();

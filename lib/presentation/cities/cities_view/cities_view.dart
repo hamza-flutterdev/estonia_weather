@@ -16,9 +16,7 @@ class CitiesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Future.delayed(Duration.zero, () {
-    //   Get.find<InterstitialAdController>().checkAndShowAd();
-    // });
+
     final CitiesController controller = Get.find();
 
     return Scaffold(

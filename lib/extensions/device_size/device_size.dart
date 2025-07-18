@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/constant.dart';
-
+/*
+This is look very very messy
+this is all you make fix size every container/
+cards etc.
+warning!> for time being this is fine, aware next time
+*/
 class DeviceSize {
   final BoxConstraints constraints;
   final BuildContext context;

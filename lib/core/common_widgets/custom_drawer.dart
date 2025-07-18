@@ -78,6 +78,10 @@ class CustomDrawer extends StatelessWidget {
   }
 }
 
+/*
+Remove this from here/
+create a separate class
+*/
 void privacy() async {
   const androidUrl = 'https://unisoftaps.blogspot.com/';
   const iosUrl = 'https://asadarmantech.blogspot.com';

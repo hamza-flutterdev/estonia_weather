@@ -22,7 +22,9 @@ class HourlyForecastController extends GetxController with ConnectivityMixin {
     Get.find<BannerAdController>().loadBannerAd('ad4');
     loadForecastData();
   }
-
+/*
+if already onInt() use, then we need to use onReady?????????
+*/
   @override
   void onReady() {
     super.onReady();

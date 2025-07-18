@@ -8,7 +8,10 @@ import 'package:get/get.dart';
 import '../../../core/common_widgets/common_shimmer.dart';
 import '../../../extensions/device_size/device_size.dart';
 import '../controller/home_controller.dart';
-
+/*
+shimmer and notificationListener have separate class and concern
+remove it form ui just call here 2. why you pass deviceSize in constructor?????
+*/
 class OtherCitiesSection extends StatelessWidget {
   final DeviceSize deviceSize;
 
@@ -163,7 +166,9 @@ class OtherCitiesSection extends StatelessWidget {
     });
   }
 }
-
+/*
+make this private kindly because this is in same class file
+*/
 class OtherCityCard extends StatelessWidget {
   final String cityName;
   final String condition;
