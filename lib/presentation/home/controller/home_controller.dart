@@ -11,6 +11,7 @@ import '../../../domain/use_cases/get_current_weather.dart';
 import '../../../data/model/city_model.dart';
 import '../../../data/model/weather_model.dart';
 import '../../../data/model/forecast_model.dart';
+import '../../../core/global_service/android_widget_service.dart';
 import '../../cities/controller/cities_controller.dart';
 
 class HomeController extends GetxController with ConnectivityMixin {
@@ -51,11 +52,11 @@ class HomeController extends GetxController with ConnectivityMixin {
 
   @override
   void onInit() {
-    super.onInit(); // This will call ConnectivityMixin.onInit()
+    super.onInit();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 100));
-
+      WidgetUpdateManager.startPeriodicUpdate();
       _updateCurrentDate();
       _initializeSafely();
 
@@ -123,7 +124,6 @@ class HomeController extends GetxController with ConnectivityMixin {
     try {
       currentLocation.value = currentLocationCity?.city ?? 'Unknown';
 
-      // Only load weather if we have internet
       if (connectivityService.isConnected) {
         await loadSelectedCitiesWeather();
       } else {
@@ -158,7 +158,6 @@ class HomeController extends GetxController with ConnectivityMixin {
       await _saveSelectedCitiesToStorage();
       await _updateSplashController();
 
-      // Use connectivity-aware loading
       await _loadWeatherWithConnectivityCheck();
     }
   }
@@ -171,7 +170,6 @@ class HomeController extends GetxController with ConnectivityMixin {
       await _saveSelectedCitiesToStorage();
       await _updateSplashController();
 
-      // Use connectivity-aware loading
       await _loadWeatherWithConnectivityCheck();
     }
   }
@@ -193,12 +191,10 @@ class HomeController extends GetxController with ConnectivityMixin {
       unawaited(_saveSelectedCitiesToStorage());
       unawaited(_updateSplashController());
 
-      // Use connectivity-aware loading
       unawaited(_loadWeatherWithConnectivityCheck());
     }
   }
 
-  // Connectivity-aware weather loading
   Future<void> _loadWeatherWithConnectivityCheck() async {
     await ensureInternetConnection(
       action: () async {
@@ -223,7 +219,6 @@ class HomeController extends GetxController with ConnectivityMixin {
       await _saveSelectedCitiesToStorage();
       await _updateSplashController();
 
-      // Use connectivity-aware loading
       await _loadWeatherWithConnectivityCheck();
     }
   }
@@ -342,7 +337,6 @@ class HomeController extends GetxController with ConnectivityMixin {
   }
 
   Future<void> loadSelectedCitiesWeather() async {
-    // Skip if no internet connection
     if (!connectivityService.isConnected) {
       debugPrint('[HomeController] No internet - skipping weather load');
       return;

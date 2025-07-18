@@ -68,12 +68,13 @@ class HomeView extends StatelessWidget {
                             useBackButton: false,
                             actions: [
                               IconActionButton(
-                                // onTap: () => Get.to(CitiesView()),
-                                onTap: () async {
-                                  await MethodChannel(
-                                    "weather_widget",
-                                  ).invokeMethod("updateWidget");
-                                },
+                                onTap: () => Get.to(CitiesView()),
+                                // onTap: () => Get.to(Dummy()),
+                                // onTap: () async {
+                                //   await MethodChannel(
+                                //     "weather_widget",
+                                //   ).invokeMethod("updateWidget");
+                                // },
                                 icon: Icons.add,
                                 color: primaryColor,
                                 size: secondaryIcon(context),

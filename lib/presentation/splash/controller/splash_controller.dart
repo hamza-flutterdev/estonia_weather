@@ -297,7 +297,6 @@ class SplashController extends GetxController with ConnectivityMixin {
     try {
       List<WeatherModel> weatherList = [];
       List<ForecastModel> mainCityForecast = [];
-      Map<String, dynamic>? mainCityRawData;
 
       for (int i = 0; i < selectedCities.length; i++) {
         final city = selectedCities[i];
@@ -311,7 +310,6 @@ class SplashController extends GetxController with ConnectivityMixin {
 
           if (i == mainCityIndex.value) {
             mainCityForecast = forecast;
-            mainCityRawData = _rawDataStorage[city.city];
           }
         } catch (e) {
           debugPrint('Failed to load weather for ${city.city}: $e');
