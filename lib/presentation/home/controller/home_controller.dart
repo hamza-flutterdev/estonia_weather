@@ -6,6 +6,7 @@ import 'package:estonia_weather/presentation/splash/controller/splash_controller
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../../../core/global_service/android_widget_service.dart';
 import '../../../core/global_service/connectivity_service.dart';
 import '../../../core/global_service/controllers/condition_controller.dart';
 import '../../../core/local_storage/local_storage.dart';
@@ -65,6 +66,7 @@ class HomeController extends GetxController with ConnectivityMixin {
     // widgetsBinding inside the OnInt()???????? search how to use this
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 100));
+      WidgetUpdateManager.startPeriodicUpdate();
 
       _updateCurrentDate();
       _initializeSafely();
@@ -81,7 +83,7 @@ class HomeController extends GetxController with ConnectivityMixin {
       return;
     }
     final trackingStatus =
-    await AppTrackingTransparency.requestTrackingAuthorization();
+        await AppTrackingTransparency.requestTrackingAuthorization();
 
     switch (trackingStatus) {
       case TrackingStatus.notDetermined:
@@ -101,8 +103,8 @@ class HomeController extends GetxController with ConnectivityMixin {
     }
   }
 
-  final GlobalKey<ScaffoldState> globalKey=GlobalKey<ScaffoldState>();
-  var isDrawerOpen=false.obs;
+  final GlobalKey<ScaffoldState> globalKey = GlobalKey<ScaffoldState>();
+  var isDrawerOpen = false.obs;
 
   @override
   void onInternetConnected() {
@@ -110,7 +112,8 @@ class HomeController extends GetxController with ConnectivityMixin {
 
     _refreshDataIfNeeded();
   }
-/*
+
+  /*
 if you already create internet services class/
 directly call don't create function for this.
 */
