@@ -37,112 +37,113 @@ class CityCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(kBodyHp),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        weather.cityName,
-                        style: titleSmallBoldStyle.copyWith(color: kWhite),
-                      ),
-                      const SizedBox(width: kElementWidthGap),
-                      Icon(
-                        isCurrentLocationCity
-                            ? Icons.my_location
-                            : Icons.location_on,
-                        color: kWhite,
-                        size: smallIcon(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: kElementInnerGap),
-                  Text(
-                    controller.getAqiText(weather.airQuality),
-                    style: bodyMediumStyle.copyWith(color: kWhite),
-                  ),
-                ],
+              Expanded(
+                flex: 4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          weather.cityName,
+                          style: titleSmallBoldStyle.copyWith(color: kWhite),
+                        ),
+                        const SizedBox(width: kElementWidthGap),
+                        Icon(
+                          isCurrentLocationCity
+                              ? Icons.my_location
+                              : Icons.location_on,
+                          color: kWhite,
+                          size: smallIcon(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: kElementInnerGap),
+                    Text(
+                      controller.getAqiText(weather.airQuality),
+                      style: bodyMediumStyle.copyWith(color: kWhite),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '${weather.temperature.round()}°',
-                        style: headlineMediumStyle.copyWith(color: kWhite),
-                      ),
-                      Text(
-                        weather.condition,
-                        style: bodyMediumStyle.copyWith(color: kWhite),
-                      ),
-                    ],
-                  ),
-                  IconActionButton(
-                    backgroundColor: kWhite,
-                    isCircular: true,
-                    icon: isSelected ? Icons.remove : Icons.add,
-                    color: primaryColor,
-                    size: smallIcon(context) * 0.6,
-                    onTap: () async {
-                      if (isSelected) {
-                        // Remove city
-                        if (isCurrentLocationCity) {
-                          SimpleToast.showCustomToast(
-                            context: context,
-                            message: 'Current location cannot be removed',
-                            type: ToastificationType.warning,
-                            primaryColor: kOrange,
-                            icon: Icons.warning,
-                          );
-                          return;
-                        }
+              Expanded(
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${weather.temperature.round()}°',
+                      style: headlineMediumStyle.copyWith(color: kWhite),
+                    ),
+                    Text(
+                      weather.condition,
+                      style: bodyMediumStyle.copyWith(color: kWhite),
+                    ),
+                  ],
+                ),
+              ),
+              IconActionButton(
+                backgroundColor: kWhite,
+                isCircular: true,
+                icon: isSelected ? Icons.remove : Icons.add,
+                color: primaryColor,
+                size: smallIcon(context) * 0.6,
+                onTap: () async {
+                  if (isSelected) {
+                    // Remove city
+                    if (isCurrentLocationCity) {
+                      SimpleToast.showCustomToast(
+                        context: context,
+                        message: 'Current location cannot be removed',
+                        type: ToastificationType.warning,
+                        primaryColor: kOrange,
+                        icon: Icons.warning,
+                      );
+                      return;
+                    }
 
-                        if (canRemove) {
-                          await controller.removeCityFromSelected(city);
-                          SimpleToast.showCustomToast(
-                            context: context,
-                            message: '${city.city} has been removed',
-                            type: ToastificationType.warning,
-                            primaryColor: kOrange,
-                            icon: Icons.remove_circle_outline,
-                          );
-                        } else {
-                          SimpleToast.showCustomToast(
-                            context: context,
-                            message: 'A minimum of 2 cities are required',
-                            type: ToastificationType.warning,
-                            primaryColor: kOrange,
-                            icon: Icons.remove_circle_outline,
-                          );
-                        }
-                      } else {
-                        if (canAdd) {
-                          await controller.addCityToSelected(city);
-                          SimpleToast.showCustomToast(
-                            context: context,
-                            message: '${city.city} has been added',
-                            type: ToastificationType.info,
-                            primaryColor: primaryColor,
-                            icon: Icons.add_circle_outline,
-                          );
-                        } else {
-                          SimpleToast.showCustomToast(
-                            context: context,
-                            message: 'Maximum number of cities reached',
-                            type: ToastificationType.error,
-                            primaryColor: kRed,
-                            icon: Icons.error,
-                          );
-                        }
-                      }
-                    },
-                  ),
-                ],
+                    if (canRemove) {
+                      await controller.removeCityFromSelected(city);
+                      SimpleToast.showCustomToast(
+                        context: context,
+                        message: '${city.city} has been removed',
+                        type: ToastificationType.warning,
+                        primaryColor: kOrange,
+                        icon: Icons.remove_circle_outline,
+                      );
+                    } else {
+                      SimpleToast.showCustomToast(
+                        context: context,
+                        message: 'A minimum of 2 cities are required',
+                        type: ToastificationType.warning,
+                        primaryColor: kOrange,
+                        icon: Icons.remove_circle_outline,
+                      );
+                    }
+                  } else {
+                    if (canAdd) {
+                      await controller.addCityToSelected(city);
+                      SimpleToast.showCustomToast(
+                        context: context,
+                        message: '${city.city} has been added',
+                        type: ToastificationType.info,
+                        primaryColor: primaryColor,
+                        icon: Icons.add_circle_outline,
+                      );
+                    } else {
+                      SimpleToast.showCustomToast(
+                        context: context,
+                        message: 'Maximum number of cities reached',
+                        type: ToastificationType.error,
+                        primaryColor: kRed,
+                        icon: Icons.error,
+                      );
+                    }
+                  }
+                },
               ),
             ],
           ),

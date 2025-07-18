@@ -1,10 +1,13 @@
-import 'package:geolocator/geolocator.dart';
+import 'dart:async';
 
+import 'package:geolocator/geolocator.dart';
 import '../../core/local_storage/local_storage.dart';
 import '../../data/model/weather_model.dart';
 import '../../data/model/forecast_model.dart';
 import '../repositories/weather_repo.dart';
-
+/*
+remove unnecessary conditions?????????????
+*/
 class GetWeatherAndForecast {
   final WeatherRepo weatherRepo;
   final storage = LocalStorage();
@@ -19,18 +22,51 @@ class GetWeatherAndForecast {
   }
 
   Future<String> getCity() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw Exception(
+        'Location services are disabled. Please enable location services.',
+      );
+    }
+
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
 
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.best),
-    );
+    if (permission == LocationPermission.denied) {
+      throw Exception('Location permission denied');
+    }
 
-    await savePosition(position);
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception(
+        'Location permission permanently denied. Please enable location access in settings.',
+      );
+    }
 
-    return weatherRepo.getCity(position.latitude, position.longitude);
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings: LocationSettings(
+          accuracy: LocationAccuracy.best,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
+
+      await savePosition(position);
+      return weatherRepo.getCity(position.latitude, position.longitude);
+    } catch (e) {
+      if (e is LocationServiceDisabledException) {
+        throw Exception(
+          'Location services are disabled. Please enable location services.',
+        );
+      } else if (e is PermissionDeniedException) {
+        throw Exception('Location permission denied');
+      } else if (e is TimeoutException) {
+        throw Exception('Location request timed out. Please try again.');
+      } else {
+        throw Exception('Failed to get current location: ${e.toString()}');
+      }
+    }
   }
 
   Future<void> savePosition(Position position) async {

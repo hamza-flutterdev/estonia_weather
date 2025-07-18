@@ -1,11 +1,30 @@
+import 'package:estonia_weather/core/animation/animated_weather_icon.dart';
+import 'package:estonia_weather/core/constants/constant.dart';
 import 'package:estonia_weather/core/theme/app_colors.dart';
+import 'package:estonia_weather/presentation/home/view/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import '../../../ads_manager/splash_interstitial.dart';
+import '../../../core/common_widgets/custom_text_button.dart';
+import '../../../core/theme/app_styles.dart';
 import '../../../gen/assets.gen.dart';
 import '../controller/splash_controller.dart';
 
-class SplashView extends StatelessWidget {
+class SplashView extends StatefulWidget {
   const SplashView({super.key});
+
+  @override
+  State<SplashView> createState() => _SplashViewState();
+}
+
+class _SplashViewState extends State<SplashView> {
+
+  @override
+  void initState() {
+    Get.find<SplashInterstitialAdController>().loadInterstitialAd();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,46 +32,69 @@ class SplashView extends StatelessWidget {
       init: Get.find<SplashController>(),
       builder: (controller) {
         return Scaffold(
-          body: Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(Assets.images.splash.path),
-                fit: BoxFit.fill,
+          body: Obx(
+            () => Container(
+              height: double.infinity,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(Assets.images.splash.path),
+                  fit: BoxFit.fill,
+                ),
               ),
-            ),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // App logo/icon
-                    const Icon(Icons.wb_sunny, size: 120, color: Colors.blue),
-                    const SizedBox(height: 24),
-
-                    // App title
-                    const Text(
-                      'Estonia Weather',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(kBodyHp),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(height: kElementInnerGap),
+                      AnimatedDefaultTextStyle(
+                        style: headlineLargeStyle.copyWith(
+                          color: controller.title.value,
+                          fontFamily: fontSecondary,
+                          fontSize: 75,
+                        ),
+                        duration: const Duration(milliseconds: 1500),
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              const TextSpan(text: 'ESTONIA\n'),
+                              const TextSpan(text: 'weather'),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 48),
-
-                    // Loading indicator and progress
-                    Obx(
-                      () => Column(
+                      RichText(
+                        text: TextSpan(
+                          children: List.generate(
+                            'Live Forecasts Across Estonia!'.length,
+                            (index) {
+                              final isVisible =
+                                  index < controller.visibleLetters.value;
+                              return TextSpan(
+                                text: 'Live Forecasts Across Estonia!'[index],
+                                style: titleSmallStyle.copyWith(
+                                  color: isVisible ? primaryColor : transparent,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      AnimatedWeatherIcon(
+                        imagePath: Assets.images.splashIcon.path,
+                        condition: 'thunderstorm',
+                        width: mobileHeight(context) * 0.3,
+                      ),
+                      Column(
                         children: [
-                          // Progress bar
                           Container(
                             width: double.infinity,
                             height: 4,
                             decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.3),
+                              color: primaryColor,
                               borderRadius: BorderRadius.circular(2),
                             ),
                             child: FractionallySizedBox(
@@ -60,65 +102,62 @@ class SplashView extends StatelessWidget {
                               widthFactor: controller.loadingProgress.value,
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.blue,
+                                  color: primaryColor,
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
-
-                          // Loading message
+                          const SizedBox(height: kElementInnerGap),
                           Text(
                             controller.loadingMessage.value,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.blue,
+                            style: bodyLargeStyle.copyWith(color: primaryColor),
+                          ),
+                          const SizedBox(height: kElementInnerGap),
+                          Padding(
+                            padding: EdgeInsets.only(
+                              bottom: mobileHeight(context) * 0.1,
+                            ),
+                            child: AnimatedSwitcher(
+                              duration: const Duration(seconds: 1),
+                              child:
+                                  controller.showButton.value
+                                      ? AnimatedOpacity(
+                                        opacity:
+                                            controller.showButton.value
+                                                ? 1.0
+                                                : 0.0,
+                                        duration: const Duration(
+                                          milliseconds: 600,
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: kBodyHp,
+                                          ),
+                                          child: CustomButton(
+                                            width: mobileWidth(context) * 0.6,
+                                            backgroundColor: primaryColor,
+                                            textColor: kWhite,
+                                            onPressed: () async{
+                                              if (Get.find<SplashInterstitialAdController>().isAdReady) {
+                                                await Get.find<SplashInterstitialAdController>().showInterstitialAd();
+                                              }
+                                              Get.to(() => HomeView());
+                                            },
+                                            text: "Let's Go",
+                                          ),
+                                        ),
+                                      )
+                                      : LoadingAnimationWidget.fourRotatingDots(
+                                        color: primaryColor,
+                                        size: mobileWidth(context) * 0.2,
+                                      ),
                             ),
                           ),
-                          const SizedBox(height: 32),
-
-                          // Continue button (shown when data is loaded)
-                          if (controller.isDataLoaded.value)
-                            ElevatedButton(
-                              onPressed: controller.navigateToHome,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: const Color(0xFF1976D2),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 32,
-                                  vertical: 16,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'Get Started',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                      color: kWhite,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Icon(Icons.arrow_forward, color: kWhite),
-                                ],
-                              ),
-                            )
-                          else
-                            const CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.blue,
-                              ),
-                            ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

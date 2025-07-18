@@ -58,7 +58,7 @@ class InterstitialAdController extends GetxController {
       //'ca-app-pub-3940256099942544/1033173712';
       'ca-app-pub-8172082069591999/2985343646';
     } else if (Platform.isIOS) {
-      return ' ';
+      return 'ca-app-pub-5405847310750111/5611630690';
     } else {
       throw UnsupportedError('Unsupported platform');
     }
@@ -121,7 +121,7 @@ class InterstitialAdController extends GetxController {
         showInterstitialAd();
       } else {
         print("### Interstitial Ad not ready yet.");
-        screenVisitCount = 0; // Reset even if ad is not ready
+        screenVisitCount = 0;
       }
     }
   }

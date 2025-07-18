@@ -1,23 +1,19 @@
-
 import 'dart:io';
 
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shimmer/shimmer.dart';
+import '../core/theme/app_colors.dart';
 import 'appOpen_ads.dart';
 
 class BannerAdController extends GetxController {
   final Map<String, BannerAd> _ads = {};
   final Map<String, RxBool> _adLoaded = {};
   RxBool isAdEnabled = true.obs;
-  final AppOpenAdController openAdController=Get.put(AppOpenAdController());
-
+  final AppOpenAdController openAdController = Get.put(AppOpenAdController());
 
   @override
   void onInit() {
@@ -25,56 +21,16 @@ class BannerAdController extends GetxController {
     fetchRemoteConfig();
   }
 
-  // Future<void> fetchRemoteConfig() async {
-  //   try {
-  //     final remoteConfig = FirebaseRemoteConfig.instance;
-  //
-  //     await remoteConfig.setConfigSettings(RemoteConfigSettings(
-  //       fetchTimeout: const Duration(seconds: 10),
-  //       minimumFetchInterval: const Duration(minutes: 1),
-  //     ));
-  //     await remoteConfig.fetchAndActivate();
-  //
-  //     bool bannerAdsEnabled = remoteConfig.getBool('BannerAd');
-  //     isAdEnabled.value = bannerAdsEnabled;
-  //
-  //     if (bannerAdsEnabled) {
-  //       // Preload ads for multiple locations
-  //       loadBannerAd('ad1');
-  //       loadBannerAd('ad2');
-  //       loadBannerAd('ad3');
-  //       loadBannerAd('ad4');
-  //       loadBannerAd('ad5');
-  //       loadBannerAd('ad6');
-  //       loadBannerAd('ad7');
-  //       loadBannerAd('ad8');
-  //       loadBannerAd('ad9');
-  //       loadBannerAd('ad10');
-  //       loadBannerAd('ad11');
-  //       loadBannerAd('ad12');
-  //       loadBannerAd('ad13');
-  //       loadBannerAd('ad14');
-  //       loadBannerAd('ad15');
-  //       loadBannerAd('ad16');
-  //       loadBannerAd('ad17');
-  //       loadBannerAd('ad18');
-  //       loadBannerAd('ad19');
-  //       loadBannerAd('ad20');
-  //       loadBannerAd('ad21');
-  //     }
-  //   } catch (e) {
-  //     print('Error fetching Remote Config: $e');
-  //   }
-  // }
-
   Future<void> fetchRemoteConfig() async {
     try {
       final remoteConfig = FirebaseRemoteConfig.instance;
 
-      await remoteConfig.setConfigSettings(RemoteConfigSettings(
-        fetchTimeout: const Duration(seconds: 10),
-        minimumFetchInterval: const Duration(minutes: 1),
-      ));
+      await remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: const Duration(seconds: 10),
+          minimumFetchInterval: const Duration(minutes: 1),
+        ),
+      );
 
       await remoteConfig.fetchAndActivate();
 
@@ -92,7 +48,7 @@ class BannerAdController extends GetxController {
       isAdEnabled.value = bannerAdsEnabled;
 
       if (bannerAdsEnabled) {
-        for (int i = 1; i <= 21; i++) {
+        for (int i = 1; i <= 10; i++) {
           loadBannerAd('ad$i');
         }
       }
@@ -101,26 +57,25 @@ class BannerAdController extends GetxController {
     }
   }
 
-
   String get bannerAdUnitId {
     if (Platform.isAndroid) {
       return 'ca-app-pub-8172082069591999/7509513214';
     } else if (Platform.isIOS) {
-      return ' ';
+      return 'ca-app-pub-5405847310750111/6924712366';
     } else {
       throw UnsupportedError('Unsupported platform');
     }
   }
 
-  void loadBannerAd(String key) async{
+  void loadBannerAd(String key) async {
     if (_ads.containsKey(key)) {
       _ads[key]!.dispose();
     }
     final screenWidth = Get.context!.mediaQuerySize.width.toInt();
 
     final bannerAd = BannerAd(
-      adUnitId:bannerAdUnitId,
-      size: AdSize(height:55,width:screenWidth),
+      adUnitId: bannerAdUnitId,
+      size: AdSize(height: 55, width: screenWidth),
       request: AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
@@ -150,31 +105,42 @@ class BannerAdController extends GetxController {
     if (openAdController.isShowingOpenAd.value) {
       return const SizedBox();
     }
-    if (isAdEnabled.value && _ads.containsKey(key) && _adLoaded[key]?.value == true) {
-      return Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color:  Colors.grey.shade300,
-            width: 2,
+    if (isAdEnabled.value &&
+        _ads.containsKey(key) &&
+        _adLoaded[key]?.value == true) {
+      return SafeArea(
+        top: false,
+        bottom: true,
+        left: false,
+        right: false,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300, width: 2),
+            borderRadius: BorderRadius.circular(2),
           ),
-          borderRadius: BorderRadius.circular(2),
+          height: _ads[key]!.size.height.toDouble(),
+          width: double.infinity,
+          child: AdWidget(ad: _ads[key]!),
         ),
-        height: _ads[key]!.size.height.toDouble(),
-        width: double.infinity,
-        child: AdWidget(ad: _ads[key]!),
       );
     } else {
-      return Shimmer.fromColors(
-        baseColor:  Colors.grey[200]!,
-        highlightColor: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            height: 50,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5.0),
+      return SafeArea(
+        top: false,
+        bottom: true,
+        left: false,
+        right: false,
+        child: Shimmer.fromColors(
+          baseColor: bgColor,
+          highlightColor: secondaryColor,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              height: 50,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5.0),
+              ),
             ),
           ),
         ),

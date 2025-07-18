@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:estonia_weather/presentation/splash/controller/splash_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,8 +13,16 @@ import '../../../domain/use_cases/get_current_weather.dart';
 import '../../../data/model/city_model.dart';
 import '../../../data/model/weather_model.dart';
 import '../../../data/model/forecast_model.dart';
-import '../../../core/global_service/android_widget_service.dart';
 import '../../cities/controller/cities_controller.dart';
+
+/*
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+see all your functions name
+should be small and contextual
+>>>>> make all function short remove
+try and catch if there is not necessary look very messy
+
+*/
 
 class HomeController extends GetxController with ConnectivityMixin {
   final GetWeatherAndForecast getCurrentWeather;
@@ -33,13 +43,11 @@ class HomeController extends GetxController with ConnectivityMixin {
   final currentOtherCityIndex = 0.obs;
   final isLoading = false.obs;
 
-  // Connectivity-related reactive variables
   final needsDataRefresh = false.obs;
   final lastDataFetch = Rx<DateTime?>(null);
 
   static final Map<String, Map<String, dynamic>> _rawDataStorage = {};
 
-  // Getters
   EstonianCity? get currentLocationCity => _currentLocationCity.value;
   List<EstonianCity> get selectedCities => _selectedCities.toList();
   List<EstonianCity> get allCities {
@@ -53,10 +61,11 @@ class HomeController extends GetxController with ConnectivityMixin {
   @override
   void onInit() {
     super.onInit();
-
+    requestTrackingPermission();
+    // widgetsBinding inside the OnInt()???????? search how to use this
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 100));
-      WidgetUpdateManager.startPeriodicUpdate();
+
       _updateCurrentDate();
       _initializeSafely();
 
@@ -66,13 +75,45 @@ class HomeController extends GetxController with ConnectivityMixin {
     });
   }
 
+  // >>>>>>>>>>> make this separate
+  Future<void> requestTrackingPermission() async {
+    if (!Platform.isIOS) {
+      return;
+    }
+    final trackingStatus =
+    await AppTrackingTransparency.requestTrackingAuthorization();
+
+    switch (trackingStatus) {
+      case TrackingStatus.notDetermined:
+        print('User has not yet decided');
+        break;
+      case TrackingStatus.denied:
+        print('User denied tracking');
+        break;
+      case TrackingStatus.authorized:
+        print('User granted tracking permission');
+        break;
+      case TrackingStatus.restricted:
+        print('Tracking restricted');
+        break;
+      default:
+        print('Unknown tracking status');
+    }
+  }
+
+  final GlobalKey<ScaffoldState> globalKey=GlobalKey<ScaffoldState>();
+  var isDrawerOpen=false.obs;
+
   @override
   void onInternetConnected() {
     super.onInternetConnected();
 
     _refreshDataIfNeeded();
   }
-
+/*
+if you already create internet services class/
+directly call don't create function for this.
+*/
   @override
   void onInternetDisconnected() {
     super.onInternetDisconnected();
@@ -87,6 +128,7 @@ class HomeController extends GetxController with ConnectivityMixin {
         needsDataRefresh.value;
 
     if (shouldRefresh && connectivityService.isConnected) {
+      // if working remove this debug print
       debugPrint(
         '[HomeController] Refreshing data due to connectivity or time',
       );
@@ -112,6 +154,44 @@ class HomeController extends GetxController with ConnectivityMixin {
     }
   }
 
+  Future<void> setCurrentLocationCity({
+    required String cityName,
+    double? lat,
+    double? lon,
+  }) async {
+    final matchedCity = allCities.firstWhereOrNull(
+      (city) => city.city.toLowerCase() == cityName.toLowerCase(),
+    );
+
+    if (matchedCity != null) {
+      _currentLocationCity.value = matchedCity;
+      currentLocation.value = matchedCity.city;
+      debugPrint(
+        '[HomeController] Current location city set to: ${matchedCity.city}',
+      );
+    } else {
+      final fallbackCity = EstonianCity(
+        city: cityName,
+        cityAscii: cityName,
+        lat: lat ?? 0.0,
+        lng: lon ?? 0.0,
+        country: 'Current Location',
+        iso2: 'CL',
+        iso3: 'CUR',
+        adminName: 'Current Location',
+        capital: 'primary',
+        population: 0,
+        id: 999999,
+      );
+
+      _currentLocationCity.value = fallbackCity;
+      currentLocation.value = fallbackCity.city;
+      debugPrint(
+        '[HomeController] No match found — fallback city set: ${fallbackCity.city}',
+      );
+    }
+  }
+
   void _syncWithSplashController() {
     final splashController = Get.find<SplashController>();
     _selectedCities.value = splashController.selectedCities.toList();
@@ -120,10 +200,12 @@ class HomeController extends GetxController with ConnectivityMixin {
     _isFirstLaunch.value = splashController.isFirstLaunch.value;
   }
 
+  // see this 2 line function look in 7 line??????????
   Future<void> _initializeWeatherData() async {
     try {
       currentLocation.value = currentLocationCity?.city ?? 'Unknown';
 
+      // Only load weather if we have internet
       if (connectivityService.isConnected) {
         await loadSelectedCitiesWeather();
       } else {
@@ -158,6 +240,7 @@ class HomeController extends GetxController with ConnectivityMixin {
       await _saveSelectedCitiesToStorage();
       await _updateSplashController();
 
+      // Use connectivity-aware loading
       await _loadWeatherWithConnectivityCheck();
     }
   }
@@ -170,6 +253,7 @@ class HomeController extends GetxController with ConnectivityMixin {
       await _saveSelectedCitiesToStorage();
       await _updateSplashController();
 
+      // Use connectivity-aware loading
       await _loadWeatherWithConnectivityCheck();
     }
   }
@@ -244,7 +328,6 @@ class HomeController extends GetxController with ConnectivityMixin {
         await _saveSelectedCitiesToStorage();
         await _updateSplashController();
 
-        // Use connectivity-aware loading
         await _loadWeatherWithConnectivityCheck();
       }
     } catch (e) {
@@ -252,17 +335,6 @@ class HomeController extends GetxController with ConnectivityMixin {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  // Method to manually refresh data (for pull-to-refresh)
-  Future<void> refreshWeatherData() async {
-    await ensureInternetConnection(
-      action: () async {
-        await loadSelectedCitiesWeather();
-        lastDataFetch.value = DateTime.now();
-      },
-      context: Get.context,
-    );
   }
 
   List<Map<String, dynamic>> getHourlyDataForDate(String date) {
