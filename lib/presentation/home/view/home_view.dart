@@ -77,98 +77,101 @@ class _HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final HomeController homeController = Get.find();
-    final ConditionController conditionController = Get.find();
+    final homeController = Get.find<HomeController>();
+    final conditionController = Get.find<ConditionController>();
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final deviceSize = DeviceSize(constraints, context);
 
         return Obx(() {
-          return SizedBox(
-            height: deviceSize.height,
-            width: double.infinity,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                CustomAppBar(
-                  title: homeController.mainCityName,
-                  subtitle: homeController.currentDate.value,
-                  useBackButton: false,
-                  actions: [
-                    IconActionButton(
-                      onTap: () => Get.to(const CitiesView()),
-                      icon: Icons.add,
-                      color: primaryColor,
-                      size: secondaryIcon(context),
+          return Column(
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  CustomAppBar(
+                    title: homeController.mainCityName,
+                    subtitle: homeController.currentDate.value,
+                    useBackButton: false,
+                    actions: [
+                      IconActionButton(
+                        onTap: () => Get.to(const CitiesView()),
+                        icon: Icons.add,
+                        color: primaryColor,
+                        size: secondaryIcon(context),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: kToolbarHeight,
+                      left: mobileWidth(context) * 0.15,
+                      right: mobileWidth(context) * 0.15,
+                    ),
+                    child: MainCard(
+                      maxTemp: conditionController.maxTemp,
+                      temperature: conditionController.temperature,
+                      condition: conditionController.condition,
+                      minTemp: conditionController.minTemp.toString(),
+                    ),
+                  ),
+                  Positioned(
+                    top: deviceSize.weatherIconTop,
+                    left: mobileWidth(context) * 0.08,
+                    child: AnimatedWeatherIcon(
+                      imagePath: conditionController.weatherIconPath,
+                      condition: conditionController.condition,
+                      width: largeIcon(context),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: kElementGap),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: kBodyHp),
+                  child: WeatherDetailsCard(deviceSize: deviceSize),
+                ),
+              ),
+              const SizedBox(height: kElementGap),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: kBodyHp),
+                child: SectionHeader(
+                  actionText: '7 Day Forecasts >',
+                  onTap: () {
+                    final selectedDate = DateTime.now();
+                    Get.to(
+                      () => const DailyForecastView(),
+                      arguments: selectedDate,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: kElementGap),
+              Flexible(
+                fit: FlexFit.tight,
+                child: TodayForecastSection(deviceSize: deviceSize),
+              ),
+              const SizedBox(height: kElementGap),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: kBodyHp),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Other Cities',
+                      style: titleBoldMediumStyle.copyWith(color: primaryColor),
                     ),
                   ],
                 ),
-                Positioned(
-                  top: kToolbarHeight,
-                  left: mobileWidth(context) * 0.15,
-                  right: mobileWidth(context) * 0.15,
-                  child: MainCard(
-                    maxTemp: conditionController.maxTemp,
-                    temperature: conditionController.temperature,
-                    condition: conditionController.condition,
-                    minTemp: conditionController.minTemp.toString(),
-                  ),
-                ),
-                Positioned(
-                  top: deviceSize.weatherIconTop,
-                  left: mobileWidth(context) * 0.08,
-                  child: AnimatedWeatherIcon(
-                    imagePath: conditionController.weatherIconPath,
-                    condition: conditionController.condition,
-                    width: largeIcon(context),
-                  ),
-                ),
-                Positioned(
-                  top: deviceSize.detailsCardTop,
-                  left: kBodyHp,
-                  right: kBodyHp,
-                  child: WeatherDetailsCard(deviceSize: deviceSize),
-                ),
-                Positioned(
-                  top: deviceSize.todayHeaderTop,
-                  left: kBodyHp,
-                  right: kBodyHp,
-                  child: SectionHeader(
-                    actionText: '7 Day Forecasts >',
-                    onTap: () {
-                      final selectedDate = DateTime.now();
-                      Get.to(
-                        () => const DailyForecastView(),
-                        arguments: selectedDate,
-                      );
-                    },
-                  ),
-                ),
-                Positioned(
-                  top: deviceSize.todayForecastTop,
-                  left: 0,
-                  right: 0,
-                  child: TodayForecastSection(deviceSize: deviceSize),
-                ),
-                Positioned(
-                  top: deviceSize.otherCitiesHeaderTop,
-                  left: kBodyHp,
-                  right: kBodyHp,
-                  child: Text(
-                    'Other Cities',
-                    style: titleBoldMediumStyle.copyWith(color: primaryColor),
-                  ),
-                ),
-                Positioned(
-                  top: deviceSize.otherCitiesTop,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: OtherCitiesSection(deviceSize: deviceSize),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: kElementGap),
+              Flexible(
+                fit: FlexFit.tight,
+                child: OtherCitiesSection(deviceSize: deviceSize),
+              ),
+            ],
           );
         });
       },
