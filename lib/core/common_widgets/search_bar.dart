@@ -29,11 +29,10 @@ class SearchBarField extends StatelessWidget {
     return CommonTextField(
       controller: controller,
       hintText: 'Search',
-      textStyle: bodyBoldMediumStyle.copyWith(
-        color: textColor,
-        fontFamily: fontFamily,
-      ),
-      hintStyle: bodyBoldMediumStyle.copyWith(
+      textStyle: bodyBoldMediumStyle(
+        context,
+      ).copyWith(color: textColor, fontFamily: fontFamily),
+      hintStyle: bodyBoldMediumStyle(context).copyWith(
         color: textColor.withValues(alpha: 0.7),
         fontFamily: fontFamily,
       ),

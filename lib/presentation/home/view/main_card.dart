@@ -21,7 +21,9 @@ class MainCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final textColor = kWhite;
     return Container(
-      decoration: roundedDecorationWithShadow.copyWith(gradient: kGradient),
+      decoration: roundedDecorationWithShadow(
+        context,
+      ).copyWith(gradient: kGradient),
       padding: kContentPaddingSmall,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -32,14 +34,13 @@ class MainCard extends StatelessWidget {
             children: [
               Text(
                 temperature,
-                style: headlineLargeStyle.copyWith(color: textColor),
+                style: headlineLargeStyle(context).copyWith(color: textColor),
               ),
               Text(
                 '°',
-                style: headlineLargeStyle.copyWith(
-                  color: textColor,
-                  fontSize: 75,
-                ),
+                style: headlineLargeStyle(
+                  context,
+                ).copyWith(color: textColor, fontSize: 75),
               ),
             ],
           ),
@@ -51,11 +52,15 @@ class MainCard extends StatelessWidget {
               children: [
                 Text(
                   '$maxTemp°',
-                  style: titleBoldMediumStyle.copyWith(color: textColor),
+                  style: titleBoldMediumStyle(
+                    context,
+                  ).copyWith(color: textColor),
                 ),
                 Text(
                   '/$minTemp°',
-                  style: titleBoldMediumStyle.copyWith(color: textColor),
+                  style: titleBoldMediumStyle(
+                    context,
+                  ).copyWith(color: textColor),
                 ),
               ],
             ),
@@ -63,7 +68,7 @@ class MainCard extends StatelessWidget {
           Center(
             child: Text(
               condition,
-              style: titleBoldMediumStyle.copyWith(color: textColor),
+              style: titleBoldMediumStyle(context).copyWith(color: textColor),
             ),
           ),
         ],

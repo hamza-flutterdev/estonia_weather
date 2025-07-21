@@ -71,15 +71,15 @@ class CustomAppBar extends StatelessWidget {
                         if (hasTitle)
                           Text(
                             title!,
-                            style: titleBoldMediumStyle.copyWith(
-                              color: primaryColor,
-                            ),
+                            style: titleBoldMediumStyle(
+                              context,
+                            ).copyWith(color: primaryColor),
                           ),
                         Text(
                           subtitle,
                           style: (hasTitle
-                                  ? bodyMediumStyle
-                                  : titleBoldMediumStyle)
+                                  ? bodyMediumStyle(context)
+                                  : titleBoldMediumStyle(context))
                               .copyWith(color: primaryColor),
                         ),
                       ],

@@ -1,9 +1,12 @@
 package com.unisoftaps.estoniaweatherforecast
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.widget.Toast
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -40,6 +43,15 @@ class MainActivity : FlutterActivity() {
                         result.success(isActive)
                     }
 
+                    "requestPinWidget" -> {
+                        try {
+                            val success = requestPinWidget()
+                            result.success(success)
+                        } catch (e: Exception) {
+                            result.error("PIN_WIDGET_ERROR", "Failed to request widget pin: ${e.message}", null)
+                        }
+                    }
+
                     else -> {
                         result.notImplemented()
                     }
@@ -57,8 +69,6 @@ class MainActivity : FlutterActivity() {
 
     override fun onResume() {
         super.onResume()
-
-        // Call back into Flutter when resumed via widget tap
         if (widgetLaunchDetected) {
             MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger!!, CHANNEL)
                 .invokeMethod("widgetTapped", null)
@@ -83,5 +93,31 @@ class MainActivity : FlutterActivity() {
         val componentName = ComponentName(context, MyAppWidgetProvider::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
         return appWidgetIds.isNotEmpty()
+    }
+
+    private fun requestPinWidget(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val appWidgetManager = getSystemService(AppWidgetManager::class.java)
+
+            if (appWidgetManager.isRequestPinAppWidgetSupported) {
+                val provider = ComponentName(this, MyAppWidgetProvider::class.java)
+
+                val pinnedWidgetCallbackIntent = Intent(this, javaClass)
+                val successCallback = PendingIntent.getActivity(
+                    this,
+                    0,
+                    pinnedWidgetCallbackIntent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                )
+
+                appWidgetManager.requestPinAppWidget(provider, null, successCallback)
+                return true
+            } else {
+                Toast.makeText(this, "Pinning widgets not supported on this launcher.", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, "Requires Android 8.0 or higher to pin widgets.", Toast.LENGTH_SHORT).show()
+        }
+        return false
     }
 }

@@ -36,6 +36,7 @@ class HomeController extends GetxController with ConnectivityMixin {
   final needsDataRefresh = false.obs;
   final lastDataFetch = Rx<DateTime?>(null);
   final splashController = Get.find<SplashController>();
+
   static final Map<String, Map<String, dynamic>> _rawDataStorage = {};
 
   EstonianCity? get currentLocationCity => _currentLocationCity.value;
@@ -61,7 +62,6 @@ class HomeController extends GetxController with ConnectivityMixin {
     WidgetUpdateManager.startPeriodicUpdate();
     _updateDate();
     _safeInit();
-
     if (connectivityService.isConnected) {
       await _refreshIfStale();
     }
@@ -89,6 +89,7 @@ class HomeController extends GetxController with ConnectivityMixin {
         _initWeather();
       }
     });
+
     if (splashController.isAppReady) {
       _initWeather();
     }
@@ -147,6 +148,7 @@ class HomeController extends GetxController with ConnectivityMixin {
         );
         updatedCities.insert(0, currentLocationCity!);
       }
+
       _selectedCities.value = updatedCities;
       _mainCityIndex.value = 0;
       await _storeSelectedCities();
@@ -182,7 +184,6 @@ class HomeController extends GetxController with ConnectivityMixin {
 
       unawaited(_storeSelectedCities());
       unawaited(_updateSplashController());
-
       unawaited(_loadWeatherSafe());
     }
   }
@@ -210,7 +211,6 @@ class HomeController extends GetxController with ConnectivityMixin {
       _mainCityIndex.value = _mainCityIndex.value + 1;
       await _storeSelectedCities();
       await _updateSplashController();
-
       await _loadWeatherSafe();
     }
   }
@@ -220,12 +220,14 @@ class HomeController extends GetxController with ConnectivityMixin {
     int newMainCityIndex = _selectedCities.indexWhere(
       (c) => c.cityAscii.toLowerCase() == weatherModel.cityName.toLowerCase(),
     );
+
     if (newMainCityIndex == -1) {
       final citiesWeather = conditionController.selectedCitiesWeather;
       newMainCityIndex = citiesWeather.indexWhere(
         (w) => w.cityName.toLowerCase() == weatherModel.cityName.toLowerCase(),
       );
     }
+
     if (newMainCityIndex >= 0 && newMainCityIndex != _mainCityIndex.value) {
       _mainCityIndex.value = newMainCityIndex;
       await _storeSelectedCities();
@@ -239,9 +241,8 @@ class HomeController extends GetxController with ConnectivityMixin {
     final forecastDays = rawForecastData['forecast']?['forecastday'] as List?;
     if (forecastDays == null) return [];
 
-    final targetDay = forecastDays.firstWhere(
+    final targetDay = forecastDays.firstWhereOrNull(
       (day) => day['date'] == date,
-      orElse: () => null,
     );
 
     if (targetDay != null) {
@@ -266,7 +267,6 @@ class HomeController extends GetxController with ConnectivityMixin {
           )
           .toList();
     }
-
     return [];
   }
 
@@ -274,9 +274,8 @@ class HomeController extends GetxController with ConnectivityMixin {
   void updateCityIndex(int index) => currentOtherCityIndex.value = index;
 
   String get mainCityName =>
-      _selectedCities.isNotEmpty &&
-              _mainCityIndex.value < _selectedCities.length
-          ? _selectedCities[_mainCityIndex.value].city
+      _selectedCities.isNotEmpty && _mainCityIndex.value < selectedCities.length
+          ? selectedCities[_mainCityIndex.value].city
           : 'Loading...';
 
   void _updateDate() {
@@ -303,10 +302,12 @@ class HomeController extends GetxController with ConnectivityMixin {
 
   Future<void> loadSelectedWeather() async {
     if (!connectivityService.isConnected) return;
+
     isLoading.value = true;
     final weatherList = <WeatherModel>[];
     List<ForecastModel> mainCityForecast = [];
     Map<String, dynamic>? mainCityRawData;
+
     for (int i = 0; i < _selectedCities.length; i++) {
       final city = _selectedCities[i];
       try {
@@ -315,6 +316,7 @@ class HomeController extends GetxController with ConnectivityMixin {
           lon: city.lng,
         );
         weatherList.add(weather);
+
         if (i == _mainCityIndex.value) {
           mainCityForecast = forecast;
           forecastData.value = forecast;
@@ -324,9 +326,11 @@ class HomeController extends GetxController with ConnectivityMixin {
         debugPrint('$failedLoadingWeather ${city.city}: $e');
       }
     }
+
     if (mainCityRawData != null) {
       rawForecastData.value = mainCityRawData;
     }
+
     if (weatherList.isNotEmpty) {
       conditionController.updateWeatherData(
         weatherList,
@@ -342,6 +346,30 @@ class HomeController extends GetxController with ConnectivityMixin {
     }
 
     isLoading.value = false;
+  }
+
+  Map<String, dynamic>? getCurrentHourData() {
+    final now = DateTime.now();
+    final today = DateFormat('yyyy-MM-dd').format(now);
+    final forecastDays = rawForecastData['forecast']?['forecastday'];
+
+    if (forecastDays == null) return null;
+
+    final todayData = (forecastDays as List).firstWhereOrNull(
+      (day) => day['date'] == today,
+    );
+
+    if (todayData == null) return null;
+
+    final hourlyList = todayData['hour'] as List?;
+    if (hourlyList == null) return null;
+
+    final currentHour = hourlyList.firstWhereOrNull((hour) {
+      final hourTime = DateTime.parse(hour['time']).toLocal();
+      return hourTime.hour == now.hour;
+    });
+
+    return currentHour;
   }
 
   static void cacheCityData(String cityName, Map<String, dynamic> data) {

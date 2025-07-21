@@ -130,7 +130,7 @@ class BannerAdController extends GetxController {
         left: false,
         right: false,
         child: Shimmer.fromColors(
-          baseColor: bgColor,
+          baseColor: getBgColor(Get.context!),
           highlightColor: secondaryColor,
           child: Padding(
             padding: const EdgeInsets.all(8.0),

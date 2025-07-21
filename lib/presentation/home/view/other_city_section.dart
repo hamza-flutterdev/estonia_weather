@@ -107,7 +107,7 @@ class OtherCityShimmerList extends StatelessWidget {
             left: index == 0 ? kBodyHp * 2 : kElementGap,
             right: index == 2 ? kBodyHp : kElementGap,
           ),
-      itemDecoration: roundedDecorationWithShadow,
+      itemDecoration: roundedDecorationWithShadow(context),
     );
   }
 }
@@ -166,7 +166,7 @@ class OtherCitiesListView extends StatelessWidget {
                 left: isFirst ? kBodyHp * 2 : kElementGap,
                 right: isLast ? kBodyHp : kElementGap,
               ),
-              decoration: roundedDecorationWithShadow.copyWith(
+              decoration: roundedDecorationWithShadow(context).copyWith(
                 gradient: isMainCity ? kContainerGradient : null,
                 color: isMainCity ? null : secondaryColor,
               ),

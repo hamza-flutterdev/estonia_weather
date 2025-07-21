@@ -19,7 +19,6 @@ class SplashView extends StatefulWidget {
 }
 
 class _SplashViewState extends State<SplashView> {
-
   @override
   void initState() {
     Get.find<SplashInterstitialAdController>().loadInterstitialAd();
@@ -50,7 +49,7 @@ class _SplashViewState extends State<SplashView> {
                     children: [
                       const SizedBox(height: kElementInnerGap),
                       AnimatedDefaultTextStyle(
-                        style: headlineLargeStyle.copyWith(
+                        style: headlineLargeStyle(context).copyWith(
                           color: controller.title.value,
                           fontFamily: fontSecondary,
                           fontSize: 75,
@@ -75,7 +74,7 @@ class _SplashViewState extends State<SplashView> {
                                   index < controller.visibleLetters.value;
                               return TextSpan(
                                 text: 'Live Forecasts Across Estonia!'[index],
-                                style: titleSmallStyle.copyWith(
+                                style: titleSmallStyle(context).copyWith(
                                   color: isVisible ? primaryColor : transparent,
                                 ),
                               );
@@ -111,7 +110,9 @@ class _SplashViewState extends State<SplashView> {
                           const SizedBox(height: kElementInnerGap),
                           Text(
                             controller.loadingMessage.value,
-                            style: bodyLargeStyle.copyWith(color: primaryColor),
+                            style: bodyLargeStyle(
+                              context,
+                            ).copyWith(color: primaryColor),
                           ),
                           const SizedBox(height: kElementInnerGap),
                           Padding(
@@ -138,9 +139,15 @@ class _SplashViewState extends State<SplashView> {
                                             width: mobileWidth(context) * 0.6,
                                             backgroundColor: primaryColor,
                                             textColor: kWhite,
-                                            onPressed: () async{
-                                              if (Get.find<SplashInterstitialAdController>().isAdReady) {
-                                                await Get.find<SplashInterstitialAdController>().showInterstitialAd();
+                                            onPressed: () async {
+                                              if (Get.find<
+                                                    SplashInterstitialAdController
+                                                  >()
+                                                  .isAdReady) {
+                                                await Get.find<
+                                                      SplashInterstitialAdController
+                                                    >()
+                                                    .showInterstitialAd();
                                               }
                                               Get.to(() => HomeView());
                                             },

@@ -26,7 +26,7 @@ class DailyForecastView extends StatelessWidget {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: bgColor,
+      backgroundColor: getBgColor(context),
       body: Stack(
         children: [
           SizedBox(
@@ -100,9 +100,11 @@ class DailyForecastView extends StatelessWidget {
                         ),
                         child: Container(
                           height: mobileHeight(context) * 0.09,
-                          decoration: roundedDecorationWithShadow.copyWith(
+                          decoration: roundedDecorationWithShadow(
+                            context,
+                          ).copyWith(
                             gradient: index == 0 ? kContainerGradient : null,
-                            color: index == 0 ? null : bgColor,
+                            color: index == 0 ? null : getBgColor(context),
                             borderRadius: BorderRadius.circular(24),
                           ),
                           padding: kContentPaddingSmall,
@@ -112,7 +114,7 @@ class DailyForecastView extends StatelessWidget {
                                 width: mobileWidth(context) * 0.15,
                                 child: Text(
                                   dayData['day'],
-                                  style: bodyLargeStyle.copyWith(
+                                  style: bodyLargeStyle(context).copyWith(
                                     color: index == 0 ? kWhite : primaryColor,
                                   ),
                                 ),
@@ -127,14 +129,14 @@ class DailyForecastView extends StatelessWidget {
                                 flex: 2,
                                 child: Text(
                                   dayData['condition'],
-                                  style: bodyLargeStyle.copyWith(
+                                  style: bodyLargeStyle(context).copyWith(
                                     color: index == 0 ? kWhite : primaryColor,
                                   ),
                                 ),
                               ),
                               Text(
                                 '${dayData['temp'].round()}° / ${dayData['minTemp'].round()}°',
-                                style: bodyLargeStyle.copyWith(
+                                style: bodyLargeStyle(context).copyWith(
                                   color: index == 0 ? kWhite : primaryColor,
                                 ),
                               ),

@@ -24,7 +24,7 @@ class SectionHeader extends StatelessWidget {
       children: [
         Text(
           title ?? '',
-          style: titleSmallBoldStyle.copyWith(color: primaryColor),
+          style: titleSmallBoldStyle(context).copyWith(color: primaryColor),
         ),
         GestureDetector(
           onTap: onTap,
@@ -35,7 +35,9 @@ class SectionHeader extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 actionText,
-                style: bodyBoldMediumStyle.copyWith(color: primaryColor),
+                style: bodyBoldMediumStyle(
+                  context,
+                ).copyWith(color: primaryColor),
               ),
             ],
           ),

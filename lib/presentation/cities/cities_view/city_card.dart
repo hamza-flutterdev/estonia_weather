@@ -30,7 +30,7 @@ class CityCard extends StatelessWidget {
 
       return Container(
         margin: const EdgeInsets.only(bottom: kElementGap),
-        decoration: roundedDecorationWithShadow.copyWith(
+        decoration: roundedDecorationWithShadow(context).copyWith(
           gradient: kContainerGradient,
           borderRadius: BorderRadius.circular(24),
         ),
@@ -47,7 +47,9 @@ class CityCard extends StatelessWidget {
                       children: [
                         Text(
                           weather.cityName,
-                          style: titleSmallBoldStyle.copyWith(color: kWhite),
+                          style: titleSmallBoldStyle(
+                            context,
+                          ).copyWith(color: kWhite),
                         ),
                         const SizedBox(width: kElementWidthGap),
                         Icon(
@@ -62,7 +64,7 @@ class CityCard extends StatelessWidget {
                     const SizedBox(height: kElementInnerGap),
                     Text(
                       controller.getAqiText(weather.airQuality),
-                      style: bodyMediumStyle.copyWith(color: kWhite),
+                      style: bodyMediumStyle(context).copyWith(color: kWhite),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -76,11 +78,13 @@ class CityCard extends StatelessWidget {
                   children: [
                     Text(
                       '${weather.temperature.round()}°',
-                      style: headlineMediumStyle.copyWith(color: kWhite),
+                      style: headlineMediumStyle(
+                        context,
+                      ).copyWith(color: kWhite),
                     ),
                     Text(
                       weather.condition,
-                      style: bodyMediumStyle.copyWith(color: kWhite),
+                      style: bodyMediumStyle(context).copyWith(color: kWhite),
                     ),
                   ],
                 ),

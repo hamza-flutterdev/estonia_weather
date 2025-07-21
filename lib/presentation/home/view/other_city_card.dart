@@ -62,7 +62,9 @@ class OtherCityCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             cityName,
-                            style: titleBoldMediumStyle.copyWith(color: kWhite),
+                            style: titleBoldMediumStyle(
+                              context,
+                            ).copyWith(color: kWhite),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -70,7 +72,7 @@ class OtherCityCard extends StatelessWidget {
                     ),
                     Text(
                       condition,
-                      style: bodyMediumStyle.copyWith(color: kWhite),
+                      style: bodyMediumStyle(context).copyWith(color: kWhite),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -79,7 +81,7 @@ class OtherCityCard extends StatelessWidget {
               const SizedBox(width: kElementWidthGap),
               Text(
                 temperature,
-                style: headlineMediumStyle.copyWith(color: kWhite),
+                style: headlineMediumStyle(context).copyWith(color: kWhite),
               ),
             ],
           ),

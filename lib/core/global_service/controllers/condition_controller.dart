@@ -79,6 +79,42 @@ class ConditionController extends GetxController {
         .toList();
   }
 
+  List<Map<String, dynamic>> getHourlyDataForDate({
+    required String targetDate,
+    required Map<String, dynamic> rawForecastData,
+  }) {
+    final forecastDays = rawForecastData['forecast']?['forecastday'] as List?;
+    if (forecastDays == null) return [];
+
+    final targetDay = forecastDays.firstWhere(
+      (day) => day['date'] == targetDate,
+      orElse: () => null,
+    );
+
+    if (targetDay != null) {
+      final hourly = targetDay['hour'] as List;
+      return hourly.map((hour) {
+        return {
+          'time': hour['time'],
+          'temp_c': (hour['temp_c'] as num).toDouble(),
+          'condition': hour['condition']['text'],
+          'iconUrl': 'https:${hour['condition']['icon']}',
+          'humidity': hour['humidity'],
+          'wind_kph': (hour['wind_kph'] as num).toDouble(),
+          'chance_of_rain': hour['chance_of_rain'],
+          'precip_mm': (hour['precip_mm'] as num).toDouble(),
+          'feels_like_c': (hour['feelslike_c'] as num).toDouble(),
+          'uv': (hour['uv'] as num).toDouble(),
+          'pressure_mb': (hour['pressure_mb'] as num).toDouble(),
+          'vis_km': (hour['vis_km'] as num).toDouble(),
+          'gust_kph': (hour['gust_kph'] as num).toDouble(),
+        };
+      }).toList();
+    }
+
+    return [];
+  }
+
   void updateWeatherData(
     List<WeatherModel> weatherList,
     int mainIndex,

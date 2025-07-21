@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:get/get.dart';
 import '../../core/constants/constant.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_styles.dart';
 import '../../core/utils/weather_utils.dart';
 import '../../presentation/home/view/weather_detail_item.dart';
 import '../../data/model/weather_model.dart';
-import '../../data/model/forecast_model.dart';
 import '../animation/animated_weather_icon.dart';
-import '../global_service/controllers/condition_controller.dart';
 
 class WeatherInfoCard extends StatelessWidget {
   final DateTime? date;
@@ -18,7 +15,6 @@ class WeatherInfoCard extends StatelessWidget {
   final String minTemp;
   final String? maxTemp;
   final WeatherModel? weatherData;
-  final ForecastModel? forecastData;
   final double? iconSize;
   final String imagePath;
 
@@ -28,8 +24,7 @@ class WeatherInfoCard extends StatelessWidget {
     required this.temperature,
     required this.condition,
     required this.minTemp,
-    this.weatherData,
-    this.forecastData,
+    required this.weatherData,
     this.iconSize,
     required this.imagePath,
     this.maxTemp,
@@ -38,28 +33,14 @@ class WeatherInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textColor = primaryColor;
-    final controller = Get.find<ConditionController>();
-
-    final String displayHumidity;
-    final String displayWindSpeed;
-    final String displayChanceOfRain;
-
-    if (forecastData != null) {
-      displayHumidity = '${forecastData!.humidity}%';
-      displayWindSpeed = '${forecastData!.windSpeed.toStringAsFixed(1)}km/h';
-      displayChanceOfRain = '${forecastData!.chanceOfRain}%';
-    } else if (weatherData != null) {
-      displayHumidity = '${weatherData!.humidity}%';
-      displayWindSpeed = '${weatherData!.windSpeed.toStringAsFixed(1)}km/h';
-      displayChanceOfRain = '${weatherData!.chanceOfRain}%';
-    } else {
-      displayHumidity = controller.humidity;
-      displayWindSpeed = controller.windSpeed;
-      displayChanceOfRain = controller.chanceOfRain;
-    }
+    final String humidity = '${weatherData!.humidity}%';
+    final String windSpeed = '${weatherData!.windSpeed.toStringAsFixed(1)}km/h';
+    final String precipitation = '${weatherData!.chanceOfRain}%';
 
     return Container(
-      decoration: roundedDecorationWithShadow.copyWith(color: kLightWhite),
+      decoration: roundedDecorationWithShadow(
+        context,
+      ).copyWith(color: kLightWhite),
       padding: kContentPaddingSmall,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -71,7 +52,7 @@ class WeatherInfoCard extends StatelessWidget {
               children: [
                 Text(
                   DateFormat.EEEE().format(date!),
-                  style: headlineSmallStyle.copyWith(color: textColor),
+                  style: headlineSmallStyle(context).copyWith(color: textColor),
                 ),
               ],
             ),
@@ -99,16 +80,15 @@ class WeatherInfoCard extends StatelessWidget {
                         children: [
                           Text(
                             temperature,
-                            style: headlineLargeStyle.copyWith(
-                              color: textColor,
-                            ),
+                            style: headlineLargeStyle(
+                              context,
+                            ).copyWith(color: textColor),
                           ),
                           Text(
                             '°',
-                            style: headlineLargeStyle.copyWith(
-                              color: textColor,
-                              fontSize: 50,
-                            ),
+                            style: headlineLargeStyle(
+                              context,
+                            ).copyWith(color: textColor, fontSize: 50),
                           ),
                         ],
                       ),
@@ -118,11 +98,13 @@ class WeatherInfoCard extends StatelessWidget {
                         fit: BoxFit.scaleDown,
                         child: Text(
                           condition,
-                          style: titleBoldLargeStyle.copyWith(color: textColor),
+                          style: titleBoldLargeStyle(
+                            context,
+                          ).copyWith(color: textColor),
                         ),
                       ),
                     ),
-                     SizedBox(height:5),
+                    SizedBox(height: 5),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -130,23 +112,23 @@ class WeatherInfoCard extends StatelessWidget {
                           fit: BoxFit.scaleDown,
                           child: Text(
                             '$maxTemp°',
-                            style: titleBoldMediumStyle.copyWith(
-                              color: textColor,
-                            ),
+                            style: titleBoldMediumStyle(
+                              context,
+                            ).copyWith(color: textColor),
                           ),
                         ),
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
                             '/$minTemp°',
-                            style: titleBoldMediumStyle.copyWith(
-                              color: textColor,
-                            ),
+                            style: titleBoldMediumStyle(
+                              context,
+                            ).copyWith(color: textColor),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height:5),
+                    SizedBox(height: 5),
                   ],
                 ),
               ],
@@ -154,28 +136,28 @@ class WeatherInfoCard extends StatelessWidget {
           ),
           ...[
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kElementWidthGap,),
+              padding: const EdgeInsets.symmetric(horizontal: kElementWidthGap),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Expanded(
                     child: WeatherDetailItem(
                       icon: WeatherUtils.getHomeIcon('precipitation'),
-                      value: displayChanceOfRain,
+                      value: precipitation,
                       label: 'Precipitation',
                     ),
                   ),
                   Expanded(
                     child: WeatherDetailItem(
                       icon: WeatherUtils.getHomeIcon('humidity'),
-                      value: displayHumidity,
+                      value: humidity,
                       label: 'Humidity',
                     ),
                   ),
                   Expanded(
                     child: WeatherDetailItem(
                       icon: WeatherUtils.getHomeIcon('wind'),
-                      value: displayWindSpeed,
+                      value: windSpeed,
                       label: 'Wind',
                     ),
                   ),

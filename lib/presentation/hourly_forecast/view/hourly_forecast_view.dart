@@ -27,7 +27,7 @@ class HourlyForecastView extends StatelessWidget {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: bgColor,
+      backgroundColor: getBgColor(context),
       body: Stack(
         children: [
           ClipPath(
@@ -85,11 +85,14 @@ class HourlyForecastView extends StatelessWidget {
                       ),
                       child: WeatherInfoCard(
                         weatherData: conditionController.mainCityWeather.value,
-                        forecastData: selectedDayData,
                         date: selectedDate,
-                        temperature: selectedDayData.maxTemp.round().toString(),
-                        condition: selectedDayData.condition,
-                        minTemp: selectedDayData.minTemp.round().toString(),
+                        temperature: conditionController.temperature,
+                        condition: conditionController.condition,
+                        minTemp:
+                            controller.selectedDayData?.minTemp
+                                .round()
+                                .toString() ??
+                            '--',
                         maxTemp: selectedDayData.maxTemp.round().toString(),
                         imagePath: conditionController.weatherIconPath,
                       ),
@@ -118,8 +121,10 @@ class HourlyForecastView extends StatelessWidget {
                           child: Container(
                             height: mobileWidth(context) * 0.18,
                             padding: kContentPaddingSmall,
-                            decoration: roundedDecorationWithShadow.copyWith(
-                              color: isCurrentHour ? null : bgColor,
+                            decoration: roundedDecorationWithShadow(
+                              context,
+                            ).copyWith(
+                              color: isCurrentHour ? null : getBgColor(context),
                               gradient:
                                   isCurrentHour ? kContainerGradient : null,
                               border:
@@ -138,7 +143,7 @@ class HourlyForecastView extends StatelessWidget {
                                   width: mobileWidth(context) * 0.15,
                                   child: Text(
                                     time,
-                                    style: bodyMediumStyle.copyWith(
+                                    style: bodyMediumStyle(context).copyWith(
                                       color:
                                           isCurrentHour ? kWhite : primaryColor,
                                       fontWeight:
@@ -155,7 +160,7 @@ class HourlyForecastView extends StatelessWidget {
                                 ),
                                 Text(
                                   temperature,
-                                  style: headlineSmallStyle.copyWith(
+                                  style: headlineSmallStyle(context).copyWith(
                                     color:
                                         isCurrentHour ? kWhite : primaryColor,
                                   ),

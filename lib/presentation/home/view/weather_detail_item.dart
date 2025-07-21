@@ -26,9 +26,12 @@ class WeatherDetailItem extends StatelessWidget {
           const SizedBox(height: kElementInnerGap),
           Text(
             value,
-            style: titleBoldMediumStyle.copyWith(color: primaryColor),
+            style: titleBoldMediumStyle(context).copyWith(color: primaryColor),
           ),
-          Text(label, style: bodyMediumStyle.copyWith(color: primaryColor)),
+          Text(
+            label,
+            style: bodyMediumStyle(context).copyWith(color: primaryColor),
+          ),
         ],
       ),
     );

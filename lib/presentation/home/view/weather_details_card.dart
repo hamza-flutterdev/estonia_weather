@@ -7,7 +7,6 @@ import '../../../core/theme/app_styles.dart';
 import '../../../core/utils/weather_utils.dart';
 import '../../../extensions/device_size/device_size.dart';
 import '../../../presentation/home/view/weather_detail_item.dart';
-import '../controller/home_controller.dart';
 
 class WeatherDetailsCard extends StatelessWidget {
   final DeviceSize deviceSize;
@@ -17,31 +16,19 @@ class WeatherDetailsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final condition = Get.find<ConditionController>();
-    final home = Get.find<HomeController>();
 
     return Obx(() {
-      final forecast = condition.getForecastForDay(
-        home.selectedForecastIndex.value,
-      );
-
-      final precipitation =
-          forecast?['chanceOfRain'] != null
-              ? '${forecast!['chanceOfRain']}%'
-              : condition.chanceOfRain;
-
-      final humidity =
-          forecast?['humidity'] != null
-              ? '${forecast!['humidity']}%'
-              : condition.humidity;
-
-      final wind =
-          forecast?['windSpeed'] != null
-              ? '${forecast!['windSpeed'].toStringAsFixed(1)}km/h'
-              : condition.windSpeed;
+      final weatherData = condition.mainCityWeather.value;
+      final String humidity = '${weatherData!.humidity}%';
+      final String windSpeed =
+          '${weatherData.windSpeed.toStringAsFixed(1)}km/h';
+      final String precipitation = '${weatherData.chanceOfRain}%';
 
       return Container(
         height: deviceSize.height * 0.11,
-        decoration: roundedDecorationWithShadow.copyWith(color: kLightWhite),
+        decoration: roundedDecorationWithShadow(
+          context,
+        ).copyWith(color: kLightWhite),
         padding: kContentPaddingSmall,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -63,7 +50,7 @@ class WeatherDetailsCard extends StatelessWidget {
             Expanded(
               child: WeatherDetailItem(
                 icon: WeatherUtils.getHomeIcon('wind'),
-                value: wind,
+                value: windSpeed,
                 label: 'Wind',
               ),
             ),

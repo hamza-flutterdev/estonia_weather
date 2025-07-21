@@ -1,78 +1,83 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
-const TextStyle headlineLargeStyle = TextStyle(
+TextStyle headlineLargeStyle(BuildContext context) => TextStyle(
   fontSize: 100,
   fontWeight: FontWeight.w700,
-  color: blackTextColor,
+  color: getTextColor(context),
 );
-const TextStyle headlineMediumStyle = TextStyle(
+
+TextStyle headlineMediumStyle(BuildContext context) => TextStyle(
   fontSize: 30,
   fontWeight: FontWeight.w700,
-  color: blackTextColor,
-);
-const TextStyle headlineSmallStyle = TextStyle(
-  fontSize: 24,
-  fontWeight: FontWeight.w500,
-  color: blackTextColor,
+  color: getTextColor(context),
 );
 
-const TextStyle titleBoldMediumStyle = TextStyle(
+TextStyle headlineSmallStyle(BuildContext context) => TextStyle(
+  fontSize: 24,
+  fontWeight: FontWeight.w500,
+  color: getTextColor(context),
+);
+
+TextStyle titleBoldMediumStyle(BuildContext context) => TextStyle(
   fontSize: 20,
   fontWeight: FontWeight.bold,
-  color: blackTextColor,
+  color: getTextColor(context),
 );
 
-const TextStyle titleBoldLargeStyle = TextStyle(
+TextStyle titleBoldLargeStyle(BuildContext context) => TextStyle(
   fontSize: 24,
   fontWeight: FontWeight.bold,
-  color: blackTextColor,
+  color: getTextColor(context),
 );
 
-const TextStyle titleSmallStyle = TextStyle(
+TextStyle titleSmallStyle(BuildContext context) => TextStyle(
   fontSize: 16,
   fontWeight: FontWeight.w500,
-  color: blackTextColor,
+  color: getTextColor(context),
 );
 
-const TextStyle titleSmallBoldStyle = TextStyle(
+TextStyle titleSmallBoldStyle(BuildContext context) => TextStyle(
   fontSize: 16,
   fontWeight: FontWeight.bold,
-  color: blackTextColor,
+  color: getTextColor(context),
 );
 
-const TextStyle bodyLargeStyle = TextStyle(
+TextStyle bodyLargeStyle(BuildContext context) => TextStyle(
   fontSize: 16,
   fontWeight: FontWeight.w400,
+  color: getTextColor(context),
 );
 
-const TextStyle bodyMediumStyle = TextStyle(
+TextStyle bodyMediumStyle(BuildContext context) => TextStyle(
   fontSize: 14,
   fontWeight: FontWeight.w400,
-  color: blackTextColor,
+  color: getTextColor(context),
 );
 
-const TextStyle bodyBoldMediumStyle = TextStyle(
+TextStyle bodyBoldMediumStyle(BuildContext context) => TextStyle(
   fontSize: 14,
   fontWeight: FontWeight.bold,
-  color: blackTextColor,
+  color: getTextColor(context),
 );
 
-const TextStyle bodyBoldSmallStyle = TextStyle(
+TextStyle bodyBoldSmallStyle(BuildContext context) => TextStyle(
   fontSize: 12,
   fontWeight: FontWeight.bold,
+  color: getTextColor(context),
 );
 
 //decoration
-final BoxDecoration roundedDecorationWithShadow = BoxDecoration(
-  color: kWhite,
-  borderRadius: BorderRadius.circular(10),
-  boxShadow: [
-    BoxShadow(
-      color: primaryColor.withValues(alpha: 0.3),
-      blurRadius: 6,
-      spreadRadius: 1,
-      offset: Offset(0, 2),
-    ),
-  ],
-);
+BoxDecoration roundedDecorationWithShadow(BuildContext context) =>
+    BoxDecoration(
+      color: Theme.of(context).brightness == Brightness.dark ? kBlack : kWhite,
+      borderRadius: BorderRadius.circular(10),
+      boxShadow: [
+        BoxShadow(
+          color: primaryColor.withOpacity(0.3),
+          blurRadius: 6,
+          spreadRadius: 1,
+          offset: Offset(0, 2),
+        ),
+      ],
+    );

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../gen/assets.gen.dart';
@@ -17,7 +18,7 @@ class CustomDrawer extends StatelessWidget {
     return Drawer(
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       child: Container(
-        color: bgColor,
+        color: getBgColor(Get.context!),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -41,7 +42,9 @@ class CustomDrawer extends StatelessWidget {
                     fit: BoxFit.scaleDown,
                     child: Text(
                       'Estonia Weather',
-                      style: headlineSmallStyle.copyWith(color: kWhite),
+                      style: headlineSmallStyle(
+                        context,
+                      ).copyWith(color: kWhite),
                     ),
                   ),
                 ],
@@ -140,8 +143,8 @@ class DrawerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, size: 24, color: textGreyColor),
-      title: Text(title, style: titleSmallStyle),
+      leading: Icon(icon, size: 24, color: getTextColor(Get.context!)),
+      title: Text(title, style: titleSmallStyle(context)),
       onTap: onTap,
     );
   }

@@ -6,9 +6,11 @@ import '../../../ads_manager/interstitial_ads.dart';
 import '../../../core/global_service/connectivity_service.dart';
 import '../../home/controller/home_controller.dart';
 import '../../../data/model/forecast_model.dart';
+import '../../../core/global_service/controllers/condition_controller.dart';
 
 class HourlyForecastController extends GetxController with ConnectivityMixin {
   final _homeController = Get.find<HomeController>();
+  final _conditionController = Get.find<ConditionController>();
   final scrollController = ScrollController();
 
   final forecastData = <ForecastModel>[].obs;
@@ -46,7 +48,10 @@ class HourlyForecastController extends GetxController with ConnectivityMixin {
   void _loadHourlyData() {
     final selectedForecast = _getForecastForDate(selectedDate.value);
     if (selectedForecast != null) {
-      hourlyData.value = _homeController.hourlyForDate(selectedForecast.date);
+      hourlyData.value = _conditionController.getHourlyDataForDate(
+        targetDate: selectedForecast.date,
+        rawForecastData: _homeController.rawForecastData,
+      );
       _autoScrollToCurrentHour();
     }
   }

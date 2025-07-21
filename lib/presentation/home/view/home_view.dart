@@ -15,6 +15,7 @@ import '../../../core/animation/animated_weather_icon.dart';
 import '../../../core/common_widgets/icon_buttons.dart';
 import '../../../core/common_widgets/section_header.dart';
 import '../../../core/constants/constant.dart';
+import '../../../core/global_service/android_widget_service.dart';
 import '../../../core/global_service/controllers/condition_controller.dart';
 import '../../../core/theme/app_styles.dart';
 import '../../../extensions/device_size/device_size.dart';
@@ -50,7 +51,7 @@ class HomeView extends StatelessWidget {
       },
       child: Scaffold(
         key: globalKey,
-        backgroundColor: bgColor,
+        backgroundColor: getBgColor(context),
         drawer: const CustomDrawer(),
         onDrawerChanged: (isOpen) {
           homeController.isDrawerOpen.value = isOpen;
@@ -85,6 +86,10 @@ class _HomeContent extends StatelessWidget {
         final deviceSize = DeviceSize(constraints, context);
 
         return Obx(() {
+          final data = homeController.getCurrentHourData();
+          if (data == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
           return Column(
             children: [
               Stack(
@@ -109,11 +114,22 @@ class _HomeContent extends StatelessWidget {
                       left: mobileWidth(context) * 0.15,
                       right: mobileWidth(context) * 0.15,
                     ),
-                    child: MainCard(
-                      maxTemp: conditionController.maxTemp,
-                      temperature: conditionController.temperature,
-                      condition: conditionController.condition,
-                      minTemp: conditionController.minTemp.toString(),
+                    child: GestureDetector(
+                      onLongPress: () async {
+                        final isActive =
+                            await WidgetUpdaterService.isWidgetActive();
+                        if (!isActive) {
+                          await WidgetUpdaterService.requestPinWidget();
+                        } else {
+                          WidgetUpdateManager.updateWeatherWidget();
+                        }
+                      },
+                      child: MainCard(
+                        maxTemp: conditionController.maxTemp,
+                        temperature: data['temp_c'].round().toString(),
+                        condition: data['condition']['text'],
+                        minTemp: conditionController.minTemp.toString(),
+                      ),
                     ),
                   ),
                   Positioned(
@@ -166,9 +182,9 @@ class _HomeContent extends StatelessWidget {
                         fit: BoxFit.scaleDown,
                         child: Text(
                           'Other Cities',
-                          style: titleBoldMediumStyle.copyWith(
-                            color: primaryColor,
-                          ),
+                          style: titleBoldMediumStyle(
+                            context,
+                          ).copyWith(color: primaryColor),
                         ),
                       ),
                     ),
