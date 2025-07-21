@@ -26,6 +26,7 @@ class MyAppWidgetProvider : AppWidgetProvider() {
 
             val intent = Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                action = "ACTION_FROM_WIDGET" // Unique flag
             }
 
             val pendingIntent = PendingIntent.getActivity(

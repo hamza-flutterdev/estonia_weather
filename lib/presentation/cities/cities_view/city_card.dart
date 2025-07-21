@@ -1,6 +1,7 @@
 import 'package:estonia_weather/core/constants/constant.dart';
 import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
+import 'package:estonia_weather/presentation/home/controller/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:toastification/toastification.dart';
@@ -22,11 +23,10 @@ class CityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final homeController = Get.find<HomeController>();
     return Obx(() {
-      final isSelected = controller.isCitySelected(city);
-      final canRemove = controller.canRemoveSpecificCity(city);
-      final canAdd = controller.canAddCity();
-      final isCurrentLocationCity = controller.isCurrentLocationCity(city);
+      final isSelected = homeController.isSelected(city);
+      final isCurrentLocationCity = homeController.isLocationCity(city);
 
       return Container(
         margin: const EdgeInsets.only(bottom: kElementGap),
@@ -93,7 +93,6 @@ class CityCard extends StatelessWidget {
                 size: smallIcon(context) * 0.6,
                 onTap: () async {
                   if (isSelected) {
-                    // Remove city
                     if (isCurrentLocationCity) {
                       SimpleToast.showCustomToast(
                         context: context,
@@ -105,7 +104,7 @@ class CityCard extends StatelessWidget {
                       return;
                     }
 
-                    if (canRemove) {
+                    if (controller.canRemoveSpecificCity(city)) {
                       await controller.removeCityFromSelected(city);
                       SimpleToast.showCustomToast(
                         context: context,
@@ -124,8 +123,7 @@ class CityCard extends StatelessWidget {
                       );
                     }
                   } else {
-                    if (canAdd) {
-                      await controller.addCityToSelected(city);
+                    if (homeController.selectedCities.length < 5) {
                       SimpleToast.showCustomToast(
                         context: context,
                         message: '${city.city} has been added',
@@ -133,6 +131,7 @@ class CityCard extends StatelessWidget {
                         primaryColor: primaryColor,
                         icon: Icons.add_circle_outline,
                       );
+                      await controller.addCityToSelected(city);
                     } else {
                       SimpleToast.showCustomToast(
                         context: context,

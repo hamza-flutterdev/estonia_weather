@@ -12,7 +12,7 @@ import '../../data/data_source/online_data_sr.dart';
 import '../../data/repositories/weather_api_impl.dart';
 import '../../domain/repositories/weather_repo.dart';
 import '../../domain/use_cases/get_current_weather.dart';
-import '../constants/global_key.dart';
+import '../global_service/global_key.dart';
 import '../global_service/controllers/condition_controller.dart';
 
 class DependencyInjection {
@@ -61,6 +61,8 @@ class DependencyInjection {
     // Get.lazyPut<BannerAdController>(() => BannerAdController(), fenix: true);
     Get.lazyPut<BannerAdController>(() => BannerAdController());
     Get.lazyPut<InterstitialAdController>(() => InterstitialAdController());
-    Get.lazyPut<SplashInterstitialAdController>(() => SplashInterstitialAdController());
+    Get.lazyPut<SplashInterstitialAdController>(
+      () => SplashInterstitialAdController(),
+    );
   }
 }

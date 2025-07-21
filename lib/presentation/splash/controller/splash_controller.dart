@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:estonia_weather/core/common/app_exceptions.dart';
 import 'package:estonia_weather/core/global_service/connectivity_service.dart';
 import 'package:estonia_weather/presentation/home/view/home_view.dart';
 import 'package:flutter/cupertino.dart';
@@ -77,25 +78,13 @@ class SplashController extends GetxController with ConnectivityMixin {
   void onReady() {
     super.onReady();
     Future.delayed(const Duration(milliseconds: 500), () {
-      _initWithConnectivityCheck(Get.context!);
-    });
-  }
-
-  Future<void> _initWithConnectivityCheck(BuildContext context) async {
-    debugPrint('[CitiesController] Initializing with connectivity check');
-
-    final hasInternet = await connectivityService.checkInternetWithDialog(
-      context,
-      onRetry: () => _initWithConnectivityCheck(context),
-    );
-
-    if (hasInternet) {
-      _initializeApp();
-    } else {
-      debugPrint(
-        '[CitiesController] No internet at startup – retry dialog shown',
+      initWithConnectivityCheck(
+        context: Get.context!,
+        onConnected: () async {
+          _initializeApp();
+        },
       );
-    }
+    });
   }
 
   Future<void> _initializeApp() async {
@@ -133,17 +122,9 @@ class SplashController extends GetxController with ConnectivityMixin {
   }
 
   Future<void> _loadAllCities() async {
-    try {
-      final String response = await rootBundle.loadString(
-        Assets.database.cities,
-      );
-      final List<dynamic> data = json.decode(response);
-      allCities.value =
-          data.map((city) => EstonianCity.fromJson(city)).toList();
-    } catch (e) {
-      debugPrint("Failed to load cities: $e");
-      throw Exception('Failed to load cities data');
-    }
+    final String response = await rootBundle.loadString(Assets.database.cities);
+    final List<dynamic> data = json.decode(response);
+    allCities.value = data.map((city) => EstonianCity.fromJson(city)).toList();
   }
 
   Future<void> _checkFirstLaunch() async {
@@ -154,7 +135,7 @@ class SplashController extends GetxController with ConnectivityMixin {
 
       isFirstLaunch.value = savedCitiesJson == null || !hasCurrentLocation;
     } catch (e) {
-      debugPrint('Error checking first launch: $e');
+      debugPrint('$firstLaunch: $e');
       isFirstLaunch.value = true;
     }
   }

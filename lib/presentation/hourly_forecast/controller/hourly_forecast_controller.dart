@@ -8,92 +8,75 @@ import '../../home/controller/home_controller.dart';
 import '../../../data/model/forecast_model.dart';
 
 class HourlyForecastController extends GetxController with ConnectivityMixin {
-  final homeController = Get.find<HomeController>();
-  var forecastData = <ForecastModel>[].obs;
-  var selectedDate = DateTime.now().obs;
-  var mainCityName = ''.obs;
-  var hourlyData = <Map<String, dynamic>>[].obs;
-  final ScrollController scrollController = ScrollController();
+  final _homeController = Get.find<HomeController>();
+  final scrollController = ScrollController();
+
+  final forecastData = <ForecastModel>[].obs;
+  final selectedDate = DateTime.now().obs;
+  final mainCityName = ''.obs;
+  final hourlyData = <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
     super.onInit();
     Get.find<InterstitialAdController>().checkAndShowAd();
     Get.find<BannerAdController>().loadBannerAd('ad4');
-    loadForecastData();
+    _loadForecastData();
   }
-/*
-if already onInt() use, then we need to use onReady?????????
-*/
+
   @override
   void onReady() {
     super.onReady();
-    _initWithConnectivityCheck(Get.context!);
-  }
-
-  Future<void> _initWithConnectivityCheck(BuildContext context) async {
-    debugPrint('[CitiesController] Initializing with connectivity check');
-
-    final hasInternet = await connectivityService.checkInternetWithDialog(
-      context,
-      onRetry: () => _initWithConnectivityCheck(context),
+    initWithConnectivityCheck(
+      context: Get.context!,
+      onConnected: () async => _loadForecastData(),
     );
-
-    if (hasInternet) {
-      loadForecastData();
-    } else {
-      debugPrint(
-        '[CitiesController] No internet at startup – retry dialog shown',
-      );
-    }
   }
 
-  void loadForecastData() {
-    mainCityName.value = homeController.mainCityName;
-    forecastData.value = homeController.forecastData;
+  void _loadForecastData() {
+    mainCityName.value = _homeController.mainCityName;
+    forecastData.value = _homeController.forecastData;
   }
 
   void setSelectedDate(DateTime date) {
     selectedDate.value = date;
-    loadHourlyData();
+    _loadHourlyData();
   }
 
-  void loadHourlyData() {
-    try {
-      final selectedForecast = forecastData.firstWhereOrNull(
-        (forecast) =>
-            isSameDate(DateTime.parse(forecast.date), selectedDate.value),
-      );
-      if (selectedForecast != null) {
-        final hourlyForecast = homeController.getHourlyDataForDate(
-          selectedForecast.date,
-        );
-        hourlyData.value = hourlyForecast;
-        _autoScrollToCurrentHour();
-      }
-    } catch (e) {
-      debugPrint('Error loading hourly data: $e');
+  void _loadHourlyData() {
+    final selectedForecast = _getForecastForDate(selectedDate.value);
+    if (selectedForecast != null) {
+      hourlyData.value = _homeController.hourlyForDate(selectedForecast.date);
+      _autoScrollToCurrentHour();
     }
   }
+
+  ForecastModel? _getForecastForDate(DateTime date) {
+    return forecastData.firstWhereOrNull(
+      (f) => isSameDate(DateTime.parse(f.date), date),
+    );
+  }
+
+  bool isSameDate(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 
   void _autoScrollToCurrentHour() {
     if (!isSameDate(selectedDate.value, DateTime.now())) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!scrollController.hasClients) return;
+
       final context = scrollController.position.context.storageContext;
       final itemWidth = mobileWidth(context) / 5;
+      final index = hourlyData.indexWhere((h) => getCurrentHourData() == h);
 
-      final currentHourIndex = hourlyData.indexWhere(
-        (hour) => getCurrentHourData() == hour,
-      );
-
-      if (currentHourIndex != -1) {
-        final scrollOffset = currentHourIndex * itemWidth;
-        final maxScroll = scrollController.position.maxScrollExtent;
-
+      if (index != -1) {
+        final offset = (index * itemWidth).clamp(
+          0.0,
+          scrollController.position.maxScrollExtent,
+        );
         scrollController.animateTo(
-          scrollOffset > maxScroll ? maxScroll : scrollOffset,
+          offset,
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOut,
         );
@@ -101,33 +84,13 @@ if already onInt() use, then we need to use onReady?????????
     });
   }
 
-  bool isSameDate(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-        date1.month == date2.month &&
-        date1.day == date2.day;
-  }
-
-  String getFormattedTime(String timeString) {
-    final time = DateTime.parse(timeString);
-    final hour = time.hour;
-    if (hour == 0) return '12 AM';
-    if (hour == 12) return '12 PM';
-    if (hour < 12) return '$hour AM';
-    return '${hour - 12} PM';
-  }
-
-  ForecastModel? get selectedDayData {
-    return forecastData.firstWhereOrNull(
-      (forecast) =>
-          isSameDate(DateTime.parse(forecast.date), selectedDate.value),
-    );
-  }
+  ForecastModel? get selectedDayData => _getForecastForDate(selectedDate.value);
 
   Map<String, dynamic>? getCurrentHourData() {
     final now = DateTime.now();
     if (isSameDate(selectedDate.value, now)) {
       return hourlyData.firstWhereOrNull(
-        (hour) => DateTime.parse(hour['time']).hour == now.hour,
+        (h) => DateTime.parse(h['time']).hour == now.hour,
       );
     }
     return null;
@@ -135,12 +98,18 @@ if already onInt() use, then we need to use onReady?????????
 
   List<Map<String, dynamic>> getUpcomingHours() {
     final now = DateTime.now();
-    if (isSameDate(selectedDate.value, now)) {
-      return hourlyData
-          .where((hour) => DateTime.parse(hour['time']).isAfter(now))
-          .toList();
-    }
-    return hourlyData;
+    return isSameDate(selectedDate.value, now)
+        ? hourlyData
+            .where((h) => DateTime.parse(h['time']).isAfter(now))
+            .toList()
+        : hourlyData;
+  }
+
+  String getFormattedTime(String timeStr) {
+    final hour = DateTime.parse(timeStr).hour;
+    if (hour == 0) return '12 AM';
+    if (hour == 12) return '12 PM';
+    return hour < 12 ? '$hour AM' : '${hour - 12} PM';
   }
 
   @override

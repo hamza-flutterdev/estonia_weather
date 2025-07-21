@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'package:estonia_weather/core/common/app_exceptions.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import '../model/weather_model.dart';
@@ -23,24 +23,17 @@ class OnlineDataSource {
       final data = jsonDecode(response.body);
       final cityName = data['location']['name'] as String?;
       if (cityName != null) {
-        HomeController.storeRawDataForCity(cityName, data);
+        HomeController.cacheCityData(cityName, data);
       }
-
-      try {
-        final homeController = Get.find<HomeController>();
-        homeController.rawForecastData.value = data;
-      } catch (e) {
-        debugPrint('HomeController not found or error updating raw data: $e');
-      }
+      final homeController = Get.find<HomeController>();
+      homeController.rawForecastData.value = data;
       final current = WeatherModel.fromForecastJson(data);
       final forecastDays = data['forecast']['forecastday'] as List;
       final forecast =
           forecastDays.map((e) => ForecastModel.fromJson(e)).toList();
       return (current, forecast);
     } else {
-      throw Exception(
-        'Failed to fetch weather and forecast data: ${response.statusCode}',
-      );
+      throw Exception('$failedApiCall: ${response.statusCode}');
     }
   }
 
@@ -55,10 +48,10 @@ class OnlineDataSource {
       if (cityName != null) {
         return cityName;
       } else {
-        throw Exception('City name not found in the response');
+        throw Exception(noCityInApi);
       }
     } else {
-      throw Exception('Failed to fetch city name: ${response.statusCode}');
+      throw Exception('$failedApiCall: ${response.statusCode}');
     }
   }
 }

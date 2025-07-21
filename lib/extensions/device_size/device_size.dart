@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/constant.dart';
 
-/*
-This is look very very messy
-this is all you make fix size every container/
-cards etc.
-warning!> for time being this is fine, aware next time
-*/
 class DeviceSize {
   final BoxConstraints constraints;
   final BuildContext context;
@@ -22,10 +16,6 @@ class DeviceSize {
   bool get isBig => height >= 890;
   bool get isTab => width >= 600;
 
-  double get horizontalPadding => isTab ? width * 0.08 : width * 0.05;
-  double get weatherCardHorizontalMargin => isTab ? width * 0.2 : width * 0.15;
-  double get weatherIconLeft => isTab ? width * 0.12 : width * 0.08;
-
   double get weatherIconTop =>
       isTab
           ? height * 0.1
@@ -38,8 +28,6 @@ class DeviceSize {
           : isBig
           ? height * 0.19
           : height * 0.14;
-
-  double get weatherIconSize => largeIcon(context);
 
   double get detailsCardTop =>
       isTab
@@ -105,7 +93,4 @@ class DeviceSize {
           : isBig
           ? height * 0.67
           : height * 0.63;
-
-  double get hourlyImageHeight => height * 0.4;
-  double get hourlyCardTop => height * 0.11;
 }

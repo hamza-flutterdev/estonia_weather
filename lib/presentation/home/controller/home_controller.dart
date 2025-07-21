@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import 'package:estonia_weather/core/common/app_exceptions.dart';
 import 'package:estonia_weather/presentation/splash/controller/splash_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,16 +13,6 @@ import '../../../domain/use_cases/get_current_weather.dart';
 import '../../../data/model/city_model.dart';
 import '../../../data/model/weather_model.dart';
 import '../../../data/model/forecast_model.dart';
-import '../../cities/controller/cities_controller.dart';
-
-/*
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-see all your functions name
-should be small and contextual
->>>>> make all function short remove
-try and catch if there is not necessary look very messy
-
-*/
 
 class HomeController extends GetxController with ConnectivityMixin {
   final GetWeatherAndForecast getCurrentWeather;
@@ -43,16 +32,15 @@ class HomeController extends GetxController with ConnectivityMixin {
   final selectedForecastIndex = 0.obs;
   final currentOtherCityIndex = 0.obs;
   final isLoading = false.obs;
-
+  var isDrawerOpen = false.obs;
   final needsDataRefresh = false.obs;
   final lastDataFetch = Rx<DateTime?>(null);
-
+  final splashController = Get.find<SplashController>();
   static final Map<String, Map<String, dynamic>> _rawDataStorage = {};
 
   EstonianCity? get currentLocationCity => _currentLocationCity.value;
   List<EstonianCity> get selectedCities => _selectedCities.toList();
   List<EstonianCity> get allCities {
-    final splashController = Get.find<SplashController>();
     return splashController.allCities.toList();
   }
 
@@ -63,67 +51,23 @@ class HomeController extends GetxController with ConnectivityMixin {
   void onInit() {
     super.onInit();
     requestTrackingPermission();
-    // widgetsBinding inside the OnInt()???????? search how to use this
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(milliseconds: 100));
-      WidgetUpdateManager.startPeriodicUpdate();
-
-      _updateCurrentDate();
-      _initializeSafely();
-
-      if (connectivityService.isConnected) {
-        await _refreshDataIfNeeded();
-      }
-    });
   }
 
-  // >>>>>>>>>>> make this separate
-  Future<void> requestTrackingPermission() async {
-    if (!Platform.isIOS) {
-      return;
-    }
-    final trackingStatus =
-        await AppTrackingTransparency.requestTrackingAuthorization();
+  @override
+  void onReady() async {
+    super.onReady();
+    await Future.delayed(const Duration(milliseconds: 100));
+    WidgetUpdaterService.setupMethodChannelHandler();
+    WidgetUpdateManager.startPeriodicUpdate();
+    _updateDate();
+    _safeInit();
 
-    switch (trackingStatus) {
-      case TrackingStatus.notDetermined:
-        print('User has not yet decided');
-        break;
-      case TrackingStatus.denied:
-        print('User denied tracking');
-        break;
-      case TrackingStatus.authorized:
-        print('User granted tracking permission');
-        break;
-      case TrackingStatus.restricted:
-        print('Tracking restricted');
-        break;
-      default:
-        print('Unknown tracking status');
+    if (connectivityService.isConnected) {
+      await _refreshIfStale();
     }
   }
 
-  final GlobalKey<ScaffoldState> globalKey = GlobalKey<ScaffoldState>();
-  var isDrawerOpen = false.obs;
-
-  @override
-  void onInternetConnected() {
-    super.onInternetConnected();
-
-    _refreshDataIfNeeded();
-  }
-
-  /*
-if you already create internet services class/
-directly call don't create function for this.
-*/
-  @override
-  void onInternetDisconnected() {
-    super.onInternetDisconnected();
-    needsDataRefresh.value = true;
-  }
-
-  Future<void> _refreshDataIfNeeded() async {
+  Future<void> _refreshIfStale() async {
     final now = DateTime.now();
     final shouldRefresh =
         lastDataFetch.value == null ||
@@ -131,33 +75,26 @@ directly call don't create function for this.
         needsDataRefresh.value;
 
     if (shouldRefresh && connectivityService.isConnected) {
-      // if working remove this debug print
-      debugPrint(
-        '[HomeController] Refreshing data due to connectivity or time',
-      );
-      await loadSelectedCitiesWeather();
+      await loadSelectedWeather();
       needsDataRefresh.value = false;
       lastDataFetch.value = now;
     }
   }
 
-  void _initializeSafely() {
-    final splashController = Get.find<SplashController>();
-    _syncWithSplashController();
-
+  void _safeInit() {
+    _syncSplash();
     ever(splashController.isDataLoaded, (bool isLoaded) {
       if (isLoaded) {
-        _syncWithSplashController();
-        _initializeWeatherData();
+        _syncSplash();
+        _initWeather();
       }
     });
-
     if (splashController.isAppReady) {
-      _initializeWeatherData();
+      _initWeather();
     }
   }
 
-  Future<void> setCurrentLocationCity({
+  Future<void> setLocationCity({
     required String cityName,
     double? lat,
     double? lon,
@@ -169,66 +106,39 @@ directly call don't create function for this.
     if (matchedCity != null) {
       _currentLocationCity.value = matchedCity;
       currentLocation.value = matchedCity.city;
-      debugPrint(
-        '[HomeController] Current location city set to: ${matchedCity.city}',
-      );
     } else {
-      final fallbackCity = EstonianCity(
-        city: cityName,
-        cityAscii: cityName,
-        lat: lat ?? 0.0,
-        lng: lon ?? 0.0,
-        country: 'Current Location',
-        iso2: 'CL',
-        iso3: 'CUR',
-        adminName: 'Current Location',
-        capital: 'primary',
-        population: 0,
-        id: 999999,
-      );
-
+      final fallbackCity = EstonianCity.fallback(cityName);
       _currentLocationCity.value = fallbackCity;
       currentLocation.value = fallbackCity.city;
-      debugPrint(
-        '[HomeController] No match found — fallback city set: ${fallbackCity.city}',
-      );
     }
   }
 
-  void _syncWithSplashController() {
-    final splashController = Get.find<SplashController>();
+  void _syncSplash() {
     _selectedCities.value = splashController.selectedCities.toList();
     _mainCityIndex.value = splashController.mainCityIndex.value;
     _currentLocationCity.value = splashController.currentLocationCity.value;
     _isFirstLaunch.value = splashController.isFirstLaunch.value;
   }
 
-  // see this 2 line function look in 7 line??????????
-  Future<void> _initializeWeatherData() async {
-    try {
-      currentLocation.value = currentLocationCity?.city ?? 'Unknown';
-
-      // Only load weather if we have internet
-      if (connectivityService.isConnected) {
-        await loadSelectedCitiesWeather();
-      } else {
-        debugPrint('[HomeController] No internet - skipping weather data load');
-      }
-    } catch (e) {
-      debugPrint('Error initializing weather data: $e');
+  Future<void> _initWeather() async {
+    currentLocation.value = currentLocationCity?.city ?? 'Unknown';
+    if (connectivityService.isConnected) {
+      await loadSelectedWeather();
+    } else {
+      debugPrint(noInternet);
     }
   }
 
-  Future<void> getCurrentLocation() async {
+  Future<void> fetchLocation() async {
     currentLocation.value = currentLocationCity?.city ?? 'Unknown';
   }
 
-  Future<void> addCurrentLocationToSelectedAsMain() async {
+  Future<void> addLocationAsMain() async {
     if (currentLocationCity != null) {
       final updatedCities = List<EstonianCity>.from(_selectedCities);
-      if (!isCitySelected(currentLocationCity!)) {
+      if (!isSelected(currentLocationCity!)) {
         updatedCities.insert(0, currentLocationCity!);
-        if (updatedCities.length > CitiesController.maxCities) {
+        if (updatedCities.length > 5) {
           updatedCities.removeLast();
         }
       } else {
@@ -237,31 +147,26 @@ directly call don't create function for this.
         );
         updatedCities.insert(0, currentLocationCity!);
       }
-
       _selectedCities.value = updatedCities;
       _mainCityIndex.value = 0;
-      await _saveSelectedCitiesToStorage();
+      await _storeSelectedCities();
       await _updateSplashController();
-
-      // Use connectivity-aware loading
-      await _loadWeatherWithConnectivityCheck();
+      await _loadWeatherSafe();
     }
   }
 
-  Future<void> addCityToSelected(EstonianCity city) async {
-    if (!isCitySelected(city)) {
+  Future<void> addCity(EstonianCity city) async {
+    if (!isSelected(city)) {
       final updatedCities = List<EstonianCity>.from(_selectedCities);
       updatedCities.add(city);
       _selectedCities.value = updatedCities;
-      await _saveSelectedCitiesToStorage();
+      await _storeSelectedCities();
       await _updateSplashController();
-
-      // Use connectivity-aware loading
-      await _loadWeatherWithConnectivityCheck();
+      await _loadWeatherSafe();
     }
   }
 
-  Future<void> removeCityFromSelected(EstonianCity city) async {
+  Future<void> removeCity(EstonianCity city) async {
     if (currentLocationCity != null && city.city == currentLocationCity!.city) {
       return;
     }
@@ -275,72 +180,62 @@ directly call don't create function for this.
         _mainCityIndex.value = updatedCities.length - 1;
       }
 
-      unawaited(_saveSelectedCitiesToStorage());
+      unawaited(_storeSelectedCities());
       unawaited(_updateSplashController());
 
-      unawaited(_loadWeatherWithConnectivityCheck());
+      unawaited(_loadWeatherSafe());
     }
   }
 
-  Future<void> _loadWeatherWithConnectivityCheck() async {
+  Future<void> _loadWeatherSafe() async {
     await ensureInternetConnection(
       action: () async {
-        await loadSelectedCitiesWeather();
+        await loadSelectedWeather();
       },
       context: Get.context,
     );
   }
 
-  bool isCitySelected(EstonianCity city) =>
+  bool isSelected(EstonianCity city) =>
       _selectedCities.any((c) => c.city == city.city);
 
-  bool isCurrentLocationCity(EstonianCity city) =>
+  bool isLocationCity(EstonianCity city) =>
       currentLocationCity != null && city.city == currentLocationCity!.city;
 
-  Future<void> addCurrentLocationToSelected() async {
-    if (currentLocationCity != null && !isCitySelected(currentLocationCity!)) {
+  Future<void> addLocationCity() async {
+    if (currentLocationCity != null && !isSelected(currentLocationCity!)) {
       final updatedCities = List<EstonianCity>.from(_selectedCities);
       updatedCities.insert(0, currentLocationCity!);
       _selectedCities.value = updatedCities;
       _mainCityIndex.value = _mainCityIndex.value + 1;
-      await _saveSelectedCitiesToStorage();
+      await _storeSelectedCities();
       await _updateSplashController();
 
-      await _loadWeatherWithConnectivityCheck();
+      await _loadWeatherSafe();
     }
   }
 
-  Future<void> swapCityWithMainByWeatherModel(WeatherModel weatherModel) async {
-    try {
-      isLoading.value = true;
-
-      int newMainCityIndex = _selectedCities.indexWhere(
-        (c) => c.cityAscii.toLowerCase() == weatherModel.cityName.toLowerCase(),
+  Future<void> makeCityMain(WeatherModel weatherModel) async {
+    isLoading.value = true;
+    int newMainCityIndex = _selectedCities.indexWhere(
+      (c) => c.cityAscii.toLowerCase() == weatherModel.cityName.toLowerCase(),
+    );
+    if (newMainCityIndex == -1) {
+      final citiesWeather = conditionController.selectedCitiesWeather;
+      newMainCityIndex = citiesWeather.indexWhere(
+        (w) => w.cityName.toLowerCase() == weatherModel.cityName.toLowerCase(),
       );
-
-      if (newMainCityIndex == -1) {
-        final citiesWeather = conditionController.selectedCitiesWeather;
-        newMainCityIndex = citiesWeather.indexWhere(
-          (w) =>
-              w.cityName.toLowerCase() == weatherModel.cityName.toLowerCase(),
-        );
-      }
-
-      if (newMainCityIndex >= 0 && newMainCityIndex != _mainCityIndex.value) {
-        _mainCityIndex.value = newMainCityIndex;
-        await _saveSelectedCitiesToStorage();
-        await _updateSplashController();
-
-        await _loadWeatherWithConnectivityCheck();
-      }
-    } catch (e) {
-      debugPrint('Failed to change main city: $e');
-    } finally {
-      isLoading.value = false;
     }
+    if (newMainCityIndex >= 0 && newMainCityIndex != _mainCityIndex.value) {
+      _mainCityIndex.value = newMainCityIndex;
+      await _storeSelectedCities();
+      await _updateSplashController();
+      await _loadWeatherSafe();
+    }
+    isLoading.value = false;
   }
 
-  List<Map<String, dynamic>> getHourlyDataForDate(String date) {
+  List<Map<String, dynamic>> hourlyForDate(String date) {
     final forecastDays = rawForecastData['forecast']?['forecastday'] as List?;
     if (forecastDays == null) return [];
 
@@ -375,8 +270,8 @@ directly call don't create function for this.
     return [];
   }
 
-  void selectForecastDay(int index) => selectedForecastIndex.value = index;
-  void updateOtherCityIndex(int index) => currentOtherCityIndex.value = index;
+  void selectDay(int index) => selectedForecastIndex.value = index;
+  void updateCityIndex(int index) => currentOtherCityIndex.value = index;
 
   String get mainCityName =>
       _selectedCities.isNotEmpty &&
@@ -384,12 +279,12 @@ directly call don't create function for this.
           ? _selectedCities[_mainCityIndex.value].city
           : 'Loading...';
 
-  void _updateCurrentDate() {
+  void _updateDate() {
     final now = DateTime.now();
     currentDate.value = DateFormat('EEEE dd MMMM').format(now);
   }
 
-  Future<void> _saveSelectedCitiesToStorage() async {
+  Future<void> _storeSelectedCities() async {
     try {
       final citiesJson = json.encode(
         _selectedCities.map((e) => e.toJson()).toList(),
@@ -397,76 +292,59 @@ directly call don't create function for this.
       await localStorage.setString('selected_cities', citiesJson);
       await localStorage.setInt('main_city_index', _mainCityIndex.value);
     } catch (e) {
-      debugPrint("Failed to save selected cities to storage: $e");
+      debugPrint("$failToSave: $e");
     }
   }
 
   Future<void> _updateSplashController() async {
-    try {
-      final splashController = Get.find<SplashController>();
-      splashController.selectedCities.value = _selectedCities.toList();
-      splashController.mainCityIndex.value = _mainCityIndex.value;
-    } catch (e) {
-      debugPrint('Error updating splash controller: $e');
-    }
+    splashController.selectedCities.value = _selectedCities.toList();
+    splashController.mainCityIndex.value = _mainCityIndex.value;
   }
 
-  Future<void> loadSelectedCitiesWeather() async {
-    if (!connectivityService.isConnected) {
-      debugPrint('[HomeController] No internet - skipping weather load');
-      return;
-    }
-
-    try {
-      isLoading.value = true;
-      List<WeatherModel> weatherList = [];
-      List<ForecastModel> mainCityForecast = [];
-      Map<String, dynamic>? mainCityRawData;
-
-      for (int i = 0; i < _selectedCities.length; i++) {
-        final city = _selectedCities[i];
-        try {
-          final (weather, forecast) = await getCurrentWeather(
-            lat: city.lat,
-            lon: city.lng,
-          );
-
-          weatherList.add(weather);
-
-          if (i == _mainCityIndex.value) {
-            mainCityForecast = forecast;
-            forecastData.value = forecast;
-            mainCityRawData = _rawDataStorage[city.city];
-          }
-        } catch (e) {
-          debugPrint('Failed to load weather for ${city.city}: $e');
-        }
-      }
-
-      if (mainCityRawData != null) {
-        rawForecastData.value = mainCityRawData;
-      }
-
-      if (weatherList.isNotEmpty) {
-        conditionController.updateWeatherData(
-          weatherList,
-          _mainCityIndex.value,
-          mainCityName,
+  Future<void> loadSelectedWeather() async {
+    if (!connectivityService.isConnected) return;
+    isLoading.value = true;
+    final weatherList = <WeatherModel>[];
+    List<ForecastModel> mainCityForecast = [];
+    Map<String, dynamic>? mainCityRawData;
+    for (int i = 0; i < _selectedCities.length; i++) {
+      final city = _selectedCities[i];
+      try {
+        final (weather, forecast) = await getCurrentWeather(
+          lat: city.lat,
+          lon: city.lng,
         );
-
-        if (mainCityForecast.isNotEmpty) {
-          conditionController.updateWeeklyForecast(mainCityForecast);
+        weatherList.add(weather);
+        if (i == _mainCityIndex.value) {
+          mainCityForecast = forecast;
+          forecastData.value = forecast;
+          mainCityRawData = _rawDataStorage[city.city];
         }
+      } catch (e) {
+        debugPrint('$failedLoadingWeather ${city.city}: $e');
       }
-    } catch (e) {
-      debugPrint('Failed to load weather data: $e');
-      conditionController.clearWeatherData();
-    } finally {
-      isLoading.value = false;
     }
+    if (mainCityRawData != null) {
+      rawForecastData.value = mainCityRawData;
+    }
+    if (weatherList.isNotEmpty) {
+      conditionController.updateWeatherData(
+        weatherList,
+        _mainCityIndex.value,
+        mainCityName,
+      );
+
+      if (mainCityForecast.isNotEmpty) {
+        conditionController.updateWeeklyForecast(mainCityForecast);
+      }
+    } else {
+      conditionController.clearWeatherData();
+    }
+
+    isLoading.value = false;
   }
 
-  static void storeRawDataForCity(String cityName, Map<String, dynamic> data) {
+  static void cacheCityData(String cityName, Map<String, dynamic> data) {
     _rawDataStorage[cityName] = data;
   }
 }

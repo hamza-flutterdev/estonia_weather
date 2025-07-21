@@ -51,7 +51,7 @@ class TodayForecastSection extends StatelessWidget {
                             index == homeController.selectedForecastIndex.value;
                         return GestureDetector(
                           onTap: () {
-                            homeController.selectForecastDay(0);
+                            homeController.selectDay(0);
                             Get.to(
                               () => const HourlyForecastView(),
                               arguments: DateTime.parse(forecast.date),

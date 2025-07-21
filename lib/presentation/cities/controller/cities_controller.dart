@@ -1,3 +1,4 @@
+import 'package:estonia_weather/core/common/app_exceptions.dart';
 import 'package:estonia_weather/core/global_service/connectivity_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,10 +17,6 @@ class CitiesController extends GetxController with ConnectivityMixin {
 
   final homeController = Get.find<HomeController>();
   final TextEditingController searchController = TextEditingController();
-
-  static const int maxCities = 5;
-  static const int minCities = 3;
-
   var allCities = <EstonianCity>[].obs;
   var allCitiesWeather = <WeatherModel>[].obs;
   var isLoading = false.obs;
@@ -31,43 +28,16 @@ class CitiesController extends GetxController with ConnectivityMixin {
   @override
   void onReady() {
     super.onReady();
-    _initWithConnectivityCheck(Get.context!);
+    initWithConnectivityCheck(
+      context: Get.context!,
+      onConnected: () async {
+        loadDataFromHome();
+        await loadAllCitiesWeather();
+      },
+    );
     searchController.addListener(() {
       searchCities(searchController.text);
     });
-  }
-
-  Future<void> _initWithConnectivityCheck(BuildContext context) async {
-    debugPrint('[CitiesController] Initializing with connectivity check');
-
-    final hasInternet = await connectivityService.checkInternetWithDialog(
-      context,
-      onRetry: () => _initWithConnectivityCheck(context),
-    );
-
-    loadDataFromHome();
-
-    if (hasInternet) {
-      await loadAllCitiesWeather();
-    } else {
-      debugPrint(
-        '[CitiesController] No internet at startup – retry dialog shown',
-      );
-    }
-  }
-
-  @override
-  void onInternetConnected() {
-    super.onInternetConnected();
-    debugPrint(
-      '[CitiesController] Internet connected — waiting for user retry',
-    );
-  }
-
-  @override
-  void onInternetDisconnected() {
-    super.onInternetDisconnected();
-    debugPrint('[CitiesController] Internet disconnected');
   }
 
   void loadDataFromHome() {
@@ -75,17 +45,12 @@ class CitiesController extends GetxController with ConnectivityMixin {
     filteredCities.value = _getSortedCities();
   }
 
-  void refreshData() {
-    loadDataFromHome();
-    loadAllCitiesWeather();
-  }
-
   List<EstonianCity> _getSortedCities() {
     final selectedCities = <EstonianCity>[];
     final unselectedCities = <EstonianCity>[];
 
     for (final city in allCities) {
-      if (homeController.isCitySelected(city)) {
+      if (homeController.isSelected(city)) {
         selectedCities.add(city);
       } else {
         unselectedCities.add(city);
@@ -109,74 +74,56 @@ class CitiesController extends GetxController with ConnectivityMixin {
               );
               return weather;
             } catch (e) {
-              debugPrint('Failed to load weather for ${city.city}: $e');
-              return WeatherModel(
-                cityName: city.city,
-                temperature: 0,
-                condition: 'No data',
-                humidity: 0,
-                windSpeed: 0,
-                chanceOfRain: 0,
-                iconUrl: '',
-                airQuality: null,
-                code: 0,
-              );
+              return WeatherModel.empty(city.city);
             }
           }).toList();
 
       final results = await Future.wait(futures);
       allCitiesWeather.addAll(results);
     } catch (e) {
-      debugPrint('Failed to load weather data: $e');
+      debugPrint('$failedLoadingWeather: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
   void searchCities(String query) {
-    if (query.isEmpty) {
-      filteredCities.value = _getSortedCities();
-      hasSearchError.value = false;
-      searchErrorMessage.value = '';
-    } else {
-      final lowerQuery = query.toLowerCase();
-      final filtered =
-          allCities.where((city) {
-            return city.cityAscii.toLowerCase().contains(lowerQuery) ||
-                city.country.toLowerCase().contains(lowerQuery);
-          }).toList();
+    final lowerQuery = query.toLowerCase();
 
-      if (filtered.isEmpty) {
-        hasSearchError.value = true;
-        searchErrorMessage.value = 'No cities found matching "$query"';
-      } else {
-        hasSearchError.value = false;
-        searchErrorMessage.value = '';
-      }
+    final results =
+        query.isEmpty
+            ? _getSortedCities()
+            : allCities
+                .where(
+                  (city) =>
+                      city.cityAscii.toLowerCase().contains(lowerQuery) ||
+                      city.country.toLowerCase().contains(lowerQuery),
+                )
+                .toList();
 
-      final selectedFiltered = <EstonianCity>[];
-      final unselectedFiltered = <EstonianCity>[];
+    hasSearchError.value = results.isEmpty && query.isNotEmpty;
+    searchErrorMessage.value =
+        hasSearchError.value ? '$noCityFound "$query"' : '';
 
-      for (final city in filtered) {
-        if (homeController.isCitySelected(city)) {
-          selectedFiltered.add(city);
-        } else {
-          unselectedFiltered.add(city);
-        }
-      }
-
-      filteredCities.value = [...selectedFiltered, ...unselectedFiltered];
+    if (query.isEmpty || results.isEmpty) {
+      filteredCities.value = results;
+      return;
     }
-  }
 
-  bool canAddCity() {
-    return homeController.selectedCities.length < maxCities;
+    final selectedFiltered = results.where(
+      (city) => homeController.isSelected(city),
+    );
+    final unselectedFiltered = results.where(
+      (city) => !homeController.isSelected(city),
+    );
+
+    filteredCities.value = [...selectedFiltered, ...unselectedFiltered];
   }
 
   Future<void> addCityToSelected(EstonianCity city) async {
     try {
       isAdding.value = true;
-      await homeController.addCityToSelected(city);
+      await homeController.addCity(city);
       loadDataFromHome();
       if (searchController.text.isNotEmpty) {
         searchCities(searchController.text);
@@ -188,110 +135,72 @@ class CitiesController extends GetxController with ConnectivityMixin {
     }
   }
 
-  // in this function there is messy code make this short
-  // or create a separate file for messages switch statement will cover this
-
   Future<void> addCurrentLocationToSelected(BuildContext context) async {
+    void showToast(String message, bool success) {
+      SimpleToast.showCustomToast(
+        context: context,
+        message: message,
+        type: success ? ToastificationType.success : ToastificationType.error,
+        primaryColor: success ? primaryColor : kRed,
+        icon: success ? Icons.location_on : Icons.error_outline,
+      );
+    }
+
+    isAdding.value = true;
+
     try {
-      isAdding.value = true;
-
       final cityName = await getCurrentWeather.getCity();
-
-      final latStr = await homeController.localStorage.getString('latitude');
-      final lonStr = await homeController.localStorage.getString('longitude');
-      final lat = latStr != null ? double.tryParse(latStr) : null;
-      final lon = lonStr != null ? double.tryParse(lonStr) : null;
-
-      await homeController.setCurrentLocationCity(
+      final lat = double.tryParse(
+        await homeController.localStorage.getString('latitude') ?? '',
+      );
+      final lon = double.tryParse(
+        await homeController.localStorage.getString('longitude') ?? '',
+      );
+      await homeController.setLocationCity(
         cityName: cityName,
         lat: lat,
         lon: lon,
       );
-
-      if (homeController.currentLocationCity != null) {
-        await homeController.addCurrentLocationToSelectedAsMain();
+      final success = homeController.currentLocationCity != null;
+      if (success) {
+        await homeController.addLocationAsMain();
         loadDataFromHome();
-
         if (searchController.text.isNotEmpty) {
           searchCities(searchController.text);
         }
-
-        SimpleToast.showCustomToast(
-          context: context,
-          message: 'Current location is now the main city',
-          type: ToastificationType.success,
-          primaryColor: primaryColor,
-          icon: Icons.location_on,
-        );
-      } else {
-        SimpleToast.showCustomToast(
-          context: context,
-          message: 'Failed to detect your current location. Try again later.',
-          type: ToastificationType.error,
-          primaryColor: kRed,
-          icon: Icons.error_outline,
-        );
-        debugPrint('Current location city is null after permission check');
       }
+      showToast(success ? successCityChange : failedLocation, success);
     } catch (e) {
-      final errorMessage = e.toString().toLowerCase();
+      final error = e.toString().toLowerCase();
+      final message =
+          error.contains('denied') || error.contains('services are disabled')
+              ? deniedPermission
+              : error.contains('timed out')
+              ? timeoutException
+              : failedLocation;
 
-      String userMessage;
-      if (errorMessage.contains('permanently denied')) {
-        userMessage =
-            'Location access is permanently denied. Please enable it in app settings.';
-      } else if (errorMessage.contains('denied')) {
-        userMessage =
-            'Location permission denied. Please allow access to use your current location.';
-      } else if (errorMessage.contains('services are disabled')) {
-        userMessage = 'Location services are disabled. Please enable them.';
-      } else if (errorMessage.contains('timed out')) {
-        userMessage = 'Location request timed out. Please try again.';
-      } else {
-        userMessage = 'Failed to get current location. Please try again.';
-      }
-
-      SimpleToast.showCustomToast(
-        context: context,
-        message: userMessage,
-        type: ToastificationType.error,
-        primaryColor: kRed,
-        icon: Icons.error_outline,
-      );
-
-      debugPrint('Failed to add current location: $e');
+      showToast(message, false);
+      debugPrint('$failedCityChange: $e');
     } finally {
       isAdding.value = false;
     }
   }
 
-  bool canRemoveCity() {
-    return homeController.selectedCities.length > minCities;
-  }
-
   bool canRemoveSpecificCity(EstonianCity city) {
-    if (homeController.isCurrentLocationCity(city)) {
+    if (homeController.isLocationCity(city)) {
       return false;
     }
-    return canRemoveCity();
+    return homeController.selectedCities.length > 3;
   }
 
   Future<void> removeCityFromSelected(EstonianCity city) async {
     if (canRemoveSpecificCity(city)) {
-      await homeController.removeCityFromSelected(city);
+      await homeController.removeCity(city);
       loadDataFromHome();
       if (searchController.text.isNotEmpty) {
         searchCities(searchController.text);
       }
     }
-  }
-
-  bool isCitySelected(EstonianCity city) {
-    return homeController.isCitySelected(city);
-  }
-
-  bool isCurrentLocationCity(EstonianCity city) {
-    return homeController.isCurrentLocationCity(city);
   }
 
   String getAqiText(AirQualityModel? airQuality) {

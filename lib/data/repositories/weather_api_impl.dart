@@ -13,11 +13,7 @@ class WeatherApiImpl implements WeatherRepo {
     double lat,
     double lon,
   ) async {
-    try {
-      return await onlineDataSource.getWeatherAndForecast(lat: lat, lon: lon);
-    } catch (e) {
-      throw Exception('Failed to get weather and forecast: $e');
-    }
+    return await onlineDataSource.getWeatherAndForecast(lat: lat, lon: lon);
   }
 
   @override

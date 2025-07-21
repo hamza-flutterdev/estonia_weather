@@ -1,18 +1,18 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:estonia_weather/core/common_widgets/custom_appbar.dart';
+import 'package:estonia_weather/core/common_widgets/icon_buttons.dart';
+import 'package:estonia_weather/core/common_widgets/weather_icon.dart';
+import 'package:estonia_weather/core/common_widgets/weather_info_card.dart';
+import 'package:estonia_weather/core/constants/constant.dart';
+import 'package:estonia_weather/core/global_service/controllers/condition_controller.dart';
 import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
 import 'package:estonia_weather/presentation/hourly_forecast/view/bottom_arc.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import '../../../ads_manager/banner_ads.dart';
-import '../../../ads_manager/interstitial_ads.dart';
-import '../../../core/common_widgets/icon_buttons.dart';
-import '../../../core/common_widgets/weather_info_card.dart';
-import '../../../core/constants/constant.dart';
-import '../../../core/global_service/controllers/condition_controller.dart';
-import '../../../gen/assets.gen.dart';
-import '../../cities/cities_view/cities_view.dart';
-import '../../../core/common_widgets/weather_icon.dart';
+import 'package:estonia_weather/gen/assets.gen.dart';
+import 'package:estonia_weather/ads_manager/banner_ads.dart';
+import 'package:estonia_weather/ads_manager/interstitial_ads.dart';
+import 'package:estonia_weather/presentation/cities/cities_view/cities_view.dart';
 import '../controller/hourly_forecast_controller.dart';
 
 class HourlyForecastView extends StatelessWidget {
@@ -78,28 +78,22 @@ class HourlyForecastView extends StatelessWidget {
               return Column(
                 children: [
                   const SizedBox(height: kToolbarHeight),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: mobileWidth(context) * 0.05,
+                  if (selectedDayData != null)
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: mobileWidth(context) * 0.05,
+                      ),
+                      child: WeatherInfoCard(
+                        weatherData: conditionController.mainCityWeather.value,
+                        forecastData: selectedDayData,
+                        date: selectedDate,
+                        temperature: selectedDayData.maxTemp.round().toString(),
+                        condition: selectedDayData.condition,
+                        minTemp: selectedDayData.minTemp.round().toString(),
+                        maxTemp: selectedDayData.maxTemp.round().toString(),
+                        imagePath: conditionController.weatherIconPath,
+                      ),
                     ),
-                    child:
-                        selectedDayData == null
-                            ? const SizedBox()
-                            : WeatherInfoCard(
-                              weatherData:
-                                  conditionController.mainCityWeather.value,
-                              forecastData: selectedDayData,
-                              date: selectedDate,
-                              temperature:
-                                  selectedDayData.maxTemp.round().toString(),
-                              condition: selectedDayData.condition,
-                              minTemp:
-                                  selectedDayData.minTemp.round().toString(),
-                              maxTemp:
-                                  selectedDayData.maxTemp.round().toString(),
-                              imagePath: conditionController.weatherIconPath,
-                            ),
-                  ),
                   const SizedBox(height: kElementGap),
                   Expanded(
                     child: ListView.builder(
@@ -115,6 +109,7 @@ class HourlyForecastView extends StatelessWidget {
                         final time = controller.getFormattedTime(
                           hourData['time'],
                         );
+                        final temperature = '${hourData['temp_c'].round()}°';
 
                         return Padding(
                           padding: const EdgeInsets.only(
@@ -122,6 +117,7 @@ class HourlyForecastView extends StatelessWidget {
                           ),
                           child: Container(
                             height: mobileWidth(context) * 0.18,
+                            padding: kContentPaddingSmall,
                             decoration: roundedDecorationWithShadow.copyWith(
                               color: isCurrentHour ? null : bgColor,
                               gradient:
@@ -135,7 +131,6 @@ class HourlyForecastView extends StatelessWidget {
                                       : null,
                               borderRadius: BorderRadius.circular(24),
                             ),
-                            padding: kContentPaddingSmall,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -159,7 +154,7 @@ class HourlyForecastView extends StatelessWidget {
                                   weatherData: hourData['condition'],
                                 ),
                                 Text(
-                                  '${hourData['temp_c'].round()}°',
+                                  temperature,
                                   style: headlineSmallStyle.copyWith(
                                     color:
                                         isCurrentHour ? kWhite : primaryColor,

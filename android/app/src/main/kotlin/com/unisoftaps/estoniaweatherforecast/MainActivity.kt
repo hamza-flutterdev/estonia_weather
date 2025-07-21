@@ -3,12 +3,14 @@ package com.unisoftaps.estoniaweatherforecast
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.unisoftaps.estoniaweatherforecast/widget"
+    private var widgetLaunchDetected = false
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -33,7 +35,6 @@ class MainActivity : FlutterActivity() {
                         }
                     }
 
-                    // ✅ Check if widget is active
                     "isWidgetActive" -> {
                         val isActive = isWidgetActive()
                         result.success(isActive)
@@ -44,6 +45,25 @@ class MainActivity : FlutterActivity() {
                     }
                 }
             }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+
+        if (intent.action == "ACTION_FROM_WIDGET") {
+            widgetLaunchDetected = true
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // Call back into Flutter when resumed via widget tap
+        if (widgetLaunchDetected) {
+            MethodChannel(flutterEngine?.dartExecutor?.binaryMessenger!!, CHANNEL)
+                .invokeMethod("widgetTapped", null)
+            widgetLaunchDetected = false
+        }
     }
 
     private fun updateAllWidgets(weatherData: Map<String, String>) {

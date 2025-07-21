@@ -14,7 +14,7 @@ class WidgetUpdateManager {
 
     final isActive = await WidgetUpdaterService.isWidgetActive();
     if (!isActive) {
-      debugPrint("📵 Widget not active. Skipping periodic updates.");
+      debugPrint("Widget not active. Skipping periodic updates.");
       return;
     }
 
@@ -70,5 +70,19 @@ class WidgetUpdaterService {
       debugPrint('Error checking widget activity: $e');
       return false;
     }
+  }
+
+  static void setupMethodChannelHandler() {
+    _platform.setMethodCallHandler((call) async {
+      switch (call.method) {
+        case "widgetTapped":
+          debugPrint("📲 Widget tapped → Triggering update...");
+          WidgetUpdateManager.startPeriodicUpdate();
+          break;
+
+        default:
+          debugPrint("Unhandled method: ${call.method}");
+      }
+    });
   }
 }

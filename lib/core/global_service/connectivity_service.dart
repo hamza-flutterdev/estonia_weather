@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:estonia_weather/core/common/app_exceptions.dart';
 import 'package:estonia_weather/core/constants/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -261,6 +263,51 @@ mixin ConnectivityMixin on GetxController {
     } catch (e) {
       debugPrint('[$runtimeType] Action failed: $e');
       return false;
+    }
+  }
+
+  Future<void> initWithConnectivityCheck({
+    required BuildContext context,
+    required Future<void> Function() onConnected,
+  }) async {
+    final hasInternet = await connectivityService.checkInternetWithDialog(
+      context,
+      onRetry:
+          () => initWithConnectivityCheck(
+            context: context,
+            onConnected: onConnected,
+          ),
+    );
+
+    if (hasInternet) {
+      await onConnected();
+    } else {
+      debugPrint(noInternet);
+    }
+  }
+
+  Future<void> requestTrackingPermission() async {
+    if (!Platform.isIOS) {
+      return;
+    }
+    final trackingStatus =
+        await AppTrackingTransparency.requestTrackingAuthorization();
+
+    switch (trackingStatus) {
+      case TrackingStatus.notDetermined:
+        debugPrint('User has not yet decided');
+        break;
+      case TrackingStatus.denied:
+        debugPrint('User denied tracking');
+        break;
+      case TrackingStatus.authorized:
+        debugPrint('User granted tracking permission');
+        break;
+      case TrackingStatus.restricted:
+        debugPrint('Tracking restricted');
+        break;
+      default:
+        debugPrint('Unknown tracking status');
     }
   }
 }

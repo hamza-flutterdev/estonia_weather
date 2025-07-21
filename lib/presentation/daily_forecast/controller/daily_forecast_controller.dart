@@ -1,5 +1,4 @@
 import 'package:estonia_weather/core/global_service/connectivity_service.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../ads_manager/banner_ads.dart';
 import '../../../ads_manager/interstitial_ads.dart';
@@ -23,43 +22,17 @@ class DailyForecastController extends GetxController with ConnectivityMixin {
   @override
   void onReady() {
     super.onReady();
-    _initWithConnectivityCheck(Get.context!);
-  }
-
-  Future<void> _initWithConnectivityCheck(BuildContext context) async {
-    debugPrint('[CitiesController] Initializing with connectivity check');
-
-    final hasInternet = await connectivityService.checkInternetWithDialog(
-      context,
-      onRetry: () => _initWithConnectivityCheck(context),
+    initWithConnectivityCheck(
+      context: Get.context!,
+      onConnected: () async {
+        loadForecastData();
+      },
     );
-
-    if (hasInternet) {
-      loadForecastData();
-    } else {
-      debugPrint(
-        '[CitiesController] No internet at startup – retry dialog shown',
-      );
-    }
   }
 
   void loadForecastData() {
     mainCityName.value = homeController.mainCityName;
     forecastData.value = homeController.forecastData;
-  }
-
-  @override
-  void onInternetConnected() {
-    super.onInternetConnected();
-    debugPrint(
-      '[CitiesController] Internet connected — waiting for user retry',
-    );
-  }
-
-  @override
-  void onInternetDisconnected() {
-    super.onInternetDisconnected();
-    debugPrint('[CitiesController] Internet disconnected');
   }
 
   ForecastModel? get selectedDayData => forecastData[selectedDayIndex.value];

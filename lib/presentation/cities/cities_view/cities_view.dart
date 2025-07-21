@@ -2,6 +2,7 @@ import 'package:estonia_weather/core/common_widgets/custom_appbar.dart';
 import 'package:estonia_weather/core/constants/constant.dart';
 import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
+import 'package:estonia_weather/presentation/home/controller/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../ads_manager/banner_ads.dart';
@@ -16,8 +17,8 @@ class CitiesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final CitiesController controller = Get.find();
+    final HomeController homeController = Get.find();
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -124,7 +125,7 @@ class CitiesView extends StatelessWidget {
                     city: city,
                   );
 
-                  if (controller.isCitySelected(city)) {
+                  if (homeController.isSelected(city)) {
                     selectedCities.add(cityCard);
                   } else {
                     unselectedCities.add(cityCard);

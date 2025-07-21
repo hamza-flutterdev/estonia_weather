@@ -40,6 +40,21 @@ class EstonianCity {
       id: json['id'],
     );
   }
+  factory EstonianCity.fallback(String cityName, {double? lat, double? lon}) {
+    return EstonianCity(
+      city: cityName,
+      cityAscii: cityName,
+      lat: lat ?? 0.0,
+      lng: lon ?? 0.0,
+      country: 'Current Location',
+      iso2: 'CL',
+      iso3: 'CUR',
+      adminName: 'Current Location',
+      capital: 'primary',
+      population: 0,
+      id: 999999,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
