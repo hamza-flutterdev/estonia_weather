@@ -159,9 +159,18 @@ class _HomeContent extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
-                      'Other Cities',
-                      style: titleBoldMediumStyle.copyWith(color: primaryColor),
+                    Flexible(
+                      fit: FlexFit.tight,
+                      child: FittedBox(
+                        alignment: Alignment.centerLeft,
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          'Other Cities',
+                          style: titleBoldMediumStyle.copyWith(
+                            color: primaryColor,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
