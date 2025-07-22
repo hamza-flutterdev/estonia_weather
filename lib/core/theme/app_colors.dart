@@ -29,30 +29,4 @@ const Color primaryColor = Color(0xDD4981E8);
 
 // Light theme background
 const Color lightBgColor = Color(0xF1CEE4F6);
-
-Color getBgColor(BuildContext context) =>
-    Theme.of(context).brightness == Brightness.dark ? kBlack : lightBgColor;
-
-Color getTextColor(BuildContext context) =>
-    Theme.of(context).brightness == Brightness.dark
-        ? kWhite
-        : blackTextColorLight;
-
-Color getSubTextColor(BuildContext context) =>
-    Theme.of(context).brightness == Brightness.dark
-        ? greyColor
-        : textGreyColorLight;
-
-const kGradient = LinearGradient(
-  begin: Alignment.bottomLeft,
-  end: Alignment.topRight,
-  colors: [primaryColor, secondaryColor],
-  stops: [0.3, 0.95],
-);
-
-const kContainerGradient = LinearGradient(
-  begin: Alignment.bottomCenter,
-  end: Alignment.topCenter,
-  colors: [primaryColor, Color.fromARGB(80, 73, 129, 232)],
-  stops: [0.3, 0.75],
-);
+const Color darkBgColor = Color(0xDD0A1B42);

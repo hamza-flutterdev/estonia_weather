@@ -43,7 +43,7 @@ class CustomAppBar extends StatelessWidget {
                 : IconActionButton(
                   onTap: () => Scaffold.of(context).openDrawer(),
                   icon: Icons.menu,
-                  color: primaryColor,
+                  color: getIconColor(context),
                   size: secondaryIcon(context),
                 ),
             Expanded(
@@ -60,7 +60,7 @@ class CustomAppBar extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.location_on,
-                            color: primaryColor,
+                            color: getIconColor(context),
                             size: secondaryIcon(context),
                           ),
                         ],
@@ -69,18 +69,13 @@ class CustomAppBar extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (hasTitle)
-                          Text(
-                            title!,
-                            style: titleBoldMediumStyle(
-                              context,
-                            ).copyWith(color: primaryColor),
-                          ),
+                          Text(title!, style: titleBoldMediumStyle(context)),
                         Text(
                           subtitle,
-                          style: (hasTitle
+                          style:
+                              (hasTitle
                                   ? bodyMediumStyle(context)
-                                  : titleBoldMediumStyle(context))
-                              .copyWith(color: primaryColor),
+                                  : titleBoldMediumStyle(context)),
                         ),
                       ],
                     ),

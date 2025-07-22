@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shimmer/shimmer.dart';
 import '../core/theme/app_colors.dart';
+import '../core/theme/app_styles.dart';
 import 'appOpen_ads.dart';
 
 class BannerAdController extends GetxController {

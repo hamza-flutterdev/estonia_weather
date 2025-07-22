@@ -167,8 +167,8 @@ class OtherCitiesListView extends StatelessWidget {
                 right: isLast ? kBodyHp : kElementGap,
               ),
               decoration: roundedDecorationWithShadow(context).copyWith(
-                gradient: isMainCity ? kContainerGradient : null,
-                color: isMainCity ? null : secondaryColor,
+                gradient: isMainCity ? kContainerGradient(context) : null,
+                color: isMainCity ? null : kWhite.withValues(alpha: 0.2),
               ),
               child: OtherCityCard(
                 cityName: weather.cityName,

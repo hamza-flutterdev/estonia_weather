@@ -19,15 +19,18 @@ class CurrentLocationCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: kBodyHp * 1.5),
         decoration: roundedDecorationWithShadow(context).copyWith(
-          gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [
-              kOrange.withValues(alpha: 0.9),
-              kOrange.withValues(alpha: 0.6),
-            ],
-            stops: [0.3, 0.85],
-          ),
+          gradient:
+              isDarkMode(context)
+                  ? kContainerGradient(context)
+                  : LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      kOrange.withValues(alpha: 0.9),
+                      kOrange.withValues(alpha: 0.6),
+                    ],
+                    stops: [0.3, 0.85],
+                  ),
           borderRadius: BorderRadius.circular(24),
         ),
         child: Padding(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../constants/constant.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_styles.dart';
 
 class SectionHeader extends StatelessWidget {
@@ -22,23 +21,19 @@ class SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title ?? '',
-          style: titleSmallBoldStyle(context).copyWith(color: primaryColor),
-        ),
+        Text(title ?? '', style: titleSmallBoldStyle(context)),
         GestureDetector(
           onTap: onTap,
           child: Row(
             children: [
               if (actionIcon != null)
-                Icon(actionIcon, size: smallIcon(context), color: primaryColor),
+                Icon(
+                  actionIcon,
+                  size: smallIcon(context),
+                  color: getIconColor(context),
+                ),
               const SizedBox(width: 4),
-              Text(
-                actionText,
-                style: bodyBoldMediumStyle(
-                  context,
-                ).copyWith(color: primaryColor),
-              ),
+              Text(actionText, style: bodyBoldMediumStyle(context)),
             ],
           ),
         ),

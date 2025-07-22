@@ -26,7 +26,6 @@ class DailyForecastView extends StatelessWidget {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: getBgColor(context),
       body: Stack(
         children: [
           SizedBox(
@@ -37,12 +36,12 @@ class DailyForecastView extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
-          const CustomAppBar(
+          CustomAppBar(
             actions: [
               IconActionButton(
-                onTap: CitiesView.new,
+                onTap: () => Get.to(() => CitiesView()),
                 icon: Icons.add,
-                color: primaryColor,
+                color: getIconColor(context),
               ),
             ],
             subtitle: '',
@@ -100,12 +99,9 @@ class DailyForecastView extends StatelessWidget {
                         ),
                         child: Container(
                           height: mobileHeight(context) * 0.09,
-                          decoration: roundedDecorationWithShadow(
-                            context,
-                          ).copyWith(
-                            gradient: index == 0 ? kContainerGradient : null,
-                            color: index == 0 ? null : getBgColor(context),
-                            borderRadius: BorderRadius.circular(24),
+                          decoration: getDynamicBoxDecoration(
+                            context: context,
+                            isIndexZero: index == 0,
                           ),
                           padding: kContentPaddingSmall,
                           child: Row(
@@ -115,7 +111,12 @@ class DailyForecastView extends StatelessWidget {
                                 child: Text(
                                   dayData['day'],
                                   style: bodyLargeStyle(context).copyWith(
-                                    color: index == 0 ? kWhite : primaryColor,
+                                    color:
+                                        isDarkMode(context)
+                                            ? null
+                                            : (index == 0
+                                                ? kWhite
+                                                : primaryColor),
                                   ),
                                 ),
                               ),
@@ -130,14 +131,24 @@ class DailyForecastView extends StatelessWidget {
                                 child: Text(
                                   dayData['condition'],
                                   style: bodyLargeStyle(context).copyWith(
-                                    color: index == 0 ? kWhite : primaryColor,
+                                    color:
+                                        isDarkMode(context)
+                                            ? null
+                                            : (index == 0
+                                                ? kWhite
+                                                : primaryColor),
                                   ),
                                 ),
                               ),
                               Text(
                                 '${dayData['temp'].round()}° / ${dayData['minTemp'].round()}°',
                                 style: bodyLargeStyle(context).copyWith(
-                                  color: index == 0 ? kWhite : primaryColor,
+                                  color:
+                                      isDarkMode(context)
+                                          ? null
+                                          : (index == 0
+                                              ? kWhite
+                                              : primaryColor),
                                 ),
                               ),
                             ],

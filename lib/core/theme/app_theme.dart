@@ -9,18 +9,18 @@ class AppTheme {
     colorScheme: ColorScheme.light(
       primary: primaryColor,
       secondary: secondaryColor,
-      background: lightBgColor,
+      surface: lightBgColor,
     ),
   );
 
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: kBlack,
+    scaffoldBackgroundColor: darkBgColor,
     primaryColor: primaryColor,
     colorScheme: ColorScheme.dark(
       primary: primaryColor,
       secondary: secondaryColor,
-      background: kBlack,
+      surface: darkBgColor,
     ),
   );
 }

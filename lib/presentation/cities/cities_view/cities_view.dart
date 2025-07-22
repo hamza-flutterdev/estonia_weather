@@ -21,7 +21,6 @@ class CitiesView extends StatelessWidget {
     final HomeController homeController = Get.find();
 
     return Scaffold(
-      backgroundColor: getBgColor(context),
       body: SafeArea(
         child: Column(
           children: [
@@ -35,18 +34,20 @@ class CitiesView extends StatelessWidget {
                     kBodyHp,
                     0,
                   ),
-                  child: Obx(
-                    () => SearchBarField(
+                  child: Obx(() {
+                    final dark = isDarkMode(context);
+                    return SearchBarField(
                       controller: controller.searchController,
                       onSearch: (value) => controller.searchCities(value),
-                      backgroundColor: secondaryColor,
+                      backgroundColor:
+                          dark ? kWhite.withValues(alpha: 0.1) : secondaryColor,
                       borderColor:
                           controller.hasSearchError.value ? kRed : primaryColor,
                       iconColor:
                           controller.hasSearchError.value ? kRed : primaryColor,
                       textColor: getTextColor(context),
-                    ),
-                  ),
+                    );
+                  }),
                 ),
                 Obx(
                   () =>

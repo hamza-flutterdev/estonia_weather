@@ -32,15 +32,16 @@ class WeatherInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = primaryColor;
+    final textColor = getTextColor(context);
     final String humidity = '${weatherData!.humidity}%';
     final String windSpeed = '${weatherData!.windSpeed.toStringAsFixed(1)}km/h';
     final String precipitation = '${weatherData!.chanceOfRain}%';
 
     return Container(
-      decoration: roundedDecorationWithShadow(
-        context,
-      ).copyWith(color: kLightWhite),
+      decoration: roundedDecorationWithShadow(context).copyWith(
+        color:
+            isDarkMode(context) ? kWhite.withValues(alpha: 0.2) : kLightWhite,
+      ),
       padding: kContentPaddingSmall,
       child: Column(
         mainAxisSize: MainAxisSize.min,

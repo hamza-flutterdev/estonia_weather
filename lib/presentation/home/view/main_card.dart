@@ -23,7 +23,7 @@ class MainCard extends StatelessWidget {
     return Container(
       decoration: roundedDecorationWithShadow(
         context,
-      ).copyWith(gradient: kGradient),
+      ).copyWith(gradient: kGradient(context)),
       padding: kContentPaddingSmall,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

@@ -26,9 +26,10 @@ class WeatherDetailsCard extends StatelessWidget {
 
       return Container(
         height: deviceSize.height * 0.11,
-        decoration: roundedDecorationWithShadow(
-          context,
-        ).copyWith(color: kLightWhite),
+        decoration: roundedDecorationWithShadow(context).copyWith(
+          color:
+              isDarkMode(context) ? kWhite.withValues(alpha: 0.1) : kLightWhite,
+        ),
         padding: kContentPaddingSmall,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

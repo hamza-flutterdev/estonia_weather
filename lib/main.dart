@@ -11,6 +11,7 @@ import 'ads_manager/interstitial_ads.dart';
 import 'ads_manager/onesignal.dart';
 import 'ads_manager/splash_interstitial.dart';
 import 'core/binders/dependency_injection.dart';
+import 'core/local_storage/local_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,11 +24,25 @@ void main() async {
   Get.put(InterstitialAdController());
   initializeOneSignal();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  runApp(const EstoniaWeather());
+  final storage = LocalStorage();
+  final isDark = await storage.getBool('isDarkMode');
+
+  runApp(
+    EstoniaWeather(
+      themeMode:
+          isDark == true
+              ? ThemeMode.dark
+              : isDark == false
+              ? ThemeMode.light
+              : ThemeMode.system,
+    ),
+  );
 }
 
 class EstoniaWeather extends StatelessWidget {
-  const EstoniaWeather({super.key});
+  final ThemeMode themeMode;
+
+  const EstoniaWeather({super.key, required this.themeMode});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +51,7 @@ class EstoniaWeather extends StatelessWidget {
       title: 'Estonia Weather',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode, // now this works
       home: const SplashView(),
     );
   }

@@ -31,7 +31,7 @@ class CityCard extends StatelessWidget {
       return Container(
         margin: const EdgeInsets.only(bottom: kElementGap),
         decoration: roundedDecorationWithShadow(context).copyWith(
-          gradient: kContainerGradient,
+          gradient: kContainerGradient(context),
           borderRadius: BorderRadius.circular(24),
         ),
         child: Padding(

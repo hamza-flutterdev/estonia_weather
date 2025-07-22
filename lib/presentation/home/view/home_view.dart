@@ -51,7 +51,6 @@ class HomeView extends StatelessWidget {
       },
       child: Scaffold(
         key: globalKey,
-        backgroundColor: getBgColor(context),
         drawer: const CustomDrawer(),
         onDrawerChanged: (isOpen) {
           homeController.isDrawerOpen.value = isOpen;
@@ -103,7 +102,7 @@ class _HomeContent extends StatelessWidget {
                       IconActionButton(
                         onTap: () => Get.to(const CitiesView()),
                         icon: Icons.add,
-                        color: primaryColor,
+                        color: getIconColor(context),
                         size: secondaryIcon(context),
                       ),
                     ],
@@ -169,7 +168,6 @@ class _HomeContent extends StatelessWidget {
                 fit: FlexFit.tight,
                 child: TodayForecastSection(deviceSize: deviceSize),
               ),
-              const SizedBox(height: kElementGap),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: kBodyHp),
                 child: Row(
@@ -182,9 +180,7 @@ class _HomeContent extends StatelessWidget {
                         fit: BoxFit.scaleDown,
                         child: Text(
                           'Other Cities',
-                          style: titleBoldMediumStyle(
-                            context,
-                          ).copyWith(color: primaryColor),
+                          style: titleBoldMediumStyle(context),
                         ),
                       ),
                     ),

@@ -103,10 +103,7 @@ class TodayForecastCard extends StatelessWidget {
         right: isLast ? kBodyHp : kElementGap,
       ),
       padding: const EdgeInsets.symmetric(vertical: kBodyHp),
-      decoration: roundedDecorationWithShadow(context).copyWith(
-        color: isSelected ? primaryColor : secondaryColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: roundedSelectionDecoration(context, isSelected: isSelected),
       child: FittedBox(
         fit: BoxFit.scaleDown,
         child: Column(
