@@ -58,7 +58,6 @@ class DependencyInjection {
       () => HourlyForecastController(),
       fenix: true,
     );
-    // Get.lazyPut<BannerAdController>(() => BannerAdController(), fenix: true);
     Get.lazyPut<BannerAdController>(() => BannerAdController());
     Get.lazyPut<InterstitialAdController>(() => InterstitialAdController());
     Get.lazyPut<SplashInterstitialAdController>(
