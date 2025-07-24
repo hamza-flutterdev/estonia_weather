@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/constant.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_styles.dart';
 
 class WeatherDetailItem extends StatelessWidget {
@@ -24,11 +23,8 @@ class WeatherDetailItem extends StatelessWidget {
         children: [
           Image.asset(icon, width: primaryIcon(context)),
           const SizedBox(height: kElementInnerGap),
-          Text(
-            value,
-            style: titleBoldMediumStyle.copyWith(color: primaryColor),
-          ),
-          Text(label, style: bodyMediumStyle.copyWith(color: primaryColor)),
+          Text(value, style: titleBoldMediumStyle(context)),
+          Text(label, style: bodyMediumStyle(context)),
         ],
       ),
     );

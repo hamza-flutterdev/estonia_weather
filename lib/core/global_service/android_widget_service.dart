@@ -62,6 +62,14 @@ class WidgetUpdaterService {
     }
   }
 
+  static Future<void> requestPinWidget() async {
+    try {
+      await _platform.invokeMethod('requestPinWidget');
+    } catch (e) {
+      debugPrint("Error requesting widget pin: $e");
+    }
+  }
+
   static Future<bool> isWidgetActive() async {
     try {
       final bool? result = await _platform.invokeMethod('isWidgetActive');

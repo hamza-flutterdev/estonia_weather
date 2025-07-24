@@ -49,7 +49,8 @@ class CommonTextField extends StatelessWidget {
         fillColor: backgroundColor ?? kWhite.withValues(alpha: 0.2),
         hintText: hintText,
         hintStyle:
-            hintStyle ?? bodyBoldSmallStyle.copyWith(color: primaryColor),
+            hintStyle ??
+            bodyBoldSmallStyle(context).copyWith(color: primaryColor),
         contentPadding: contentPadding,
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
@@ -72,7 +73,9 @@ class CommonTextField extends StatelessWidget {
               borderSide: BorderSide(color: primaryColor, width: 2),
             ),
       ),
-      style: textStyle ?? bodyBoldSmallStyle.copyWith(color: primaryColor),
+      style:
+          textStyle ??
+          bodyBoldSmallStyle(context).copyWith(color: primaryColor),
       onChanged: onChanged,
       onSubmitted: onSubmitted,
     );

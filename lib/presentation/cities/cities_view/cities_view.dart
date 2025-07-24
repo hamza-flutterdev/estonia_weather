@@ -21,7 +21,6 @@ class CitiesView extends StatelessWidget {
     final HomeController homeController = Get.find();
 
     return Scaffold(
-      backgroundColor: bgColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -35,18 +34,20 @@ class CitiesView extends StatelessWidget {
                     kBodyHp,
                     0,
                   ),
-                  child: Obx(
-                    () => SearchBarField(
+                  child: Obx(() {
+                    final dark = isDarkMode(context);
+                    return SearchBarField(
                       controller: controller.searchController,
                       onSearch: (value) => controller.searchCities(value),
-                      backgroundColor: secondaryColor,
+                      backgroundColor:
+                          dark ? kWhite.withValues(alpha: 0.1) : secondaryColor,
                       borderColor:
                           controller.hasSearchError.value ? kRed : primaryColor,
                       iconColor:
                           controller.hasSearchError.value ? kRed : primaryColor,
-                      textColor: textGreyColor,
-                    ),
-                  ),
+                      textColor: getTextColor(context),
+                    );
+                  }),
                 ),
                 Obx(
                   () =>
@@ -69,9 +70,9 @@ class CitiesView extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     controller.searchErrorMessage.value,
-                                    style: bodyBoldSmallStyle.copyWith(
-                                      color: kRed,
-                                    ),
+                                    style: bodyBoldSmallStyle(
+                                      context,
+                                    ).copyWith(color: kRed),
                                   ),
                                 ),
                               ],
@@ -141,8 +142,11 @@ class CitiesView extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: kElementGap),
                       child: Row(
                         children: [
-                          const Expanded(
-                            child: Divider(color: textGreyColor, thickness: 1),
+                          Expanded(
+                            child: Divider(
+                              color: getTextColor(context),
+                              thickness: 1,
+                            ),
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(
@@ -150,13 +154,16 @@ class CitiesView extends StatelessWidget {
                             ),
                             child: Text(
                               'Available Cities',
-                              style: bodyMediumStyle.copyWith(
-                                color: textGreyColor,
-                              ),
+                              style: bodyMediumStyle(
+                                context,
+                              ).copyWith(color: getTextColor(context)),
                             ),
                           ),
-                          const Expanded(
-                            child: Divider(color: textGreyColor, thickness: 1),
+                          Expanded(
+                            child: Divider(
+                              color: getTextColor(context),
+                              thickness: 1,
+                            ),
                           ),
                         ],
                       ),

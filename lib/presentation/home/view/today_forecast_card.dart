@@ -37,9 +37,9 @@ class TodayForecastSection extends StatelessWidget {
                             left: index == 0 ? kBodyHp : 0,
                             right: index == 6 ? kBodyHp : kElementWidthGap,
                           ),
-                      itemDecoration: roundedDecorationWithShadow.copyWith(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+                      itemDecoration: roundedDecorationWithShadow(
+                        context,
+                      ).copyWith(borderRadius: BorderRadius.circular(20)),
                     )
                     : ListView.builder(
                       scrollDirection: Axis.horizontal,
@@ -103,10 +103,7 @@ class TodayForecastCard extends StatelessWidget {
         right: isLast ? kBodyHp : kElementGap,
       ),
       padding: const EdgeInsets.symmetric(vertical: kBodyHp),
-      decoration: roundedDecorationWithShadow.copyWith(
-        color: isSelected ? primaryColor : secondaryColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: roundedSelectionDecoration(context, isSelected: isSelected),
       child: FittedBox(
         fit: BoxFit.scaleDown,
         child: Column(
@@ -117,7 +114,7 @@ class TodayForecastCard extends StatelessWidget {
               fit: BoxFit.scaleDown,
               child: Text(
                 day,
-                style: titleSmallBoldStyle.copyWith(color: kWhite),
+                style: titleSmallBoldStyle(context).copyWith(color: kWhite),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
@@ -142,7 +139,7 @@ class TodayForecastCard extends StatelessWidget {
                 forecastData != null
                     ? '${forecastData!.maxTemp.round()}°/${forecastData!.minTemp.round()}°'
                     : '0°/0°',
-                style: titleSmallBoldStyle.copyWith(color: kWhite),
+                style: titleSmallBoldStyle(context).copyWith(color: kWhite),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),

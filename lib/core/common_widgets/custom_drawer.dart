@@ -1,7 +1,7 @@
-import 'dart:io';
+import 'package:estonia_weather/core/local_storage/local_storage.dart';
+import 'package:estonia_weather/core/utils/drawer_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-
+import 'package:get/get.dart';
 import '../../gen/assets.gen.dart';
 import '../constants/constant.dart';
 import '../theme/app_colors.dart';
@@ -10,19 +10,17 @@ import '../theme/app_styles.dart';
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
 
-  get kSkyBlueColor => null;
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       child: Container(
-        color: bgColor,
+        color: getBgColor(Get.context!),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(gradient: kGradient),
+              decoration: BoxDecoration(gradient: kGradient(context)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -41,7 +39,7 @@ class CustomDrawer extends StatelessWidget {
                     fit: BoxFit.scaleDown,
                     child: Text(
                       'Estonia Weather',
-                      style: headlineSmallStyle.copyWith(color: kWhite),
+                      style: headlineSmallStyle(context),
                     ),
                   ),
                 ],
@@ -51,7 +49,7 @@ class CustomDrawer extends StatelessWidget {
               icon: Icons.more,
               title: 'More Apps',
               onTap: () {
-                moreApp();
+                DrawerActions.moreApp();
               },
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
@@ -59,7 +57,7 @@ class CustomDrawer extends StatelessWidget {
               icon: Icons.privacy_tip_rounded,
               title: 'Privacy Policy',
               onTap: () {
-                privacy();
+                DrawerActions.privacy();
               },
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
@@ -67,61 +65,47 @@ class CustomDrawer extends StatelessWidget {
               icon: Icons.star_rounded,
               title: 'Rate Us',
               onTap: () {
-                rateUs();
+                DrawerActions.rateUs();
               },
+            ),
+            Divider(color: primaryColor.withValues(alpha: 0.1)),
+            ListTile(
+              leading: Icon(
+                Icons.dark_mode_rounded,
+                size: 24,
+                color: getTextColor(Get.context!),
+              ),
+              title: Text(
+                Get.theme.brightness == Brightness.dark
+                    ? 'Dark Mode'
+                    : 'Light Mode',
+                style: titleSmallStyle(context),
+              ),
+              trailing: Switch(
+                value: Get.isDarkMode,
+                onChanged: (value) async {
+                  Get.changeThemeMode(value ? ThemeMode.dark : ThemeMode.light);
+                  await LocalStorage().setBool('isDarkMode', value);
+                },
+                thumbColor: WidgetStatePropertyAll(
+                  greyColor.withValues(alpha: 0.7),
+                ),
+                trackColor: WidgetStatePropertyAll(
+                  greyColor.withValues(alpha: 0.2),
+                ),
+                trackOutlineColor: WidgetStatePropertyAll(
+                  greyColor.withValues(alpha: 0.5),
+                ),
+                trackOutlineWidth: WidgetStatePropertyAll(1),
+
+                activeThumbImage: AssetImage(Assets.images.icon.path),
+              ),
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
           ],
         ),
       ),
     );
-  }
-}
-
-/*
-Remove this from here/
-create a separate class
-*/
-void privacy() async {
-  const androidUrl = 'https://unisoftaps.blogspot.com/';
-  const iosUrl = 'https://asadarmantech.blogspot.com';
-
-  final url = Platform.isIOS ? iosUrl : androidUrl;
-
-  if (await canLaunchUrl(Uri.parse(url))) {
-    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-  } else {
-    throw 'Could not launch $url';
-  }
-}
-
-void rateUs() async {
-  const androidUrl =
-      'https://play.google.com/store/apps/details?id=com.unisoftaps.estoniaweatherforecast';
-  const iosUrl =
-      'https://apps.apple.com/us/app/Estonia Weather Forecast/6748671693';
-
-  final url = Platform.isIOS ? iosUrl : androidUrl;
-
-  if (await canLaunchUrl(Uri.parse(url))) {
-    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-  } else {
-    throw 'Could not launch $url';
-  }
-}
-
-void moreApp() async {
-  const androidUrl =
-      'https://play.google.com/store/apps/developer?id=Unisoft+Apps';
-  const iosUrl =
-      'https://apps.apple.com/us/developer/muhammad-asad-arman/id1487950157?see-all=i-phonei-pad-apps';
-
-  final url = Platform.isIOS ? iosUrl : androidUrl;
-
-  if (await canLaunchUrl(Uri.parse(url))) {
-    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-  } else {
-    throw 'Could not launch $url';
   }
 }
 
@@ -140,8 +124,8 @@ class DrawerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, size: 24, color: textGreyColor),
-      title: Text(title, style: titleSmallStyle),
+      leading: Icon(icon, size: 24, color: getTextColor(Get.context!)),
+      title: Text(title, style: titleSmallStyle(context)),
       onTap: onTap,
     );
   }

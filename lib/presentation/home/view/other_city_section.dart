@@ -107,7 +107,7 @@ class OtherCityShimmerList extends StatelessWidget {
             left: index == 0 ? kBodyHp * 2 : kElementGap,
             right: index == 2 ? kBodyHp : kElementGap,
           ),
-      itemDecoration: roundedDecorationWithShadow,
+      itemDecoration: roundedDecorationWithShadow(context),
     );
   }
 }
@@ -166,9 +166,9 @@ class OtherCitiesListView extends StatelessWidget {
                 left: isFirst ? kBodyHp * 2 : kElementGap,
                 right: isLast ? kBodyHp : kElementGap,
               ),
-              decoration: roundedDecorationWithShadow.copyWith(
-                gradient: isMainCity ? kContainerGradient : null,
-                color: isMainCity ? null : secondaryColor,
+              decoration: roundedDecorationWithShadow(context).copyWith(
+                gradient: isMainCity ? kContainerGradient(context) : null,
+                color: isMainCity ? null : kWhite.withValues(alpha: 0.2),
               ),
               child: OtherCityCard(
                 cityName: weather.cityName,
