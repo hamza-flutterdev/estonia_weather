@@ -15,9 +15,21 @@ import 'package:estonia_weather/ads_manager/interstitial_ads.dart';
 import 'package:estonia_weather/presentation/cities/cities_view/cities_view.dart';
 import '../controller/hourly_forecast_controller.dart';
 
-class HourlyForecastView extends StatelessWidget {
+class HourlyForecastView extends StatefulWidget {
   const HourlyForecastView({super.key});
 
+  @override
+  State<HourlyForecastView> createState() => _HourlyForecastViewState();
+}
+
+class _HourlyForecastViewState extends State<HourlyForecastView> {
+ final InterstitialAdController interstitialAd=Get.put(InterstitialAdController());
+  @override
+  void initState() {
+    Get.find<InterstitialAdController>().checkAndShowAd();
+    Get.find<BannerAdController>().loadBannerAd('ad4');
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     final DateTime selectedDate = Get.arguments;
@@ -170,12 +182,14 @@ class HourlyForecastView extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar:
-          Get.find<InterstitialAdController>().isAdReady
-              ? const SizedBox()
-              : Obx(
-                () => Get.find<BannerAdController>().getBannerAdWidget('ad4'),
-              ),
+      bottomNavigationBar: Obx(() {
+        final interstitial = Get.find<InterstitialAdController>();
+        final banner = Get.find<BannerAdController>();
+        return interstitial.isShowingInterstitialAd.value
+            ? const SizedBox()
+            : banner.getBannerAdWidget('ad4');
+      }),
     );
+    // );
   }
 }

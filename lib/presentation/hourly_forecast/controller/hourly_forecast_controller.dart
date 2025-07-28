@@ -21,8 +21,6 @@ class HourlyForecastController extends GetxController with ConnectivityMixin {
   @override
   void onInit() {
     super.onInit();
-    Get.find<InterstitialAdController>().checkAndShowAd();
-    Get.find<BannerAdController>().loadBannerAd('ad4');
     _loadForecastData();
   }
 

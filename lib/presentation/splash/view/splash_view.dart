@@ -141,12 +141,8 @@ class _SplashViewState extends State<SplashView> {
                                             textColor: kWhite,
                                             onPressed: () async {
                                               if (Get.find<
-                                                    SplashInterstitialAdController
-                                                  >()
-                                                  .isAdReady) {
-                                                await Get.find<
-                                                      SplashInterstitialAdController
-                                                    >()
+                                                    SplashInterstitialAdController>().isAdReady) {
+                                                await Get.find<SplashInterstitialAdController>()
                                                     .showInterstitialAd();
                                               }
                                               Get.to(() => HomeView());

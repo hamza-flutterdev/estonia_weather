@@ -1,13 +1,12 @@
 import 'dart:io';
-
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shimmer/shimmer.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_styles.dart';
+import '../remove_ads_contrl/remove_ads_contrl.dart';
 import 'appOpen_ads.dart';
 
 class BannerAdController extends GetxController {
@@ -15,6 +14,8 @@ class BannerAdController extends GetxController {
   final Map<String, RxBool> _adLoaded = {};
   RxBool isAdEnabled = true.obs;
   final AppOpenAdController openAdController = Get.put(AppOpenAdController());
+  final RemoveAds removeAdsController = Get.put(RemoveAds());
+
 
   @override
   void onInit() {
@@ -103,6 +104,9 @@ class BannerAdController extends GetxController {
   }
 
   Widget getBannerAdWidget(String key) {
+    if (Platform.isIOS && removeAdsController.isSubscribedGet.value) {
+      return SizedBox();
+    }
     if (openAdController.isShowingOpenAd.value) {
       return const SizedBox();
     }

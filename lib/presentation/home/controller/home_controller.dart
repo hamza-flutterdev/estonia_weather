@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:estonia_weather/core/common/app_exceptions.dart';
 import 'package:estonia_weather/presentation/splash/controller/splash_controller.dart';
 import 'package:flutter/material.dart';
@@ -48,11 +50,32 @@ class HomeController extends GetxController with ConnectivityMixin {
   int get mainCityIndex => _mainCityIndex.value;
   bool get isFirstLaunch => _isFirstLaunch.value;
 
-  @override
-  void onInit() {
-    super.onInit();
-    requestTrackingPermission();
+
+  Future<void> requestTrackingPermission() async {
+    if (!Platform.isIOS) {
+      return;
+    }
+    final trackingStatus =
+    await AppTrackingTransparency.requestTrackingAuthorization();
+
+    switch (trackingStatus) {
+      case TrackingStatus.notDetermined:
+        debugPrint('User has not yet decided');
+        break;
+      case TrackingStatus.denied:
+        debugPrint('User denied tracking');
+        break;
+      case TrackingStatus.authorized:
+        debugPrint('User granted tracking permission');
+        break;
+      case TrackingStatus.restricted:
+        debugPrint('Tracking restricted');
+        break;
+      default:
+        debugPrint('Unknown tracking status');
+    }
   }
+
 
   @override
   void onReady() async {

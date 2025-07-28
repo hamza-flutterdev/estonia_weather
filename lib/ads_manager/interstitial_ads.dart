@@ -1,13 +1,20 @@
 import 'dart:io';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import '../remove_ads_contrl/remove_ads_contrl.dart';
+import 'appOpen_ads.dart';
+
 class InterstitialAdController extends GetxController {
   InterstitialAd? _interstitialAd;
-  bool isAdReady = false;
+  var isAdReady = false.obs;
   int screenVisitCount = 0;
   int adTriggerCount = 3;
+  var isShowingInterstitialAd = false.obs;
+  final RemoveAds removeAdsController = Get.put(RemoveAds());
+
 
   @override
   void onInit() {
@@ -54,9 +61,7 @@ class InterstitialAdController extends GetxController {
 
   String get interstitialAdUnitId {
     if (Platform.isAndroid) {
-      return
-      //'ca-app-pub-3940256099942544/1033173712';
-      'ca-app-pub-8172082069591999/2985343646';
+      return 'ca-app-pub-8172082069591999/2985343646';
     } else if (Platform.isIOS) {
       return 'ca-app-pub-5405847310750111/5611630690';
     } else {
@@ -65,18 +70,21 @@ class InterstitialAdController extends GetxController {
   }
 
   void loadInterstitialAd() {
+    if (Platform.isIOS && removeAdsController.isSubscribedGet.value) {
+      return;
+    }
     InterstitialAd.load(
       adUnitId: interstitialAdUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
           _interstitialAd = ad;
-          isAdReady = true;
+          isAdReady.value = true;
           update();
         },
         onAdFailedToLoad: (error) {
           print("Interstitial Ad failed to load: $error");
-          isAdReady = false;
+          isAdReady.value = false;
         },
       ),
     );
@@ -84,26 +92,28 @@ class InterstitialAdController extends GetxController {
 
   void showInterstitialAd() {
     if (_interstitialAd != null) {
+      isShowingInterstitialAd.value = true;
+
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (ad) {
-          print("### Ad Dismissed, resetting visit count.");
+          Get.find<AppOpenAdController>().setInterstitialAdDismissed();
           screenVisitCount = 0;
+          isAdReady.value = false;
+          isShowingInterstitialAd.value = false;
           ad.dispose();
-          isAdReady = false;
           loadInterstitialAd();
           update();
         },
         onAdFailedToShowFullScreenContent: (ad, error) {
-          print("### Ad failed to show: $error");
-          screenVisitCount = 0; // ✅ Reset on failure too
+          screenVisitCount = 0;
+          isAdReady.value = false;
+          isShowingInterstitialAd.value = false;
           ad.dispose();
-          isAdReady = false;
           loadInterstitialAd();
           update();
         },
       );
 
-      print("### Showing Interstitial Ad.");
       _interstitialAd!.show();
       _interstitialAd = null;
     } else {
@@ -111,13 +121,42 @@ class InterstitialAdController extends GetxController {
     }
   }
 
+  // void showInterstitialAd() {
+  //   if (_interstitialAd != null) {
+  //     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+  //       onAdDismissedFullScreenContent: (ad) {
+  //         print("### Ad Dismissed, resetting visit count.");
+  //         screenVisitCount = 0;
+  //         ad.dispose();
+  //         isAdReady.value = false;
+  //         loadInterstitialAd();
+  //         update();
+  //       },
+  //       onAdFailedToShowFullScreenContent: (ad, error) {
+  //         print("### Ad failed to show: $error");
+  //         screenVisitCount = 0; // ✅ Reset on failure too
+  //         ad.dispose();
+  //         isAdReady.value = false;
+  //         loadInterstitialAd();
+  //         update();
+  //       },
+  //     );
+  //
+  //     print("### Showing Interstitial Ad.");
+  //     _interstitialAd!.show();
+  //     _interstitialAd = null;
+  //   } else {
+  //     print("### Interstitial Ad not ready.");
+  //   }
+  // }
+
   void checkAndShowAd() {
     screenVisitCount++;
     print("############## Screen Visit Count: $screenVisitCount");
 
     if (screenVisitCount >= adTriggerCount) {
       print("### OK");
-      if (isAdReady) {
+      if (isAdReady.value) {
         showInterstitialAd();
       } else {
         print("### Interstitial Ad not ready yet.");

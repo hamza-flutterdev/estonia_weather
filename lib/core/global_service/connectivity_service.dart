@@ -286,28 +286,4 @@ mixin ConnectivityMixin on GetxController {
     }
   }
 
-  Future<void> requestTrackingPermission() async {
-    if (!Platform.isIOS) {
-      return;
-    }
-    final trackingStatus =
-        await AppTrackingTransparency.requestTrackingAuthorization();
-
-    switch (trackingStatus) {
-      case TrackingStatus.notDetermined:
-        debugPrint('User has not yet decided');
-        break;
-      case TrackingStatus.denied:
-        debugPrint('User denied tracking');
-        break;
-      case TrackingStatus.authorized:
-        debugPrint('User granted tracking permission');
-        break;
-      case TrackingStatus.restricted:
-        debugPrint('Tracking restricted');
-        break;
-      default:
-        debugPrint('Unknown tracking status');
-    }
-  }
 }

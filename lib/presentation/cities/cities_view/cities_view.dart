@@ -12,9 +12,20 @@ import '../controller/cities_controller.dart';
 import 'city_card.dart';
 import 'current_location_card.dart';
 
-class CitiesView extends StatelessWidget {
+class CitiesView extends StatefulWidget {
   const CitiesView({super.key});
 
+  @override
+  State<CitiesView> createState() => _CitiesViewState();
+}
+
+class _CitiesViewState extends State<CitiesView> {
+  @override
+  void initState() {
+    Get.find<InterstitialAdController>().checkAndShowAd();
+    Get.find<BannerAdController>().loadBannerAd('ad3');
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     final CitiesController controller = Get.find();
@@ -182,14 +193,20 @@ class CitiesView extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar:
-          Get.find<InterstitialAdController>().isAdReady
-              ? SizedBox()
-              : Obx(() {
-                final banner = Get.find<BannerAdController>();
-                print('[UI] isAdEnabled=${banner.isAdEnabled.value}');
-                return banner.getBannerAdWidget('ad3');
-              }),
+      bottomNavigationBar: Obx(() {
+        final interstitial = Get.find<InterstitialAdController>();
+        final banner = Get.find<BannerAdController>();
+        return interstitial.isShowingInterstitialAd.value
+            ? const SizedBox()
+            : banner.getBannerAdWidget('ad3');
+      }),
+      // bottomNavigationBar:
+      //     Get.find<InterstitialAdController>().isAdReady.value
+      //         ? SizedBox()
+      //         : Obx(() {
+      //           final banner = Get.find<BannerAdController>();
+      //           return banner.getBannerAdWidget('ad3');
+      //         }),
     );
   }
 }
