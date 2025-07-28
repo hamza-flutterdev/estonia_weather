@@ -1,5 +1,6 @@
 import 'package:estonia_weather/core/local_storage/local_storage.dart';
 import 'package:estonia_weather/core/utils/drawer_helper.dart';
+import 'package:estonia_weather/presentation/terms/view/terms.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../gen/assets.gen.dart';
@@ -66,6 +67,14 @@ class CustomDrawer extends StatelessWidget {
               title: 'Rate Us',
               onTap: () {
                 DrawerActions.rateUs();
+              },
+            ),
+            Divider(color: primaryColor.withValues(alpha: 0.1)),
+            DrawerTile(
+              icon: Icons.privacy_tip_rounded,
+              title: 'Terms and Conditions',
+              onTap: () {
+                Get.to(() => TermsScreen());
               },
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
