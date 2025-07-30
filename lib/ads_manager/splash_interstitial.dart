@@ -2,12 +2,16 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import '../remove_ads_contrl/remove_ads_contrl.dart';
 import 'appOpen_ads.dart';
 
 class SplashInterstitialAdController extends GetxController {
   InterstitialAd? _interstitialAd;
   bool isAdReady = false;
   bool showSplashAd = true;
+  var isShowingInterstitialAd = false.obs;
+  final RemoveAds removeAdsController = Get.put(RemoveAds());
+
 
   @override
   void onInit() {
@@ -56,6 +60,9 @@ class SplashInterstitialAdController extends GetxController {
   }
 
   void loadInterstitialAd() {
+    if (Platform.isIOS && removeAdsController.isSubscribedGet.value) {
+      return;
+    }
     InterstitialAd.load(
       adUnitId: spInterstitialAdUnitId,
       request: const AdRequest(),
@@ -79,12 +86,14 @@ class SplashInterstitialAdController extends GetxController {
       return;
     }
     if (_interstitialAd != null) {
+      isShowingInterstitialAd.value = true;
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (ad) {
           print("### Ad Dismissed");
           Get.find<AppOpenAdController>().setInterstitialAdDismissed();
           ad.dispose();
           isAdReady = false;
+          isShowingInterstitialAd.value = false;
           loadInterstitialAd();
           update();
         },
@@ -92,6 +101,7 @@ class SplashInterstitialAdController extends GetxController {
           print("### Ad failed to show: $error");
           ad.dispose();
           isAdReady = false;
+          isShowingInterstitialAd.value = false;
           loadInterstitialAd();
           update();
         },

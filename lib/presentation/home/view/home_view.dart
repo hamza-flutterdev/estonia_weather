@@ -1,4 +1,5 @@
 import 'package:estonia_weather/ads_manager/banner_ads.dart';
+import 'package:estonia_weather/ads_manager/splash_interstitial.dart';
 import 'package:estonia_weather/core/common_widgets/custom_appbar.dart';
 import 'package:estonia_weather/core/common_widgets/custom_drawer.dart';
 import 'package:estonia_weather/core/global_service/global_key.dart';
@@ -10,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
-import '../../../ads_manager/interstitial_ads.dart';
 import '../../../core/animation/animated_weather_icon.dart';
 import '../../../core/common_widgets/icon_buttons.dart';
 import '../../../core/common_widgets/section_header.dart';
@@ -24,15 +24,25 @@ import '../../daily_forecast/view/daily_forecast_view.dart';
 import '../controller/home_controller.dart';
 import 'other_city_section.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final HomeController homeController = Get.find();
-    final BannerAdController bannerAdController = Get.put(BannerAdController());
+  State<HomeView> createState() => _HomeViewState();
+}
 
-    //ignore:deprecated_member_use
+class _HomeViewState extends State<HomeView> {
+  final BannerAdController bannerAdController = Get.put(BannerAdController());
+  final HomeController homeController = Get.find();
+
+  @override
+  void initState() {
+    homeController.requestTrackingPermission();
+    bannerAdController.loadBannerAd('ad1');
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
         bool? exit = await PanaraConfirmDialog.show(
@@ -58,9 +68,8 @@ class HomeView extends StatelessWidget {
         body: const SafeArea(child: _HomeContent()),
         bottomNavigationBar: Obx(() {
           final interstitialReady =
-              Get.find<InterstitialAdController>().isAdReady;
+              Get.find<SplashInterstitialAdController>().isShowingInterstitialAd.value;
           final isDrawerOpen = homeController.isDrawerOpen.value;
-
           if (!interstitialReady && !isDrawerOpen) {
             return bannerAdController.getBannerAdWidget('ad1');
           } else {

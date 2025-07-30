@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:estonia_weather/presentation/cities/controller/cities_controller.dart';
 import 'package:estonia_weather/presentation/daily_forecast/controller/daily_forecast_controller.dart';
 import 'package:estonia_weather/presentation/home/controller/home_controller.dart';
+import '../../ads_manager/appOpen_ads.dart';
 import '../../ads_manager/interstitial_ads.dart';
 import '../../ads_manager/splash_interstitial.dart';
 import '../../data/data_source/online_data_sr.dart';
@@ -58,10 +59,10 @@ class DependencyInjection {
       () => HourlyForecastController(),
       fenix: true,
     );
-    Get.lazyPut<BannerAdController>(() => BannerAdController());
-    Get.lazyPut<InterstitialAdController>(() => InterstitialAdController());
-    Get.lazyPut<SplashInterstitialAdController>(
-      () => SplashInterstitialAdController(),
-    );
+    // Get.lazyPut<AppOpenAdController>(() => AppOpenAdController());
+    // Get.lazyPut<InterstitialAdController>(() => InterstitialAdController());
+    // Get.lazyPut<SplashInterstitialAdController>(
+    //   () => SplashInterstitialAdController(),
+    // );
   }
 }

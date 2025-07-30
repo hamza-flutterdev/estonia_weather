@@ -1,9 +1,9 @@
 import 'package:estonia_weather/core/local_storage/local_storage.dart';
 import 'package:estonia_weather/core/utils/drawer_helper.dart';
-import 'package:estonia_weather/presentation/terms/view/terms.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../gen/assets.gen.dart';
+import '../../presentation/premium_screen/premium_screen.dart';
 import '../constants/constant.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_styles.dart';
@@ -71,13 +71,14 @@ class CustomDrawer extends StatelessWidget {
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
             DrawerTile(
-              icon: Icons.privacy_tip_rounded,
-              title: 'Terms and Conditions',
+              icon: Icons.workspace_premium,
+              title: 'Ads free',
               onTap: () {
-                Get.to(() => TermsScreen());
+                Get.to(PremiumScreen());
               },
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
+            // PremiumScreen
             ListTile(
               leading: Icon(
                 Icons.dark_mode_rounded,

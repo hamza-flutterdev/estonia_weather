@@ -15,8 +15,21 @@ import '../../cities/cities_view/cities_view.dart';
 import '../../../core/common_widgets/weather_icon.dart';
 import '../controller/daily_forecast_controller.dart';
 
-class DailyForecastView extends StatelessWidget {
+class DailyForecastView extends StatefulWidget {
   const DailyForecastView({super.key});
+
+  @override
+  State<DailyForecastView> createState() => _DailyForecastViewState();
+}
+
+class _DailyForecastViewState extends State<DailyForecastView> {
+
+  @override
+  void initState() {
+    Get.find<InterstitialAdController>().checkAndShowAd();
+    Get.find<BannerAdController>().loadBannerAd('ad2');
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,12 +176,19 @@ class DailyForecastView extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar:
-          Get.find<InterstitialAdController>().isAdReady
-              ? const SizedBox()
-              : Obx(
-                () => Get.find<BannerAdController>().getBannerAdWidget('ad2'),
-              ),
+      bottomNavigationBar: Obx(() {
+        final interstitial = Get.find<InterstitialAdController>();
+        final banner = Get.find<BannerAdController>();
+        return interstitial.isShowingInterstitialAd.value
+            ? const SizedBox()
+            : banner.getBannerAdWidget('ad2');
+      }),
+      // bottomNavigationBar:
+      //     Get.find<InterstitialAdController>().isAdReady.value
+      //         ? const SizedBox()
+      //         : Obx(
+      //           () => Get.find<BannerAdController>().getBannerAdWidget('ad2'),
+      //         ),
     );
   }
 }
