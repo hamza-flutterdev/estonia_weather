@@ -7,11 +7,12 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../remove_ads_contrl/remove_ads_contrl.dart';
+import '../term/view/term_view.dart';
 
 final bool _kAutoConsume = Platform.isIOS || true;
 const String _kConsumableId = 'consumable';
 const String _kUpgradeId = 'upgrade';
-const String _kSilverSubscriptionId = 'com.estoniaweather.removeads';
+const String _kSilverSubscriptionId = 'com.estoniaweather.removeads.ads';
 const List<String> _kProductIds = <String>[
   _kConsumableId,
   _kUpgradeId,
@@ -361,7 +362,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                     InkWell(
                                       child: const Text("Privacy | Terms"),
                                       onTap:(){
-                                        // Get.to(TermOfUseScreen());
+                                        Get.to(TermsScreen());
                                       },
                                     ),
                                     const Text("Cancel Anytime"),
