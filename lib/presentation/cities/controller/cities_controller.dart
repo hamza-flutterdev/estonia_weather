@@ -3,6 +3,7 @@ import 'package:estonia_weather/core/global_service/connectivity_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:toastification/toastification.dart';
+
 import '../../../core/common_widgets/custom_toast.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/model/aqi_model.dart';
@@ -17,11 +18,14 @@ class CitiesController extends GetxController with ConnectivityMixin {
 
   final homeController = Get.find<HomeController>();
   final TextEditingController searchController = TextEditingController();
+
   var allCities = <EstonianCity>[].obs;
   var allCitiesWeather = <WeatherModel>[].obs;
+  var filteredCities = <EstonianCity>[].obs;
+  var rotatingCity = Rx<EstonianCity?>(null);
+
   var isLoading = false.obs;
   var isAdding = false.obs;
-  var filteredCities = <EstonianCity>[].obs;
   var hasSearchError = false.obs;
   var searchErrorMessage = ''.obs;
 
@@ -35,50 +39,68 @@ class CitiesController extends GetxController with ConnectivityMixin {
         await loadAllCitiesWeather();
       },
     );
-    searchController.addListener(() {
-      searchCities(searchController.text);
-    });
+    searchController.addListener(() => searchCities(searchController.text));
   }
 
   void loadDataFromHome() {
     allCities.value = homeController.allCities;
-    filteredCities.value = _getSortedCities();
+    filteredCities.value = allCities.toList();
+    _initializeRotatingCity();
   }
 
-  List<EstonianCity> _getSortedCities() {
-    final selectedCities = <EstonianCity>[];
-    final unselectedCities = <EstonianCity>[];
+  void _initializeRotatingCity() {
+    final mainCity =
+        homeController.mainCityIndex < homeController.selectedCities.length
+            ? homeController.selectedCities[homeController.mainCityIndex]
+            : null;
 
-    for (final city in allCities) {
-      if (homeController.isSelected(city)) {
-        selectedCities.add(city);
-      } else {
-        unselectedCities.add(city);
-      }
+    if (mainCity != null && !_isTallinnOrNarva(mainCity)) {
+      rotatingCity.value = mainCity;
+    } else {
+      rotatingCity.value = allCities.firstWhereOrNull(
+        (city) => !_isTallinnOrNarva(city),
+      );
+    }
+  }
+
+  bool _isTallinnOrNarva(EstonianCity city) {
+    final name = city.cityAscii.toLowerCase();
+    return name == 'tallinn' || name == 'narva';
+  }
+
+  List<EstonianCity> getOtherCitiesForDisplay() {
+    final cities = ['tallinn', 'narva'];
+    final results = <EstonianCity>[];
+
+    for (final name in cities) {
+      final match = allCities.firstWhereOrNull(
+        (c) => c.cityAscii.toLowerCase() == name,
+      );
+      if (match != null) results.add(match);
     }
 
-    return [...selectedCities, ...unselectedCities];
+    if (rotatingCity.value != null) results.add(rotatingCity.value!);
+    return results;
   }
 
   Future<void> loadAllCitiesWeather() async {
+    isLoading.value = true;
+    allCitiesWeather.clear();
     try {
-      isLoading.value = true;
-      allCitiesWeather.clear();
-
-      final futures =
+      final weatherFutures =
           allCities.map((city) async {
             try {
-              final (weather, _) = await getCurrentWeather.call(
+              final (weather, _) = await getCurrentWeather(
                 lat: city.lat,
                 lon: city.lng,
               );
               return weather;
-            } catch (e) {
-              return WeatherModel.empty(city.city);
+            } catch (_) {
+              return WeatherModel.empty(city.cityAscii);
             }
           }).toList();
 
-      final results = await Future.wait(futures);
+      final results = await Future.wait(weatherFutures);
       allCitiesWeather.addAll(results);
     } catch (e) {
       debugPrint('$failedLoadingWeather: $e');
@@ -89,47 +111,46 @@ class CitiesController extends GetxController with ConnectivityMixin {
 
   void searchCities(String query) {
     final lowerQuery = query.toLowerCase();
-
     final results =
         query.isEmpty
-            ? _getSortedCities()
-            : allCities
-                .where(
-                  (city) =>
-                      city.cityAscii.toLowerCase().contains(lowerQuery) ||
-                      city.country.toLowerCase().contains(lowerQuery),
-                )
-                .toList();
+            ? allCities.toList()
+            : allCities.where((city) {
+              return city.cityAscii.toLowerCase().contains(lowerQuery) ||
+                  city.country.toLowerCase().contains(lowerQuery);
+            }).toList();
 
     hasSearchError.value = results.isEmpty && query.isNotEmpty;
     searchErrorMessage.value =
         hasSearchError.value ? '$noCityFound "$query"' : '';
-
-    if (query.isEmpty || results.isEmpty) {
-      filteredCities.value = results;
-      return;
-    }
-
-    final selectedFiltered = results.where(
-      (city) => homeController.isSelected(city),
-    );
-    final unselectedFiltered = results.where(
-      (city) => !homeController.isSelected(city),
-    );
-
-    filteredCities.value = [...selectedFiltered, ...unselectedFiltered];
+    filteredCities.value = results;
   }
 
-  Future<void> addCityToSelected(EstonianCity city) async {
+  Future<void> makeCityMain(EstonianCity city) async {
+    isAdding.value = true;
     try {
-      isAdding.value = true;
-      await homeController.addCity(city);
-      loadDataFromHome();
-      if (searchController.text.isNotEmpty) {
-        searchCities(searchController.text);
+      if (!_isTallinnOrNarva(city)) {
+        rotatingCity.value = city;
       }
+
+      final index = homeController.selectedCities.indexWhere(
+        (c) => c.cityAscii.toLowerCase() == city.cityAscii.toLowerCase(),
+      );
+
+      if (index >= 0) {
+        await homeController.makeCityMainByIndex(index);
+      } else {
+        await homeController.addCity(city);
+        final newIndex = homeController.selectedCities.indexWhere(
+          (c) => c.city.toLowerCase() == city.cityAscii.toLowerCase(),
+        );
+        if (newIndex >= 0) {
+          await homeController.makeCityMainByIndex(newIndex);
+        }
+      }
+
+      await homeController.loadSelectedWeather();
     } catch (e) {
-      debugPrint('Failed to add city: $e');
+      debugPrint('Failed to make city main: $e');
     } finally {
       isAdding.value = false;
     }
@@ -147,7 +168,6 @@ class CitiesController extends GetxController with ConnectivityMixin {
     }
 
     isAdding.value = true;
-
     try {
       final cityName = await getCurrentWeather.getCity();
       final lat = double.tryParse(
@@ -156,11 +176,13 @@ class CitiesController extends GetxController with ConnectivityMixin {
       final lon = double.tryParse(
         await homeController.localStorage.getString('longitude') ?? '',
       );
+
       await homeController.setLocationCity(
         cityName: cityName,
         lat: lat,
         lon: lon,
       );
+
       final success = homeController.currentLocationCity != null;
       if (success) {
         await homeController.addLocationAsMain();
@@ -169,6 +191,7 @@ class CitiesController extends GetxController with ConnectivityMixin {
           searchCities(searchController.text);
         }
       }
+
       showToast(success ? successCityChange : failedLocation, success);
     } catch (e) {
       final error = e.toString().toLowerCase();
@@ -178,28 +201,10 @@ class CitiesController extends GetxController with ConnectivityMixin {
               : error.contains('timed out')
               ? timeoutException
               : failedLocation;
-
       showToast(message, false);
       debugPrint('$failedCityChange: $e');
     } finally {
       isAdding.value = false;
-    }
-  }
-
-  bool canRemoveSpecificCity(EstonianCity city) {
-    if (homeController.isLocationCity(city)) {
-      return false;
-    }
-    return homeController.selectedCities.length > 3;
-  }
-
-  Future<void> removeCityFromSelected(EstonianCity city) async {
-    if (canRemoveSpecificCity(city)) {
-      await homeController.removeCity(city);
-      loadDataFromHome();
-      if (searchController.text.isNotEmpty) {
-        searchCities(searchController.text);
-      }
     }
   }
 

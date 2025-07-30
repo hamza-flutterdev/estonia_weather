@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:estonia_weather/core/common/app_exceptions.dart';
 import 'package:estonia_weather/core/constants/constant.dart';

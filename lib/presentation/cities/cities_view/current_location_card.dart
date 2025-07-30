@@ -65,7 +65,7 @@ class CurrentLocationCard extends StatelessWidget {
                           controller.homeController.currentLocationCity;
                       if (currentCity != null) {
                         return Padding(
-                          padding: const EdgeInsets.only(top:5),
+                          padding: const EdgeInsets.only(top: 5),
                           child: Text(
                             "Current City: ${currentCity.city}",
                             style: bodyLargeStyle(
@@ -80,11 +80,7 @@ class CurrentLocationCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
-                Icons.add_location,
-                color: kWhite,
-                size:32,
-              ),
+              Icon(Icons.add_location, color: kWhite, size: 32),
             ],
           ),
         ),

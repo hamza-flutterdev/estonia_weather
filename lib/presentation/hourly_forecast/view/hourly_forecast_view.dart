@@ -23,13 +23,16 @@ class HourlyForecastView extends StatefulWidget {
 }
 
 class _HourlyForecastViewState extends State<HourlyForecastView> {
- final InterstitialAdController interstitialAd=Get.put(InterstitialAdController());
+  final InterstitialAdController interstitialAd = Get.put(
+    InterstitialAdController(),
+  );
   @override
   void initState() {
     Get.find<InterstitialAdController>().checkAndShowAd();
     Get.find<BannerAdController>().loadBannerAd('ad4');
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     final DateTime selectedDate = Get.arguments;
@@ -136,40 +139,48 @@ class _HourlyForecastViewState extends State<HourlyForecastView> {
                               context: context,
                               isCurrentHour: isCurrentHour,
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  width: mobileWidth(context) * 0.15,
-                                  child: Text(
-                                    time,
-                                    style: bodyMediumStyle(context).copyWith(
-                                      color:
-                                          isDarkMode(context)
-                                              ? null
-                                              : (isCurrentHour
-                                                  ? kWhite
-                                                  : primaryColor),
-                                      fontWeight:
-                                          isCurrentHour
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: kElementGap,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        time,
+                                        style: bodyLargeStyle(context).copyWith(
+                                          color:
+                                              isDarkMode(context)
+                                                  ? null
+                                                  : (isCurrentHour
+                                                      ? kWhite
+                                                      : primaryColor),
+                                          fontWeight:
+                                              isCurrentHour
+                                                  ? FontWeight.bold
+                                                  : FontWeight.normal,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                WeatherIcon(
-                                  iconUrl: hourData['iconUrl'],
-                                  size: primaryIcon(context) * 1.25,
-                                  weatherData: hourData['condition'],
-                                ),
-                                Text(
-                                  temperature,
-                                  style: headlineSmallStyle(context).copyWith(
-                                    color:
-                                        isCurrentHour ? kWhite : primaryColor,
+                                  WeatherIcon(
+                                    iconUrl: hourData['iconUrl'],
+                                    size: primaryIcon(context) * 1.5,
+                                    weatherData: hourData['condition'],
                                   ),
-                                ),
-                              ],
+                                  Text(
+                                    temperature,
+                                    style: headlineSmallStyle(context).copyWith(
+                                      color:
+                                          isCurrentHour ? kWhite : primaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );

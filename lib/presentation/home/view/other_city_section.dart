@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/common_widgets/common_shimmer.dart';
 import '../../../core/constants/constant.dart';
+import '../../../core/utils/city_config.dart';
 import '../../../extensions/device_size/device_size.dart';
 import '../../../core/theme/app_styles.dart';
 import 'package:get/get.dart';
@@ -26,42 +27,26 @@ class OtherCitiesSection extends StatelessWidget {
         return const SizedBox.shrink();
       }
 
-      final otherCitiesWithIndex = <Map<String, dynamic>>[];
-      for (
-        int i = 0;
-        i < conditionController.selectedCitiesWeather.length;
-        i++
-      ) {
-        final weather = conditionController.selectedCitiesWeather[i];
-        bool shouldExclude = false;
+      final otherCitiesData = _getFixedOtherCities(
+        homeController,
+        conditionController,
+      );
 
-        if (homeController.currentLocationCity != null) {
-          final currentLocationName =
-              homeController.currentLocationCity!.city.toLowerCase().trim();
-          final weatherCityName = weather.cityName.toLowerCase().trim();
-          shouldExclude = weatherCityName == currentLocationName;
-        }
-
-        if (!shouldExclude) {
-          otherCitiesWithIndex.add({'weather': weather, 'originalIndex': i});
-        }
-      }
-
-      if (otherCitiesWithIndex.isEmpty) {
+      if (otherCitiesData.isEmpty) {
         return const SizedBox.shrink();
       }
 
       return Column(
         children: [
           SizedBox(
-            height: deviceSize.height * 0.1,
+            height: deviceSize.height * CityConfig.cityCardHeightRatio,
             width: deviceSize.width,
             child:
                 homeController.isLoading.value
                     ? OtherCityShimmerList(deviceSize: deviceSize)
                     : OtherCitiesListView(
                       deviceSize: deviceSize,
-                      otherCitiesWithIndex: otherCitiesWithIndex,
+                      otherCitiesData: otherCitiesData,
                     ),
           ),
           const SizedBox(height: kElementGap),
@@ -69,11 +54,11 @@ class OtherCitiesSection extends StatelessWidget {
             () => Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                otherCitiesWithIndex.length.clamp(0, 10),
+                otherCitiesData.length.clamp(0, CityConfig.maxPaginationDots),
                 (index) => Container(
                   margin: kPaginationMargin,
-                  width: deviceSize.width * 0.015,
-                  height: deviceSize.width * 0.015,
+                  width: deviceSize.width * CityConfig.paginationDotSizeRatio,
+                  height: deviceSize.width * CityConfig.paginationDotSizeRatio,
                   decoration: BoxDecoration(
                     color:
                         index == homeController.currentOtherCityIndex.value
@@ -89,6 +74,62 @@ class OtherCitiesSection extends StatelessWidget {
       );
     });
   }
+
+  List<Map<String, dynamic>> _getFixedOtherCities(
+    HomeController homeController,
+    ConditionController conditionController,
+  ) {
+    final otherCitiesData = <Map<String, dynamic>>[];
+    final mainCityName = homeController.mainCityName;
+
+    // Add priority cities first (in order)
+    for (final priorityCity in CityConfig.priorityCities) {
+      final weather = conditionController.selectedCitiesWeather
+          .firstWhereOrNull(
+            (w) => CityConfig.cityNamesMatch(w.cityName, priorityCity),
+          );
+
+      if (weather != null) {
+        otherCitiesData.add({
+          'weather': weather,
+          'originalIndex': conditionController.selectedCitiesWeather.indexOf(
+            weather,
+          ),
+        });
+      }
+    }
+
+    // Add main city if it's not already included
+    final mainCityWeather = conditionController.selectedCitiesWeather
+        .firstWhereOrNull(
+          (w) =>
+              !CityConfig.isPriorityCity(w.cityName) &&
+              CityConfig.cityNamesMatch(w.cityName, mainCityName),
+        );
+
+    if (mainCityWeather != null) {
+      otherCitiesData.add({
+        'weather': mainCityWeather,
+        'originalIndex': conditionController.selectedCitiesWeather.indexOf(
+          mainCityWeather,
+        ),
+      });
+    } else if (homeController.mainCityIndex <
+        conditionController.selectedCitiesWeather.length) {
+      final weatherByIndex =
+          conditionController.selectedCitiesWeather[homeController
+              .mainCityIndex];
+
+      if (!CityConfig.isPriorityCity(weatherByIndex.cityName)) {
+        otherCitiesData.add({
+          'weather': weatherByIndex,
+          'originalIndex': homeController.mainCityIndex,
+        });
+      }
+    }
+
+    return otherCitiesData;
+  }
 }
 
 class OtherCityShimmerList extends StatelessWidget {
@@ -99,9 +140,9 @@ class OtherCityShimmerList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ShimmerListView(
-      itemCount: 2,
-      itemWidth: deviceSize.width * 0.7,
-      itemHeight: deviceSize.height * 0.1,
+      itemCount: CityConfig.maxPaginationDots,
+      itemWidth: deviceSize.width * CityConfig.cityCardWidthRatio,
+      itemHeight: deviceSize.height * CityConfig.cityCardHeightRatio,
       itemMargin:
           (index) => EdgeInsets.only(
             left: index == 0 ? kBodyHp * 2 : kElementGap,
@@ -114,12 +155,12 @@ class OtherCityShimmerList extends StatelessWidget {
 
 class OtherCitiesListView extends StatelessWidget {
   final DeviceSize deviceSize;
-  final List<Map<String, dynamic>> otherCitiesWithIndex;
+  final List<Map<String, dynamic>> otherCitiesData;
 
   const OtherCitiesListView({
     super.key,
     required this.deviceSize,
-    required this.otherCitiesWithIndex,
+    required this.otherCitiesData,
   });
 
   @override
@@ -129,12 +170,14 @@ class OtherCitiesListView extends StatelessWidget {
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollInfo) {
         if (scrollInfo is ScrollUpdateNotification) {
-          final itemWidth = deviceSize.width * 0.7 + kBodyHp;
+          final itemWidth =
+              deviceSize.width * CityConfig.cityCardWidthRatio + kBodyHp;
           final currentIndex = (scrollInfo.metrics.pixels / itemWidth).round();
           final clampedIndex = currentIndex.clamp(
             0,
-            otherCitiesWithIndex.length - 1,
+            otherCitiesData.length - 1,
           );
+
           if (homeController.currentOtherCityIndex.value != clampedIndex) {
             homeController.updateCityIndex(clampedIndex);
           }
@@ -144,24 +187,21 @@ class OtherCitiesListView extends StatelessWidget {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         clipBehavior: Clip.none,
-        itemCount: otherCitiesWithIndex.length,
+        itemCount: otherCitiesData.length,
         itemBuilder: (context, index) {
-          final cityData = otherCitiesWithIndex[index];
+          final cityData = otherCitiesData[index];
           final weather = cityData['weather'];
-          final originalIndex = cityData['originalIndex'];
           final isFirst = index == 0;
-          final isLast = index == otherCitiesWithIndex.length - 1;
-          final isMainCity = originalIndex == homeController.mainCityIndex;
+          final isLast = index == otherCitiesData.length - 1;
+          final isMainCity = CityConfig.cityNamesMatch(
+            weather.cityName,
+            homeController.mainCityName,
+          );
 
           return GestureDetector(
-            onTap: () {
-              debugPrint('Tapped on city: ${weather.cityName}');
-              if (!isMainCity) {
-                homeController.makeCityMain(weather);
-              }
-            },
+            onTap: () => _handleCityTap(homeController, weather, isMainCity),
             child: Container(
-              width: deviceSize.width * 0.7,
+              width: deviceSize.width * CityConfig.cityCardWidthRatio,
               margin: EdgeInsets.only(
                 left: isFirst ? kBodyHp * 2 : kElementGap,
                 right: isLast ? kBodyHp : kElementGap,
@@ -183,5 +223,31 @@ class OtherCitiesListView extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Future<void> _handleCityTap(
+    HomeController homeController,
+    dynamic weather,
+    bool isMainCity,
+  ) async {
+    if (isMainCity) return;
+
+    final cityToMakeMain = homeController.allCities.firstWhereOrNull(
+      (city) => CityConfig.cityNamesMatch(city.cityAscii, weather.cityName),
+    );
+
+    if (cityToMakeMain != null) {
+      final existingIndex = homeController.selectedCities.indexWhere(
+        (c) => CityConfig.cityNamesMatch(c.cityAscii, cityToMakeMain.cityAscii),
+      );
+
+      if (existingIndex >= 0) {
+        await homeController.makeCityMainByIndex(existingIndex);
+      } else {
+        await homeController.makeCityMain(weather);
+      }
+    } else {
+      await homeController.makeCityMain(weather);
+    }
   }
 }

@@ -2,9 +2,9 @@ import 'package:estonia_weather/core/common_widgets/custom_appbar.dart';
 import 'package:estonia_weather/core/constants/constant.dart';
 import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
-import 'package:estonia_weather/presentation/home/controller/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../../ads_manager/banner_ads.dart';
 import '../../../ads_manager/interstitial_ads.dart';
 import '../../../core/common_widgets/search_bar.dart';
@@ -26,10 +26,10 @@ class _CitiesViewState extends State<CitiesView> {
     Get.find<BannerAdController>().loadBannerAd('ad3');
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     final CitiesController controller = Get.find();
-    final HomeController homeController = Get.find();
 
     return Scaffold(
       body: SafeArea(
@@ -78,7 +78,7 @@ class _CitiesViewState extends State<CitiesView> {
                                   size: smallIcon(context),
                                 ),
                                 const SizedBox(width: kElementWidthGap),
-                                Expanded(
+                                Flexible(
                                   child: Text(
                                     controller.searchErrorMessage.value,
                                     style: bodyBoldSmallStyle(
@@ -102,7 +102,7 @@ class _CitiesViewState extends State<CitiesView> {
                 ),
               ],
             ),
-            Expanded(
+            Flexible(
               child: Obx(() {
                 if (controller.isLoading.value) {
                   return const Center(
@@ -122,71 +122,21 @@ class _CitiesViewState extends State<CitiesView> {
                       );
                     }).toList();
 
-                final selectedCities = <Widget>[];
-                final unselectedCities = <Widget>[];
-
-                for (int index = 0; index < weatherToShow.length; index++) {
-                  final weather = weatherToShow[index];
-                  final city = citiesToShow.firstWhere(
-                    (city) => city.cityAscii == weather.cityName,
-                  );
-
-                  final cityCard = CityCard(
-                    controller: controller,
-                    weather: weather,
-                    city: city,
-                  );
-
-                  if (homeController.isSelected(city)) {
-                    selectedCities.add(cityCard);
-                  } else {
-                    unselectedCities.add(cityCard);
-                  }
-                }
-
-                final allItems = <Widget>[];
-                allItems.addAll(selectedCities);
-
-                if (selectedCities.isNotEmpty && unselectedCities.isNotEmpty) {
-                  allItems.add(
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: kElementGap),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Divider(
-                              color: getTextColor(context),
-                              thickness: 1,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: kElementWidthGap,
-                            ),
-                            child: Text(
-                              'Available Cities',
-                              style: bodyMediumStyle(
-                                context,
-                              ).copyWith(color: getTextColor(context)),
-                            ),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              color: getTextColor(context),
-                              thickness: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-
-                allItems.addAll(unselectedCities);
-
-                return ListView(
+                return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(kBodyHp, 0, kBodyHp, 0),
-                  children: allItems,
+                  itemCount: weatherToShow.length,
+                  itemBuilder: (context, index) {
+                    final weather = weatherToShow[index];
+                    final city = citiesToShow.firstWhere(
+                      (city) => city.cityAscii == weather.cityName,
+                    );
+
+                    return CityCard(
+                      controller: controller,
+                      weather: weather,
+                      city: city,
+                    );
+                  },
                 );
               }),
             ),
@@ -200,13 +150,6 @@ class _CitiesViewState extends State<CitiesView> {
             ? const SizedBox()
             : banner.getBannerAdWidget('ad3');
       }),
-      // bottomNavigationBar:
-      //     Get.find<InterstitialAdController>().isAdReady.value
-      //         ? SizedBox()
-      //         : Obx(() {
-      //           final banner = Get.find<BannerAdController>();
-      //           return banner.getBannerAdWidget('ad3');
-      //         }),
     );
   }
 }

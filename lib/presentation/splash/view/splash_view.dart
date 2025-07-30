@@ -48,22 +48,31 @@ class _SplashViewState extends State<SplashView> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const SizedBox(height: kElementInnerGap),
-                      AnimatedDefaultTextStyle(
-                        style: headlineLargeStyle(context).copyWith(
-                          color: controller.title.value,
-                          fontFamily: fontSecondary,
-                          fontSize: 75,
-                        ),
-                        duration: const Duration(milliseconds: 1500),
-                        child: Text.rich(
-                          TextSpan(
-                            children: [
-                              const TextSpan(text: 'ESTONIA\n'),
-                              const TextSpan(text: 'weather'),
-                            ],
+                      Column(
+                        children: [
+                          Text(
+                            'ESTONIA',
+                            style: headlineLargeStyle(context).copyWith(
+                              color: primaryColor,
+                              fontFamily: fontSecondary,
+                              fontSize: 75,
+                            ),
                           ),
-                          textAlign: TextAlign.center,
-                        ),
+                          AnimatedDefaultTextStyle(
+                            style: headlineLargeStyle(context).copyWith(
+                              color: controller.title.value,
+                              fontFamily: fontSecondary,
+                              fontSize: 75,
+                            ),
+                            duration: const Duration(milliseconds: 1500),
+                            child: Text.rich(
+                              TextSpan(
+                                children: [const TextSpan(text: 'Weather')],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
                       ),
                       RichText(
                         text: TextSpan(
@@ -141,8 +150,12 @@ class _SplashViewState extends State<SplashView> {
                                             textColor: kWhite,
                                             onPressed: () async {
                                               if (Get.find<
-                                                    SplashInterstitialAdController>().isAdReady) {
-                                                await Get.find<SplashInterstitialAdController>()
+                                                    SplashInterstitialAdController
+                                                  >()
+                                                  .isAdReady) {
+                                                await Get.find<
+                                                      SplashInterstitialAdController
+                                                    >()
                                                     .showInterstitialAd();
                                               }
                                               Get.to(() => HomeView());

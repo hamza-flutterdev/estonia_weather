@@ -1,8 +1,6 @@
 import 'package:estonia_weather/core/constants/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../ads_manager/banner_ads.dart';
-import '../../../ads_manager/interstitial_ads.dart';
 import '../../../core/global_service/connectivity_service.dart';
 import '../../home/controller/home_controller.dart';
 import '../../../data/model/forecast_model.dart';

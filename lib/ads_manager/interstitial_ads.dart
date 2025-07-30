@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -14,7 +13,6 @@ class InterstitialAdController extends GetxController {
   int adTriggerCount = 3;
   var isShowingInterstitialAd = false.obs;
   final RemoveAds removeAdsController = Get.put(RemoveAds());
-
 
   @override
   void onInit() {

@@ -41,6 +41,7 @@ class _HomeViewState extends State<HomeView> {
     bannerAdController.loadBannerAd('ad1');
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -68,7 +69,9 @@ class _HomeViewState extends State<HomeView> {
         body: const SafeArea(child: _HomeContent()),
         bottomNavigationBar: Obx(() {
           final interstitialReady =
-              Get.find<SplashInterstitialAdController>().isShowingInterstitialAd.value;
+              Get.find<SplashInterstitialAdController>()
+                  .isShowingInterstitialAd
+                  .value;
           final isDrawerOpen = homeController.isDrawerOpen.value;
           if (!interstitialReady && !isDrawerOpen) {
             return bannerAdController.getBannerAdWidget('ad1');
@@ -152,7 +155,7 @@ class _HomeContent extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: kElementGap),
-              Expanded(
+              Flexible(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: kBodyHp),
                   child: WeatherDetailsCard(deviceSize: deviceSize),
