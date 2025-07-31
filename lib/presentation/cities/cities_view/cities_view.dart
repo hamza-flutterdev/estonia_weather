@@ -4,10 +4,11 @@ import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../../ads_manager/banner_ads.dart';
-import '../../../ads_manager/interstitial_ads.dart';
-import '../../../core/common_widgets/search_bar.dart';
+import '../../../core/utils/city_config.dart';
+import '/ads_manager/banner_ads.dart';
+import '/ads_manager/interstitial_ads.dart';
+import '/core/common_widgets/search_bar.dart';
+import '../../home/controller/home_controller.dart';
 import '../controller/cities_controller.dart';
 import 'city_card.dart';
 import 'current_location_card.dart';
@@ -30,6 +31,7 @@ class _CitiesViewState extends State<CitiesView> {
   @override
   Widget build(BuildContext context) {
     final CitiesController controller = Get.find();
+    final homeController = Get.find<HomeController>();
 
     return Scaffold(
       body: SafeArea(
@@ -116,11 +118,31 @@ class _CitiesViewState extends State<CitiesView> {
                         : controller.filteredCities;
 
                 final weatherToShow =
-                    controller.allCitiesWeather.where((weather) {
-                      return citiesToShow.any(
-                        (city) => city.cityAscii == weather.cityName,
-                      );
-                    }).toList();
+                    controller.allCitiesWeather
+                        .where(
+                          (weather) => citiesToShow.any(
+                            (city) => CityConfig.cityNamesMatch(
+                              city.cityAscii,
+                              weather.cityName,
+                            ),
+                          ),
+                        )
+                        .toList();
+
+                weatherToShow.sort((a, b) {
+                  final isASelected = CityConfig.cityNamesMatch(
+                    a.cityName,
+                    homeController.mainCityName,
+                  );
+                  final isBSelected = CityConfig.cityNamesMatch(
+                    b.cityName,
+                    homeController.mainCityName,
+                  );
+
+                  if (isASelected && !isBSelected) return -1;
+                  if (!isASelected && isBSelected) return 1;
+                  return 0;
+                });
 
                 return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(kBodyHp, 0, kBodyHp, 0),
@@ -128,7 +150,10 @@ class _CitiesViewState extends State<CitiesView> {
                   itemBuilder: (context, index) {
                     final weather = weatherToShow[index];
                     final city = citiesToShow.firstWhere(
-                      (city) => city.cityAscii == weather.cityName,
+                      (c) => CityConfig.cityNamesMatch(
+                        c.cityAscii,
+                        weather.cityName,
+                      ),
                     );
 
                     return CityCard(

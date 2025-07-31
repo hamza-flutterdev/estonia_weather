@@ -3,9 +3,9 @@ import 'package:estonia_weather/core/global_service/connectivity_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:toastification/toastification.dart';
-
 import '../../../core/common_widgets/custom_toast.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/city_config.dart';
 import '../../../data/model/aqi_model.dart';
 import '../../../data/model/city_model.dart';
 import '../../../data/model/weather_model.dart';
@@ -45,42 +45,27 @@ class CitiesController extends GetxController with ConnectivityMixin {
   void loadDataFromHome() {
     allCities.value = homeController.allCities;
     filteredCities.value = allCities.toList();
-    _initializeRotatingCity();
+    // _initializeRotatingCity();
   }
 
-  void _initializeRotatingCity() {
-    final mainCity =
-        homeController.mainCityIndex < homeController.selectedCities.length
-            ? homeController.selectedCities[homeController.mainCityIndex]
-            : null;
-
-    if (mainCity != null && !_isTallinnOrNarva(mainCity)) {
-      rotatingCity.value = mainCity;
-    } else {
-      rotatingCity.value = allCities.firstWhereOrNull(
-        (city) => !_isTallinnOrNarva(city),
-      );
-    }
-  }
+  // void _initializeRotatingCity() {
+  //   final mainCity =
+  //       homeController.mainCityIndex < homeController.selectedCities.length
+  //           ? homeController.selectedCities[homeController.mainCityIndex]
+  //           : null;
+  //
+  //   if (mainCity != null && !_isTallinnOrNarva(mainCity)) {
+  //     rotatingCity.value = mainCity;
+  //   } else {
+  //     rotatingCity.value = allCities.firstWhereOrNull(
+  //       (city) => !_isTallinnOrNarva(city),
+  //     );
+  //   }
+  // }
 
   bool _isTallinnOrNarva(EstonianCity city) {
     final name = city.cityAscii.toLowerCase();
     return name == 'tallinn' || name == 'narva';
-  }
-
-  List<EstonianCity> getOtherCitiesForDisplay() {
-    final cities = ['tallinn', 'narva'];
-    final results = <EstonianCity>[];
-
-    for (final name in cities) {
-      final match = allCities.firstWhereOrNull(
-        (c) => c.cityAscii.toLowerCase() == name,
-      );
-      if (match != null) results.add(match);
-    }
-
-    if (rotatingCity.value != null) results.add(rotatingCity.value!);
-    return results;
   }
 
   Future<void> loadAllCitiesWeather() async {
@@ -128,29 +113,26 @@ class CitiesController extends GetxController with ConnectivityMixin {
   Future<void> makeCityMain(EstonianCity city) async {
     isAdding.value = true;
     try {
+      await homeController.addCity(city);
+
       if (!_isTallinnOrNarva(city)) {
         rotatingCity.value = city;
       }
 
       final index = homeController.selectedCities.indexWhere(
-        (c) => c.cityAscii.toLowerCase() == city.cityAscii.toLowerCase(),
+        (c) => CityConfig.cityNamesMatch(
+          c.cityAscii.toLowerCase(),
+          city.cityAscii.toLowerCase(),
+        ),
       );
+
+      debugPrint('Found city index: $index for ${city.cityAscii}');
 
       if (index >= 0) {
         await homeController.makeCityMainByIndex(index);
       } else {
-        await homeController.addCity(city);
-        final newIndex = homeController.selectedCities.indexWhere(
-          (c) => c.city.toLowerCase() == city.cityAscii.toLowerCase(),
-        );
-        if (newIndex >= 0) {
-          await homeController.makeCityMainByIndex(newIndex);
-        }
+        debugPrint('######Could not find city index for ${city.cityAscii}');
       }
-
-      await homeController.loadSelectedWeather();
-    } catch (e) {
-      debugPrint('Failed to make city main: $e');
     } finally {
       isAdding.value = false;
     }

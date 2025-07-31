@@ -34,7 +34,7 @@ class OtherCityCard extends StatelessWidget {
           child: WeatherIcon(
             weatherData: true,
             iconUrl: iconUrl,
-            size: mediumIcon(context),
+            size: mediumIcon(context) * 0.9,
           ),
         ),
         Container(
@@ -59,7 +59,7 @@ class OtherCityCard extends StatelessWidget {
                           size: secondaryIcon(context),
                         ),
                         const SizedBox(width: kElementWidthGap),
-                        Expanded(
+                        Flexible(
                           child: Text(
                             cityName,
                             style: titleBoldMediumStyle(
@@ -74,6 +74,7 @@ class OtherCityCard extends StatelessWidget {
                       condition,
                       style: bodyMediumStyle(context).copyWith(color: kWhite),
                       overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
                     ),
                   ],
                 ),

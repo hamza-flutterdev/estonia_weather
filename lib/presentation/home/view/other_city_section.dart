@@ -21,10 +21,12 @@ class OtherCitiesSection extends StatelessWidget {
     final ConditionController conditionController = Get.find();
 
     return Obx(() {
-      if (homeController.isLoading.value ||
-          (homeController.isFirstLaunch &&
-              conditionController.selectedCitiesWeather.isEmpty)) {
+      if (homeController.isLoading.value) {
         return const SizedBox.shrink();
+      }
+
+      if (conditionController.selectedCitiesWeather.isEmpty) {
+        return OtherCityShimmerList(deviceSize: deviceSize);
       }
 
       final otherCitiesData = _getFixedOtherCities(
@@ -82,29 +84,11 @@ class OtherCitiesSection extends StatelessWidget {
     final otherCitiesData = <Map<String, dynamic>>[];
     final mainCityName = homeController.mainCityName;
 
-    // Add priority cities first (in order)
-    for (final priorityCity in CityConfig.priorityCities) {
-      final weather = conditionController.selectedCitiesWeather
-          .firstWhereOrNull(
-            (w) => CityConfig.cityNamesMatch(w.cityName, priorityCity),
-          );
+    final addedCityNames = <String>{};
 
-      if (weather != null) {
-        otherCitiesData.add({
-          'weather': weather,
-          'originalIndex': conditionController.selectedCitiesWeather.indexOf(
-            weather,
-          ),
-        });
-      }
-    }
-
-    // Add main city if it's not already included
     final mainCityWeather = conditionController.selectedCitiesWeather
         .firstWhereOrNull(
-          (w) =>
-              !CityConfig.isPriorityCity(w.cityName) &&
-              CityConfig.cityNamesMatch(w.cityName, mainCityName),
+          (w) => CityConfig.cityNamesMatch(w.cityName, mainCityName),
         );
 
     if (mainCityWeather != null) {
@@ -114,17 +98,24 @@ class OtherCitiesSection extends StatelessWidget {
           mainCityWeather,
         ),
       });
-    } else if (homeController.mainCityIndex <
-        conditionController.selectedCitiesWeather.length) {
-      final weatherByIndex =
-          conditionController.selectedCitiesWeather[homeController
-              .mainCityIndex];
+      addedCityNames.add(mainCityWeather.cityName.toLowerCase());
+    }
 
-      if (!CityConfig.isPriorityCity(weatherByIndex.cityName)) {
+    for (final priorityCity in CityConfig.priorityCities) {
+      final weather = conditionController.selectedCitiesWeather
+          .firstWhereOrNull(
+            (w) => CityConfig.cityNamesMatch(w.cityName, priorityCity),
+          );
+
+      if (weather != null &&
+          !addedCityNames.contains(weather.cityName.toLowerCase())) {
         otherCitiesData.add({
-          'weather': weatherByIndex,
-          'originalIndex': homeController.mainCityIndex,
+          'weather': weather,
+          'originalIndex': conditionController.selectedCitiesWeather.indexOf(
+            weather,
+          ),
         });
+        addedCityNames.add(weather.cityName.toLowerCase());
       }
     }
 
@@ -197,6 +188,10 @@ class OtherCitiesListView extends StatelessWidget {
             weather.cityName,
             homeController.mainCityName,
           );
+          final currentHourData = homeController.getCurrentHourData(
+            weather.cityName,
+          );
+          final currentTemp = currentHourData?['temp_c']?.round();
 
           return GestureDetector(
             onTap: () => _handleCityTap(homeController, weather, isMainCity),
@@ -213,7 +208,7 @@ class OtherCitiesListView extends StatelessWidget {
               child: OtherCityCard(
                 cityName: weather.cityName,
                 condition: weather.condition,
-                temperature: '${weather.temperature.round()}°',
+                temperature: currentTemp != null ? '$currentTemp°' : '--°',
                 iconUrl: weather.iconUrl,
                 isMainCity: isMainCity,
                 deviceSize: deviceSize,

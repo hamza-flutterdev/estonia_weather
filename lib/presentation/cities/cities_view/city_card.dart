@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:toastification/toastification.dart';
 import '../../../core/common_widgets/custom_toast.dart';
+import '../../../core/utils/city_config.dart';
 import '../controller/cities_controller.dart';
 
 class CityCard extends StatelessWidget {
@@ -25,22 +26,40 @@ class CityCard extends StatelessWidget {
     final homeController = Get.find<HomeController>();
     return Obx(() {
       final isCurrentLocationCity = homeController.isLocationCity(city);
-
+      final isSelectedCity = CityConfig.cityNamesMatch(
+        homeController.mainCityName,
+        weather.cityName,
+      );
+      final currentHourData = homeController.getCurrentHourData(
+        weather.cityName,
+      );
+      final currentTemp = currentHourData?['temp_c']?.round();
       return GestureDetector(
         onTap: () async {
-          SimpleToast.showCustomToast(
-            context: context,
-            message: '${city.city} is now your main city',
+          await controller.makeCityMain(city);
+          ProgressToast.showCustomToast(
+            context: Get.context!,
+            message: '${city.city} is being added as main city',
             type: ToastificationType.success,
             primaryColor: primaryColor,
             icon: Icons.home,
           );
-          await controller.makeCityMain(city);
         },
         child: Container(
           margin: const EdgeInsets.only(bottom: kElementGap),
           decoration: roundedDecorationWithShadow(context).copyWith(
-            gradient: kContainerGradient(context),
+            gradient:
+                isSelectedCity
+                    ? LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        kOrange.withValues(alpha: 0.9),
+                        kOrange.withValues(alpha: 0.6),
+                      ],
+                      stops: [0.3, 0.85],
+                    )
+                    : kContainerGradient(context),
             borderRadius: BorderRadius.circular(24),
           ),
           child: Padding(
@@ -48,7 +67,7 @@ class CityCard extends StatelessWidget {
             child: Row(
               children: [
                 Flexible(
-                  flex: 4,
+                  flex: 2,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -83,15 +102,16 @@ class CityCard extends StatelessWidget {
                 Expanded(
                   flex: 1,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '${weather.temperature.round()}°',
+                        currentTemp != null ? '$currentTemp°' : '--°',
                         style: headlineMediumStyle(
                           context,
                         ).copyWith(color: kWhite),
                       ),
                       Text(
+                        textAlign: TextAlign.center,
                         weather.condition,
                         style: bodyMediumStyle(context).copyWith(color: kWhite),
                       ),

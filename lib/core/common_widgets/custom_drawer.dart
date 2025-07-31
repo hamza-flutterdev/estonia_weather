@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:estonia_weather/core/local_storage/local_storage.dart';
 import 'package:estonia_weather/core/utils/drawer_helper.dart';
 import 'package:flutter/material.dart';
@@ -70,14 +72,16 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
-            DrawerTile(
-              icon: Icons.workspace_premium,
-              title: 'Ads free',
-              onTap: () {
-                Get.to(PremiumScreen());
-              },
-            ),
-            Divider(color: primaryColor.withValues(alpha: 0.1)),
+            if (Platform.isIOS) ...[
+              DrawerTile(
+                icon: Icons.workspace_premium,
+                title: 'Ads free',
+                onTap: () {
+                  Get.to(PremiumScreen());
+                },
+              ),
+              Divider(color: primaryColor.withValues(alpha: 0.1)),
+            ],
             // PremiumScreen
             ListTile(
               leading: Icon(

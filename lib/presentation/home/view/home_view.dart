@@ -97,7 +97,9 @@ class _HomeContent extends StatelessWidget {
         final deviceSize = DeviceSize(constraints, context);
 
         return Obx(() {
-          final data = homeController.getCurrentHourData();
+          final data = homeController.getCurrentHourData(
+            homeController.mainCityName,
+          );
           if (data == null) {
             return const Center(child: CircularProgressIndicator());
           }

@@ -13,7 +13,7 @@ class ProgressToast {
       context: context,
       type: type,
       style: ToastificationStyle.flat,
-      autoCloseDuration: const Duration(seconds: 4),
+      autoCloseDuration: const Duration(seconds: 1),
       title: Center(child: Text(message)),
       alignment: Alignment.bottomCenter,
       direction: TextDirection.ltr,

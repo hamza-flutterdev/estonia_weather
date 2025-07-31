@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:toastification/toastification.dart';
 import 'ads_manager/appOpen_ads.dart';
 import 'ads_manager/interstitial_ads.dart';
 import 'ads_manager/onesignal.dart';
@@ -28,13 +29,15 @@ void main() async {
   final isDark = await storage.getBool('isDarkMode');
 
   runApp(
-    EstoniaWeather(
-      themeMode:
-          isDark == true
-              ? ThemeMode.dark
-              : isDark == false
-              ? ThemeMode.light
-              : ThemeMode.system,
+    ToastificationWrapper(
+      child: EstoniaWeather(
+        themeMode:
+            isDark == true
+                ? ThemeMode.dark
+                : isDark == false
+                ? ThemeMode.light
+                : ThemeMode.system,
+      ),
     ),
   );
 }

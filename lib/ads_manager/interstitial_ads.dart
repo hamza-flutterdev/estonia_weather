@@ -59,9 +59,11 @@ class InterstitialAdController extends GetxController {
 
   String get interstitialAdUnitId {
     if (Platform.isAndroid) {
-      return 'ca-app-pub-8172082069591999/2985343646';
+      // return 'ca-app-pub-8172082069591999/2985343646';
+      return 'ca-app-pub-3940256099942544/1033173712';
     } else if (Platform.isIOS) {
-      return 'ca-app-pub-5405847310750111/5611630690';
+      // return 'ca-app-pub-5405847310750111/5611630690';
+      return 'ca-app-pub-3940256099942544/4411468910';
     } else {
       throw UnsupportedError('Unsupported platform');
     }

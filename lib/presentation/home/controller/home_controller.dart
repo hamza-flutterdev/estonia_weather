@@ -77,13 +77,8 @@ class HomeController extends GetxController with ConnectivityMixin {
     ever(splashController.isDataLoaded, (isLoaded) {
       if (isLoaded) {
         _syncSplash();
-        _initWeather();
       }
     });
-
-    if (splashController.isAppReady) {
-      _initWeather();
-    }
   }
 
   void _syncSplash() {
@@ -107,15 +102,6 @@ class HomeController extends GetxController with ConnectivityMixin {
     lastDataFetch.value = now;
   }
 
-  Future<void> _initWeather() async {
-    currentLocation.value = currentLocationCity?.city ?? 'Unknown';
-    if (connectivityService.isConnected) {
-      await loadSelectedWeather();
-    } else {
-      debugPrint(noInternet);
-    }
-  }
-
   Future<void> setLocationCity({
     required String cityName,
     double? lat,
@@ -130,35 +116,33 @@ class HomeController extends GetxController with ConnectivityMixin {
     currentLocation.value = city.city;
   }
 
-  Future<void> fetchLocation() async {
-    currentLocation.value = currentLocationCity?.city ?? 'Unknown';
-  }
-
   Future<void> addCity(EstonianCity city) async {
-    if (isSelected(city)) return;
-    _selectedCities.add(city);
-    await _afterCityChange();
-  }
-
-  Future<void> removeCity(EstonianCity city) async {
-    if (isLocationCity(city) || _selectedCities.length <= 2) return;
-    _selectedCities.removeWhere((c) => c.city == city.city);
-    _mainCityIndex.value = _mainCityIndex.value.clamp(
-      0,
-      _selectedCities.length - 1,
+    // Check if city is already selected
+    final existingIndex = _selectedCities.indexWhere(
+      (c) => c.cityAscii.toLowerCase() == city.cityAscii.toLowerCase(),
     );
-    unawaited(_afterCityChange());
-  }
 
-  Future<void> addLocationCity() async {
-    if (currentLocationCity == null || isSelected(currentLocationCity!)) return;
-    _selectedCities.insert(0, currentLocationCity!);
+    if (existingIndex >= 0) {
+      // City already exists, just return the existing index
+      debugPrint(
+        'City ${city.cityAscii} already exists at index $existingIndex',
+      );
+      return;
+    }
+
+    // Add the city
+    _selectedCities.add(city);
+
+    // Immediately update storage and sync
     await _afterCityChange();
+
+    debugPrint(
+      'Added city ${city.cityAscii} to selected cities. Total: ${_selectedCities.length}',
+    );
   }
 
   Future<void> addLocationAsMain() async {
     if (currentLocationCity == null) return;
-
     final city = currentLocationCity!;
     final updated = List<EstonianCity>.from(_selectedCities)
       ..removeWhere((c) => c.city == city.city);
@@ -193,38 +177,33 @@ class HomeController extends GetxController with ConnectivityMixin {
   }
 
   Future<void> makeCityMainByIndex(int index) async {
-    if (index < 0 ||
-        index >= _selectedCities.length ||
-        index == _mainCityIndex.value)
+    if (index < 0 || index >= selectedCities.length) {
       return;
-    isLoading.value = true;
-    _mainCityIndex.value = index;
-    await _afterCityChange();
-    isLoading.value = false;
+    }
+
+    try {
+      isLoading.value = true;
+      _mainCityIndex.value = index;
+      await _afterCityChange();
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> _afterCityChange() async {
     await _storeSelectedCities();
     await _updateSplashController();
-    await _loadWeatherSafe();
-  }
-
-  Future<void> _loadWeatherSafe() async {
-    await ensureInternetConnection(
-      action: loadSelectedWeather,
-      context: Get.context,
-    );
+    loadSelectedWeather();
   }
 
   bool isSelected(EstonianCity city) =>
-      _selectedCities.any((c) => c.city == city.city);
+      _selectedCities.any((c) => c.cityAscii == city.cityAscii);
 
   bool isLocationCity(EstonianCity city) =>
       currentLocationCity?.city == city.city;
 
   Future<void> loadSelectedWeather() async {
     if (!connectivityService.isConnected) return;
-
     isLoading.value = true;
     final weatherList = <WeatherModel>[];
     List<ForecastModel> mainForecast = [];
@@ -237,12 +216,16 @@ class HomeController extends GetxController with ConnectivityMixin {
           lat: city.lat,
           lon: city.lng,
         );
-
         weatherList.add(weather);
+        final cityRawData = _rawDataStorage[city.cityAscii];
+        if (cityRawData != null) {
+          _rawDataStorage[weather.cityName] = cityRawData;
+        }
+
         if (i == _mainCityIndex.value) {
           mainForecast = forecast;
           forecastData.value = forecast;
-          rawData = _rawDataStorage[city.city];
+          rawData = cityRawData;
         }
       } catch (e) {
         debugPrint('$failedLoadingWeather ${city.city}: $e');
@@ -259,14 +242,12 @@ class HomeController extends GetxController with ConnectivityMixin {
         _mainCityIndex.value,
         mainCityName,
       );
-
       if (mainForecast.isNotEmpty) {
         conditionController.updateWeeklyForecast(mainForecast);
       }
     } else {
       conditionController.clearWeatherData();
     }
-
     isLoading.value = false;
   }
 
@@ -287,40 +268,24 @@ class HomeController extends GetxController with ConnectivityMixin {
     splashController.mainCityIndex.value = _mainCityIndex.value;
   }
 
-  List<Map<String, dynamic>> hourlyForDate(String date) {
-    final forecastDays = rawForecastData['forecast']?['forecastday'] as List?;
-    if (forecastDays == null) return [];
-
-    final target = forecastDays.firstWhereOrNull((d) => d['date'] == date);
-    if (target == null) return [];
-
-    return (target['hour'] as List).map<Map<String, dynamic>>((hour) {
-      return {
-        'time': hour['time'],
-        'temp_c': (hour['temp_c'] as num).toDouble(),
-        'condition': hour['condition']['text'],
-        'iconUrl': 'https:${hour['condition']['icon']}',
-        'humidity': hour['humidity'],
-        'wind_kph': (hour['wind_kph'] as num).toDouble(),
-        'chance_of_rain': hour['chance_of_rain'],
-        'precip_mm': (hour['precip_mm'] as num).toDouble(),
-        'feels_like_c': (hour['feelslike_c'] as num).toDouble(),
-        'uv': (hour['uv'] as num).toDouble(),
-        'pressure_mb': (hour['pressure_mb'] as num).toDouble(),
-        'vis_km': (hour['vis_km'] as num).toDouble(),
-        'gust_kph': (hour['gust_kph'] as num).toDouble(),
-      };
-    }).toList();
-  }
-
-  Map<String, dynamic>? getCurrentHourData() {
+  Map<String, dynamic>? getCurrentHourData(String cityName) {
     final now = DateTime.now();
     final today = DateFormat('yyyy-MM-dd').format(now);
+    final cityRawData = _rawDataStorage[cityName];
+    if (cityRawData != null) {
+      final forecastDays = cityRawData['forecast']?['forecastday'] as List?;
+      final todayData = forecastDays?.firstWhereOrNull(
+        (d) => d['date'] == today,
+      );
+      final hourList = todayData?['hour'] as List?;
+      final hourData = hourList?.firstWhereOrNull(
+        (hour) => DateTime.parse(hour['time']).toLocal().hour == now.hour,
+      );
+      if (hourData != null) return hourData;
+    }
     final forecastDays = rawForecastData['forecast']?['forecastday'] as List?;
-
     final todayData = forecastDays?.firstWhereOrNull((d) => d['date'] == today);
     final hourList = todayData?['hour'] as List?;
-
     return hourList?.firstWhereOrNull(
       (hour) => DateTime.parse(hour['time']).toLocal().hour == now.hour,
     );

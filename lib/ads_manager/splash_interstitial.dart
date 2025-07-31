@@ -12,7 +12,6 @@ class SplashInterstitialAdController extends GetxController {
   var isShowingInterstitialAd = false.obs;
   final RemoveAds removeAdsController = Get.put(RemoveAds());
 
-
   @override
   void onInit() {
     super.onInit();
@@ -51,9 +50,11 @@ class SplashInterstitialAdController extends GetxController {
 
   String get spInterstitialAdUnitId {
     if (Platform.isAndroid) {
-      return 'ca-app-pub-8172082069591999/3661250625';
+      // return 'ca-app-pub-8172082069591999/3661250625';
+      return 'ca-app-pub-3940256099942544/1033173712';
     } else if (Platform.isIOS) {
-      return 'ca-app-pub-5405847310750111/3152988310';
+      // return 'ca-app-pub-5405847310750111/3152988310';
+      return 'ca-app-pub-3940256099942544/4411468910';
     } else {
       throw UnsupportedError('Unsupported platform');
     }

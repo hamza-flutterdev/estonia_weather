@@ -16,7 +16,6 @@ class BannerAdController extends GetxController {
   final AppOpenAdController openAdController = Get.put(AppOpenAdController());
   final RemoveAds removeAdsController = Get.put(RemoveAds());
 
-
   @override
   void onInit() {
     super.onInit();
@@ -61,9 +60,11 @@ class BannerAdController extends GetxController {
 
   String get bannerAdUnitId {
     if (Platform.isAndroid) {
-      return 'ca-app-pub-8172082069591999/7509513214';
+      // return 'ca-app-pub-8172082069591999/7509513214';
+      return 'ca-app-pub-3940256099942544/6300978111';
     } else if (Platform.isIOS) {
-      return 'ca-app-pub-5405847310750111/6924712366';
+      // return 'ca-app-pub-5405847310750111/6924712366';
+      return 'ca-app-pub-3940256099942544/2934735716';
     } else {
       throw UnsupportedError('Unsupported platform');
     }
