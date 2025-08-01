@@ -49,10 +49,10 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
             DrawerTile(
-              icon: Icons.more,
-              title: 'More Apps',
+              icon: Icons.star_rounded,
+              title: 'Rate Us',
               onTap: () {
-                DrawerActions.moreApp();
+                DrawerActions.rateUs();
               },
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
@@ -65,24 +65,13 @@ class CustomDrawer extends StatelessWidget {
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
             DrawerTile(
-              icon: Icons.star_rounded,
-              title: 'Rate Us',
+              icon: Icons.more,
+              title: 'More Apps',
               onTap: () {
-                DrawerActions.rateUs();
+                DrawerActions.moreApp();
               },
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
-            if (Platform.isIOS) ...[
-              DrawerTile(
-                icon: Icons.workspace_premium,
-                title: 'Ads free',
-                onTap: () {
-                  Get.to(PremiumScreen());
-                },
-              ),
-              Divider(color: primaryColor.withValues(alpha: 0.1)),
-            ],
-            // PremiumScreen
             ListTile(
               leading: Icon(
                 Icons.dark_mode_rounded,
@@ -116,6 +105,16 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
             Divider(color: primaryColor.withValues(alpha: 0.1)),
+            if (Platform.isIOS) ...[
+              DrawerTile(
+                icon: Icons.workspace_premium,
+                title: 'Ads free',
+                onTap: () {
+                  Get.to(PremiumScreen());
+                },
+              ),
+              Divider(color: primaryColor.withValues(alpha: 0.1)),
+            ],
           ],
         ),
       ),

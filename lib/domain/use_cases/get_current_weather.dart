@@ -44,7 +44,6 @@ class GetWeatherAndForecast {
       const Duration(seconds: 8),
       onTimeout: () => throw Exception(timeoutException),
     );
-
     await storage.setString('latitude', position.latitude.toString());
     await storage.setString('longitude', position.longitude.toString());
     return weatherRepo.getCity(position.latitude, position.longitude);

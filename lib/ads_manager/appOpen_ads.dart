@@ -109,11 +109,9 @@ class AppOpenAdController extends GetxController with WidgetsBindingObserver {
 
   String get appOpenAdUnitId {
     if (Platform.isAndroid) {
-      // return 'ca-app-pub-8172082069591999/5234703662';
-      return 'ca-app-pub-3940256099942544/9257395921';
+      return 'ca-app-pub-8172082069591999/5234703662';
     } else if (Platform.isIOS) {
-      return 'ca-app-pub-3940256099942544/5662855259';
-      // return 'ca-app-pub-5405847310750111/5252538047';
+      return 'ca-app-pub-5405847310750111/5252538047';
     } else {
       throw UnsupportedError('Unsupported platform');
     }
