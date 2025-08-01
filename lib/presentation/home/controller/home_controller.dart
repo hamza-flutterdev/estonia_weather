@@ -117,28 +117,18 @@ class HomeController extends GetxController with ConnectivityMixin {
   }
 
   Future<void> addCity(EstonianCity city) async {
-    // Check if city is already selected
     final existingIndex = _selectedCities.indexWhere(
       (c) => c.cityAscii.toLowerCase() == city.cityAscii.toLowerCase(),
     );
 
     if (existingIndex >= 0) {
-      // City already exists, just return the existing index
       debugPrint(
         'City ${city.cityAscii} already exists at index $existingIndex',
       );
       return;
     }
-
-    // Add the city
     _selectedCities.add(city);
-
-    // Immediately update storage and sync
     await _afterCityChange();
-
-    debugPrint(
-      'Added city ${city.cityAscii} to selected cities. Total: ${_selectedCities.length}',
-    );
   }
 
   Future<void> addLocationAsMain() async {

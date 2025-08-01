@@ -55,11 +55,20 @@ class CurrentLocationCard extends StatelessWidget {
                     Obx(() {
                       final currentCity =
                           controller.homeController.currentLocationCity;
+
                       if (currentCity != null) {
+                        final weather = controller
+                            .homeController
+                            .conditionController
+                            .selectedCitiesWeather
+                            .firstWhereOrNull(
+                              (w) => w.cityName == currentCity.city,
+                            );
+
                         return Padding(
                           padding: const EdgeInsets.only(top: 5),
                           child: Text(
-                            "Current City: ${currentCity.city}",
+                            "${currentCity.city}/${weather?.region ?? ''}",
                             style: bodyLargeStyle(
                               context,
                             ).copyWith(color: kWhite.withValues(alpha: 0.9)),
@@ -67,6 +76,7 @@ class CurrentLocationCard extends StatelessWidget {
                           ),
                         );
                       }
+
                       return const SizedBox.shrink();
                     }),
                   ],

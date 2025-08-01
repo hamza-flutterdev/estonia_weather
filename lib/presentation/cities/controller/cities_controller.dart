@@ -45,23 +45,7 @@ class CitiesController extends GetxController with ConnectivityMixin {
   void loadDataFromHome() {
     allCities.value = homeController.allCities;
     filteredCities.value = allCities.toList();
-    // _initializeRotatingCity();
   }
-
-  // void _initializeRotatingCity() {
-  //   final mainCity =
-  //       homeController.mainCityIndex < homeController.selectedCities.length
-  //           ? homeController.selectedCities[homeController.mainCityIndex]
-  //           : null;
-  //
-  //   if (mainCity != null && !_isTallinnOrNarva(mainCity)) {
-  //     rotatingCity.value = mainCity;
-  //   } else {
-  //     rotatingCity.value = allCities.firstWhereOrNull(
-  //       (city) => !_isTallinnOrNarva(city),
-  //     );
-  //   }
-  // }
 
   bool _isTallinnOrNarva(EstonianCity city) {
     final name = city.cityAscii.toLowerCase();

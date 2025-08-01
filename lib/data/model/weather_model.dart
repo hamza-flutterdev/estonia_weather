@@ -2,6 +2,7 @@ import 'aqi_model.dart';
 
 class WeatherModel {
   final String cityName;
+  final String region;
   final double temperature;
   final String condition;
   final int humidity;
@@ -13,6 +14,7 @@ class WeatherModel {
 
   WeatherModel({
     required this.cityName,
+    required this.region,
     required this.temperature,
     required this.condition,
     required this.humidity,
@@ -55,6 +57,7 @@ class WeatherModel {
 
     return WeatherModel(
       cityName: json['location']['name'],
+      region: json['location']['region'],
       temperature: (json['current']['temp_c'] as num).toDouble(),
       condition: json['current']['condition']['text'],
       humidity: json['current']['humidity'],
@@ -73,6 +76,7 @@ class WeatherModel {
       condition: 'No data',
       humidity: 0,
       windSpeed: 0.0,
+      region: '',
       chanceOfRain: 0,
       iconUrl: '',
       code: 0,

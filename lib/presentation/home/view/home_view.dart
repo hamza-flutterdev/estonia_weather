@@ -140,7 +140,7 @@ class _HomeContent extends StatelessWidget {
                       child: MainCard(
                         maxTemp: conditionController.maxTemp,
                         temperature: data['temp_c'].round().toString(),
-                        condition: data['condition']['text'],
+                        condition: conditionController.condition,
                         minTemp: conditionController.minTemp.toString(),
                       ),
                     ),

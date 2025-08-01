@@ -1,3 +1,4 @@
+import 'package:estonia_weather/presentation/home/controller/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:estonia_weather/core/common_widgets/custom_appbar.dart';
@@ -37,6 +38,7 @@ class _HourlyForecastViewState extends State<HourlyForecastView> {
   Widget build(BuildContext context) {
     final DateTime selectedDate = Get.arguments;
     final controller = Get.find<HourlyForecastController>();
+    final homeController = Get.find<HomeController>();
     final conditionController = Get.find<ConditionController>();
     controller.setSelectedDate(selectedDate);
 
@@ -72,6 +74,9 @@ class _HourlyForecastViewState extends State<HourlyForecastView> {
               final currentHourIndex = hourlyData.indexWhere(
                 (hour) => controller.getCurrentHourData() == hour,
               );
+              final data = homeController.getCurrentHourData(
+                homeController.mainCityName,
+              );
 
               if (controller.isSameDate(
                     controller.selectedDate.value,
@@ -100,7 +105,7 @@ class _HourlyForecastViewState extends State<HourlyForecastView> {
                       child: WeatherInfoCard(
                         weatherData: conditionController.mainCityWeather.value,
                         date: selectedDate,
-                        temperature: conditionController.temperature,
+                        temperature: data!['temp_c'].round().toString(),
                         condition: conditionController.condition,
                         minTemp:
                             controller.selectedDayData?.minTemp

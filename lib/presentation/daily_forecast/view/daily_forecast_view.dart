@@ -2,6 +2,7 @@ import 'package:estonia_weather/core/common_widgets/custom_appbar.dart';
 import 'package:estonia_weather/core/common_widgets/section_header.dart';
 import 'package:estonia_weather/core/theme/app_colors.dart';
 import 'package:estonia_weather/core/theme/app_styles.dart';
+import 'package:estonia_weather/presentation/home/controller/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../ads_manager/banner_ads.dart';
@@ -23,7 +24,6 @@ class DailyForecastView extends StatefulWidget {
 }
 
 class _DailyForecastViewState extends State<DailyForecastView> {
-
   @override
   void initState() {
     Get.find<InterstitialAdController>().checkAndShowAd();
@@ -36,7 +36,8 @@ class _DailyForecastViewState extends State<DailyForecastView> {
     final DateTime selectedDate = Get.arguments;
     final controller = Get.find<DailyForecastController>();
     final conditionController = Get.find<ConditionController>();
-
+    final homeController = Get.find<HomeController>();
+    final data = homeController.getCurrentHourData(homeController.mainCityName);
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: Stack(
@@ -70,7 +71,7 @@ class _DailyForecastViewState extends State<DailyForecastView> {
                   child: WeatherInfoCard(
                     weatherData: conditionController.mainCityWeather.value,
                     date: selectedDate,
-                    temperature: conditionController.temperature,
+                    temperature: data!['temp_c'].round().toString(),
                     maxTemp: conditionController.maxTemp,
                     condition: conditionController.condition,
                     minTemp:

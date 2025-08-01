@@ -45,12 +45,8 @@ class GetWeatherAndForecast {
       onTimeout: () => throw Exception(timeoutException),
     );
 
-    await savePosition(position);
-    return weatherRepo.getCity(position.latitude, position.longitude);
-  }
-
-  Future<void> savePosition(Position position) async {
     await storage.setString('latitude', position.latitude.toString());
     await storage.setString('longitude', position.longitude.toString());
+    return weatherRepo.getCity(position.latitude, position.longitude);
   }
 }
